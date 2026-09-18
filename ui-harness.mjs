@@ -23,7 +23,10 @@ Rectangle {
  Timer { interval: 100; running: true; onTriggered: { ndiPopup.open(); ndiPopup.expandedDay="2026-09-18"; } }
  Timer { interval: 600; running: true; onTriggered: {
    if (!ndiPopup.opened || ndiPopup.groups.length !== 1 || !ndiPopup.ready) { console.error("Dates UI runtime FAILED"); Qt.exit(1); }
-   else { console.log("Dates UI runtime PASSED"); Qt.quit(); }
+   else {
+     if (trackingButton.height < 64 || closeDatesButton.height < 64 || timezonePicker.height < 64) { console.error("Touch targets too small"); Qt.exit(1); return; }
+     ndiPopup.background.parent.grabToImage(function(image) { image.saveToFile("build/dates-panel.png"); console.log("Dates UI runtime PASSED"); Qt.quit(); });
+   }
  } }
 }
 `;

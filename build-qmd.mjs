@@ -16,22 +16,22 @@ q += affect('qml/device/view/documentview/DocumentView.qml','FocusScope#root',
          onLoaded: item.ndiRefresh()
        }
     }\n` +
-    rebuild('addPage', 'DocumentController.addPageWithTemplateAndPageSize(document.id,', 'Values.ndiAddPage(document,') +
+    rebuild('addPage', 'DocumentController.addPageWithTemplateAndPageSize(document.id,', 'Values.ndiAddPage(DocumentController, document,') +
     rebuild('onDocumentChanged', 'root.updatePageTags();', 'root.updatePageTags(); Qt.callLater(function() { if (ndiLoader.item) ndiLoader.item.ndiRefresh(); });'));
 q += affect('qml/device/view/documentview/PagesActions.qml','Item#pageActions',
     `INSERT { property var ndiDuplicateTicket: null }\n` +
-    rebuild('addPageToDocument','DocumentController.addPageWithTemplateAndPageSize(document.id,','Values.ndiAddPage(document,') +
+    rebuild('addPageToDocument','DocumentController.addPageWithTemplateAndPageSize(document.id,','Values.ndiAddPage(DocumentController, document,') +
     rebuild('duplicatePagesAction','DocumentController.copyPages(document.id, pages, document.id, insertIndex);',
     'ndiDuplicateTicket = Values.ndiBegin(document, pages.length, "duplicate"); DocumentController.copyPages(document.id, pages, document.id, insertIndex);') +
     `TRAVERSE Connections[.target=document]\n` + rebuild('onPagesAdded', 'if (!pageSelection.isEmpty)', 'if (Values.ndiFinish(document, pageActions.ndiDuplicateTicket, pageIndexes)) pageActions.ndiDuplicateTicket = null; if (!pageSelection.isEmpty)') + `END TRAVERSE`);
 q += affect('qml/device/view/documentview/HwcDialog.qml','Item#root',
-    rebuild('createConvertedDocument','DocumentController.addPageWithTemplateAndPageSize(document.id,','Values.ndiAddPage(document,'));
+    rebuild('createConvertedDocument','DocumentController.addPageWithTemplateAndPageSize(document.id,','Values.ndiAddPage(DocumentController, document,'));
 // Quick Sheets uses the same successful-creation callback as other notebook pages.
 const library = source('../remarkable-beta-os/.cache/firmware/'+fw+'/resources/qt/qml/xofm/modules/library/ui/qml/LibraryActions.qml','utf8');
 const before = library.slice(0,library.indexOf('DocumentController.addPageWithTemplateAndPageSize'));
 const func = [...before.matchAll(/function (\w+)\(/g)].at(-1)[1];
 q += affect('qt/qml/xofm/modules/library/ui/qml/LibraryActions.qml','Action#root',
-    rebuild(func,'DocumentController.addPageWithTemplateAndPageSize(document.id,','Values.ndiAddPage(document,'));
+    rebuild(func,'DocumentController.addPageWithTemplateAndPageSize(document.id,','Values.ndiAddPage(DocumentController, document,'));
 q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/AdditionalEditingToolsMenu.qml\n IMPORT common 1.0\n TRAVERSE ToolbarTool#root\n TRAVERSE ColumnLayout\n LOCATE BEFORE ALL\n INSERT {
  ToolbarTool {
    toolbar: root.toolbar
@@ -77,5 +77,5 @@ fs.writeFileSync('build/notebook-date-index.source.qmd',q);
 const preview = q.replace('enabled: ndiPopup.ready', 'enabled: false')
     .replace('Enable for this notebook', 'Preview — tracking disabled')
     .replace('function ndiBegin(doc, count, source) {', 'function ndiBegin(doc, count, source) { return null;')
-    .replaceAll('WITH { Values.ndiAddPage(document, }', 'WITH { DocumentController.addPageWithTemplateAndPageSize(document.id, }');
+    .replaceAll('WITH { Values.ndiAddPage(DocumentController, document, }', 'WITH { DocumentController.addPageWithTemplateAndPageSize(document.id, }');
 fs.writeFileSync('build/notebook-date-index-preview.source.qmd',preview);

@@ -12,8 +12,8 @@ function harness(){
 }
 test('creation invokes stock API and callback once; captures actual new ID',()=>{
  const {ctx,events,pages,doc}=harness();let callbacks=0,stock=0;
- ctx.DocumentController={addPageWithTemplateAndPageSize:(id,index,template,size,done)=>{stock++;pages.push('b');done()}};
- ctx.ndiAddPage(doc,1,'Blank',{},()=>callbacks++);
+ const controller={addPageWithTemplateAndPageSize:(id,index,template,size,done)=>{stock++;pages.push('b');done()}};
+ ctx.ndiAddPage(controller,doc,1,'Blank',{},()=>callbacks++);
  assert.equal(stock,1);assert.equal(callbacks,1);assert.equal(events.length,1);assert.equal(events[0].body.created[0],'b');
 });
 test('no successful new ID means no date; unrelated concurrent pages are ambiguous',()=>{
@@ -37,6 +37,30 @@ test('PDFs, stale tickets and different notebooks do not record',()=>{
 });
 test('optional recorder failure does not prevent stock callback',()=>{
  const {ctx,pages,doc}=harness();let callbacks=0;ctx.ndiRequest=()=>{throw Error('storage down')};
- ctx.DocumentController={addPageWithTemplateAndPageSize:(id,index,template,size,done)=>{pages.push('b');done()}};
- ctx.ndiAddPage(doc,1,'Blank',{},()=>callbacks++);assert.equal(callbacks,1);
+ const controller={addPageWithTemplateAndPageSize:(id,index,template,size,done)=>{pages.push('b');done()}};
+ ctx.ndiAddPage(controller,doc,1,'Blank',{},()=>callbacks++);assert.equal(callbacks,1);
+});
+test('no global controller; forwards native receiver, return and callback arguments',()=>{
+ const {ctx,doc}=harness();const size={width:100};const receiver={};let received;
+ const controller={addPageWithTemplateAndPageSize(id,index,template,s,done){
+   assert.equal(this,controller);assert.deepEqual([id,index,template,s],['notebook',-1,'Blank',size]);
+   done.call(receiver,'created',42);return 17;
+ }};
+ assert.equal(ctx.ndiAddPage(controller,doc,-1,'Blank',size,function(...args){received=[this,...args]}),17);
+ assert.deepEqual(received,[receiver,'created',42]);assert.equal(ctx.DocumentController,undefined);
+});
+test('even thrown observer functions cannot block native add or its callback',()=>{
+ const {ctx,doc}=harness();let stock=0,callbacks=0;
+ ctx.ndiBegin=()=>{throw Error('observer broken')};ctx.ndiFinish=()=>{throw Error('writer broken')};
+ const controller={addPageWithTemplateAndPageSize(id,index,template,size,done){stock++;done();}};
+ ctx.ndiAddPage(controller,doc,1,'Blank',{},()=>callbacks++);
+ ctx.ndiAddPage(controller,doc,1,'Blank',{});
+ assert.equal(stock,2);assert.equal(callbacks,1);
+});
+test('stock callback runs before optional recording',()=>{
+ const {ctx,doc}=harness();const order=[];
+ ctx.ndiFinish=()=>order.push('record');
+ const controller={addPageWithTemplateAndPageSize(id,index,template,size,done){done();}};
+ ctx.ndiAddPage(controller,doc,1,'Blank',{},()=>order.push('stock'));
+ assert.deepEqual(order,['stock','record']);
 });

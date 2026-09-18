@@ -6,6 +6,13 @@ This branch is not a Move build. Read the sibling
 
 ## Build and preserve
 
+For the 2026-09-18 Add page regression, use the paired four-file repair in
+`../appload-rmstream-beta/ops/deploy-notebook-ui-repair.sh`, not an old preview or
+promotion controller. It pins the current ten-QMD Pro state and changes only
+the two UI payloads for Dates and sharing. The deployed local-only writer stays
+at `3f4df0ae...`; do not accidentally deploy the newer sync-capable source build
+as part of this UI repair. Opt-ins, timezone, history and Gestik remain intact.
+
 1. Match the candidate's Ed25519 host key **before authentication**:
    `SHA256:dByHweKZkjDlZRBHdBisT5VD2kV85lClgtJExnDaTeE`.
 2. Verify firmware/build and stock hash against `ops/install-device.sh`.
@@ -217,3 +224,29 @@ and Experimental also appeared in the accepted preview; no new Dates error was
 observed. Physical add-page/index/navigation acceptance is still outstanding.
 The sibling RMStream shortcut adds a tenth QMD; consult its update recipe for
 the later complete runtime inventory rather than rerunning this initial installer.
+
+## Add page blocker and control redesign: 2026-09-18 UTC
+
+Live errors at `Values.qml:124` proved `DocumentController is not defined` when
+adding a page. The former JS mock exposed a global that the real singleton did
+not have. Each stock call site now passes its native controller explicitly;
+observer failures are isolated and the stock callback runs before recording.
+Nine JS tests plus an actual QML lexical-boundary test pass, including missing
+global controller, native receiver/return/callback forwarding and thrown recorder.
+All 21 Go tests, real Qt HTTP transport, styled panel runtime, exact-resource
+composition and wrong-firmware rejection also pass. The Go build is NOT deployed.
+
+The paired UI-only repair `notebook-ui-repair-20260918T205836Z` passed, with UI
+PID `300139`, `NRestarts=0`, ten QMDs, four extensions and read-only root.
+Writer PID `296107` and binary `3f4df0ae…` stayed unchanged; no metadata or
+preferences were overwritten. Large flat e-ink controls replace the tiny
+desktop-default buttons and timezone selector.
+
+- QMD: `f6cba3190f3f690c2729539f0ecc3b629dd0d18366dc22fc5a89174df73731e0`
+- Panel: `4c54d26c75fa506375442dc608634187ef81fa6fd688a9d0031aa43051cd409e`
+- Backup: `dab755a5fe8885715caa706b6d40192e9e2217244c9f51a66d61086e63f9673f`
+
+Recovery/evidence belongs to `../appload-rmstream-beta/.cache/` under that ID;
+its recipe/controller pins all four old/new files and restores only UI bytes.
+The original bad hook must not be promoted on Move. Physical creation/index
+navigation tests remain pending. Shared metadata client rollout remains pending.

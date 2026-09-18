@@ -1,21 +1,21 @@
 {
   "schema": 1,
   "application": "notebook-date-index",
-  "feature_revision": 1,
+  "feature_revision": 2,
   "metadata_sync": {
     "hub": "deployed-and-https-tested-on-md-server",
     "tablet_client_code": "implemented-regression-tested-not-deployed",
     "end_to_end_acceptance": "pending",
     "deployment_recipe": "SYNC-DEPLOYMENT.md"
   },
-  "features": ["per-notebook-opt-in", "date-groups", "pause-resume", "configurable-iana-timezone"],
+  "features": ["per-notebook-opt-in", "date-groups", "pause-resume", "configurable-iana-timezone", "isolated-native-controller-hook", "eink-touch-controls"],
   "devices": {
     "pro": {
       "model": "reMarkable Ferrari",
       "firmware": "3.28.0.169",
       "branch": "beta/pro/3.28.0.169",
       "status": "functional-deployed-physical-event-tests-pending",
-      "deployment": "ndi-20260918T092752Z-functional"
+      "deployment": "notebook-ui-repair-20260918T205836Z"
     },
     "move": {
       "model": "reMarkable Chiappa",

@@ -1,5 +1,26 @@
 # Design
 
+## Page-creation regression repair
+
+Device logs exposed a missing lexical import: Values does not import the native
+DocumentController singleton used by the four stock creation callers. The hook
+now receives that controller from each original call site. `ndiAddPage` invokes
+the controller as its original receiver, returns its result, and forwards all
+callback arguments and context. Both observer entry points are exception-isolated;
+the stock callback runs before recording. No storage/network result is awaited
+by page creation. Tests deliberately omit any global DocumentController, unlike
+the original mock that concealed this bug. Generated call-site tests bind this
+contract to every exact-firmware replacement.
+
+The panel defines a qualified, inline `DatesButton` with flat black/white states,
+64-pixel touch targets and explicit typography. The timezone picker uses the
+same treatment. No global Qt style or other app's controls are changed.
+`creation-runtime-test.mjs` exercises the lexical boundary in an actual Qt
+runtime and asserts every generated caller passes its native controller.
+The paired four-file deployment controller is owned by the sibling
+`appload-rmstream-beta/ops/repair-notebook-ui.sh`; it leaves the already-running
+local-only writer untouched. Source sync support is not deployed by this repair.
+
 ## Repository and target ownership
 
 This application owns `guibor/notebook-date-index`. `MAINTENANCE.md` defines

@@ -103,10 +103,17 @@ function ndiFinish(doc, ticket, eventIndexes) {
 }
 
 // Keep stock operations and callbacks independent of our optional recorder.
-function ndiAddPage(doc, index, template, size, callback) {
-    let ticket = ndiBegin(doc, 1, "add");
-    DocumentController.addPageWithTemplateAndPageSize(doc.id, index, template, size, function() {
-        ndiFinish(doc, ticket, null);
-        if (callback) callback();
+function ndiAddPage(controller, doc, index, template, size, callback) {
+    // Native singletons belong to the caller's imports, not Values' imports.
+    // Never resolve DocumentController from this singleton's lexical scope.
+    let ticket = null;
+    try { ticket = ndiBegin(doc, 1, "add"); } catch (e) {}
+    return controller.addPageWithTemplateAndPageSize(doc.id, index, template, size, function() {
+        try {
+            if (callback) callback.apply(this, arguments);
+        } finally {
+            // The stock callback has priority, including when observation fails.
+            try { ndiFinish(doc, ticket, null); } catch (e) {}
+        }
     });
 }

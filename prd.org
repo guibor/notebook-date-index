@@ -5,6 +5,11 @@ Find newly created notebook pages by their original date without cluttering or
 changing the user's existing table of contents.
 
 * Requirements
+- Stock page creation must succeed even if Dates observation, storage or sync
+  fails. Pass the caller's native controller explicitly; do not assume native
+  singleton imports are visible inside the shared Values module.
+- Use flat high-contrast e-ink controls, readable labels and 64-pixel touch
+  targets in Dates, including the timezone selector and date/page rows.
 - Own a standalone private GitHub repository, =guibor/notebook-date-index=.
 - Keep the Dates feature set aligned across Pro and Move using separately
   qualified exact-firmware branches, release evidence and a compatibility matrix.
@@ -47,6 +52,9 @@ changing the user's existing table of contents.
   tablet's system timezone. Each device maintains its own choice.
 
 * Changed requirements
+- The functional build blocked Add page with =DocumentController is not defined=
+  in Values. This invalidates its creation acceptance: repair native scope and
+  add regression coverage before further sync rollout or Move promotion.
 - User clarified that "in sync" includes actual Dates history for the same
   notebook, not only app feature/version parity. The prior no-cross-device-index
   requirement is superseded. Notebook content/normal ToC remain unmodified;
@@ -71,6 +79,8 @@ changing the user's existing table of contents.
   exclusion of cross-device index sync is superseded by the clarification above.
 
 * Immediate next steps
+- [X] Repair the stock Add page blocker and deploy the redesigned Dates panel.
+- [ ] Physically accept adding a page with tracking on, off, and service down.
 - [X] User authorized md-server metadata transport/storage; verified matching
   notebook/page UUIDs on two real shared notebooks before implementation.
 - [X] Implement/test authenticated hub and offline event-set merging locally.
