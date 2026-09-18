@@ -94,3 +94,12 @@ does not replace or reload either. It swaps only the backend, health-checks
 the Qt-style JSON header, and requires the same live xochitl PID throughout.
 Rollback restores and restarts only the previous writer in this mode, leaving
 the tablet UI alone. Both variants retain the independent recovery timer.
+
+The user accepted the healthy preview and requested activation on 2026-09-18.
+The functional QMD/panel and non-preview writer passed guarded promotion in
+`ndi-20260918T092752Z-functional`. Per-notebook enablement remains explicit;
+this is not a global tracking switch or a claim of creation-event acceptance.
+An independently maintained RMStream document shortcut is being added by the
+sibling `appload-rmstream-beta` project; its composition tests include this
+functional Dates QMD. Do not reuse the nine-QMD install guard after adding a
+tenth patch without qualifying the new exact inventory.

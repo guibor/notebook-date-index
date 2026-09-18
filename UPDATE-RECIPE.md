@@ -196,3 +196,24 @@ Full manifest/preimages are in the matching Mac `.cache/` transaction folder.
 Use this transaction as the previous preview for subsequent promotion/repair.
 The user must close/reopen Dates to retry the failed request. Tracking remains
 disabled pending healthy panel/pen acceptance and functional promotion.
+
+## Functional activation: 2026-09-18
+
+The user confirmed "no loading error, all good" and requested activation.
+`ndi-20260918T092752Z-functional` passed the existing guarded promotion:
+UI PID `296229`, writer PID `296107`, zero restarts, root read-only, unchanged
+eight co-resident QMDs, Vellum files, four libraries and both Gestik preimages.
+The writer no longer has `--preview`. Tracking remains off until enabled per
+notebook, and the timezone remains `Asia/Jerusalem`.
+
+- Backend: `3f4df0ae95d4d3a83301a968a43a5f7f078e0a258452ec6529f71262543d3cef`
+- Functional QMD: `5a6650458253748fb0dd0c0e3e30d4daeff02ca6190b04da2f64b454a043213b`
+- Functional panel: `e4cf4998c1194ca5515b452dca07af230340ffbfb144253da86af7c0fbc476e5`
+- Backup: `4e0d30af5f547992dab61ff7aa1ba710658fc16f04a4df855bf93dd8b9f10c73`
+
+Matching local `.cache/` directory retains the manifest, backup and runtime log.
+Existing one-time stock/co-resident `Values is not defined` warnings in Toolbar
+and Experimental also appeared in the accepted preview; no new Dates error was
+observed. Physical add-page/index/navigation acceptance is still outstanding.
+The sibling RMStream shortcut adds a tenth QMD; consult its update recipe for
+the later complete runtime inventory rather than rerunning this initial installer.

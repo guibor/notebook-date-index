@@ -53,8 +53,9 @@ changing the user's existing table of contents.
   entry, Israel default, and timezone selector; verify hashes and runtime.
 - [X] Pass unit, race, QML composition, generated syntax and version gates.
 - [X] Install disabled recording preview under an independent stock rollback.
-- [ ] Physically confirm Dates layout and normal writing/TOC behavior.
-- [ ] Promote functional build and enable only a disposable notebook first.
+- [X] User confirmed the Dates panel opens without a loading error.
+- [X] Promote functional build; per-notebook tracking still defaults off.
+- [ ] Enable a disposable notebook and confirm normal writing/TOC behavior.
 - [ ] Verify three pages/one day, duplicate, reopen, reorder, delete/undo,
   pause/resume, handwriting conversion and Quick Sheets on the tablet.
 - [ ] Save exact deployment evidence and qualify Move separately if requested.
