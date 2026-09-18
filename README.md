@@ -1,5 +1,10 @@
 # Notebook Dates — Paper Pro beta
 
+Our standalone application: [guibor/notebook-date-index](https://github.com/guibor/notebook-date-index).
+See [MAINTENANCE.md](MAINTENANCE.md) for shared Pro/Move development and
+[compatibility.json](compatibility.json) for actual device qualification.
+The current Pro build is deployed; the Move port is still pending.
+
 Separate, opt-in date navigation for notebooks. It does **not** modify normal
 TOC entries, PDF outlines, native tags, or notebook files. RMStream remains a
 separate app in `../remarkable-beta-os/playbook/RMSTREAM.md`.

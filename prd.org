@@ -5,6 +5,11 @@ Find newly created notebook pages by their original date without cluttering or
 changing the user's existing table of contents.
 
 * Requirements
+- Own a standalone private GitHub repository, =guibor/notebook-date-index=.
+- Keep the Dates feature set aligned across Pro and Move using separately
+  qualified exact-firmware branches, release evidence and a compatibility matrix.
+- Preserve independent device settings/data; feature parity does not imply
+  cross-device notebook/date-metadata sync or automatic deployment.
 - Per-notebook opt-in, default off. A copied notebook has a new ID and stays off.
 - Separate Dates panel under the notebook's three-dot settings menu, with an
   additional entry under More tools when available. One group per local date; tap first
@@ -32,6 +37,10 @@ changing the user's existing table of contents.
   tablet's system timezone. Each device maintains its own choice.
 
 * Changed requirements
+- Maintenance scope expands from the initial Pro-only implementation to
+  shared Pro/Move features. Move remains unqualified until independently ported.
+- A local-only repository is insufficient; publish and maintain this app's
+  own GitHub repository, distinct from firmware markers and other apps.
 - The visible preview failed to load because the backend rejected Qt's valid
   =application/json;charset=UTF-8= header. Accept parsed JSON with UTF-8 while
   retaining token, Origin, HTTP-method and body validation. Prefer a backend-only
@@ -47,6 +56,8 @@ changing the user's existing table of contents.
   dates are unknown. No cross-device index sync or firmware-survival service.
 
 * Immediate next steps
+- [ ] Publish this standalone repository and verify the GitHub branch matches HEAD.
+- [ ] Qualify Move's exact firmware and port feature revision 1 independently.
 - [X] Reproduce the panel's HTTP 403 with real Qt, repair MIME parsing, and
   update only the background service without restarting the tablet UI.
 - [X] Deploy refreshed non-recording preview with the visible settings-menu

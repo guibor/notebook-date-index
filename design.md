@@ -1,5 +1,14 @@
 # Design
 
+## Repository and target ownership
+
+This application owns `guibor/notebook-date-index`. `MAINTENANCE.md` defines
+shared Pro/Move feature development and target-specific release gates;
+`compatibility.json` records actual deployment/acceptance status without
+claiming an untested Move build. Shared logic remains in the backend and QML
+modules below, while each firmware branch owns its exact hooks and deployment
+pins. Feature parity does not add data transport or merge device-local settings.
+
 ## Modules
 
 - `main.go`: static Go loopback service on `127.0.0.1:18742`. A private random

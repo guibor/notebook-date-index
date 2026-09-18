@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "application": "notebook-date-index",
+  "feature_revision": 1,
+  "features": ["per-notebook-opt-in", "date-groups", "pause-resume", "configurable-iana-timezone"],
+  "devices": {
+    "pro": {
+      "model": "reMarkable Ferrari",
+      "firmware": "3.28.0.169",
+      "branch": "beta/pro/3.28.0.169",
+      "status": "functional-deployed-physical-event-tests-pending",
+      "deployment": "ndi-20260918T092752Z-functional"
+    },
+    "move": {
+      "model": "reMarkable Chiappa",
+      "firmware": null,
+      "branch": null,
+      "status": "qualification-and-port-pending",
+      "deployment": null
+    }
+  }
+}
