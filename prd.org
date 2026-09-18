@@ -1,0 +1,39 @@
+#+title: Notebook Dates
+
+* Objective
+Find newly created notebook pages by their original date without cluttering or
+changing the user's existing table of contents.
+
+* Requirements
+- Per-notebook opt-in, default off. A copied notebook has a new ID and stays off.
+- Separate Dates panel under More tools. One group per local date; tap first
+  created surviving page; expand individual page links.
+- Record stable page IDs after explicit successful creation. Cover ordinary
+  toolbar/swipe add, Page Overview add/duplicate, conversion and Quick Sheets.
+- Enable/re-enable baselines all current pages without invented old dates.
+- Pause preserves history. Reorder resolves IDs to current page positions.
+  Delete hides missing pages; undo reuses their original dates.
+- Do not infer creation from file mtime or a generic page-count change.
+- Imported/moved-in pages remain undated. Ambiguous events fail closed.
+- Serialize durable writes to an independent private folder, with atomic
+  replacement and recoverable prior version. Never write native notebook/TOC.
+- Preserve Pro/Move independence, exact firmware/runtime gates, all existing
+  QMD/Gestik bytes, and read-only root. No boot/firmware/kernel changes.
+- First install is a non-recording preview. Functional promotion follows
+  physical UI acceptance, then a disposable-notebook acceptance exercise.
+- Index is local only in v1. UI errors must not break stock page creation.
+
+* Changed requirements
+- Originally considered automatic daily headings in the normal ToC or native
+  date tags. User accepted the recommended separate index instead.
+- No requirement to backfill dates for pages created before opt-in; their true
+  dates are unknown. No cross-device index sync or firmware-survival service.
+
+* Immediate next steps
+- [X] Pass unit, race, QML composition, generated syntax and version gates.
+- [X] Install disabled recording preview under an independent stock rollback.
+- [ ] Physically confirm Dates layout and normal writing/TOC behavior.
+- [ ] Promote functional build and enable only a disposable notebook first.
+- [ ] Verify three pages/one day, duplicate, reopen, reorder, delete/undo,
+  pause/resume, handwriting conversion and Quick Sheets on the tablet.
+- [ ] Save exact deployment evidence and qualify Move separately if requested.
