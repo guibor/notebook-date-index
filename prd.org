@@ -6,7 +6,8 @@ changing the user's existing table of contents.
 
 * Requirements
 - Per-notebook opt-in, default off. A copied notebook has a new ID and stays off.
-- Separate Dates panel under More tools. One group per local date; tap first
+- Separate Dates panel under the notebook's three-dot settings menu, with an
+  additional entry under More tools when available. One group per local date; tap first
   created surviving page; expand individual page links.
 - Record stable page IDs after explicit successful creation. Cover ordinary
   toolbar/swipe add, Page Overview add/duplicate, conversion and Quick Sheets.
@@ -22,14 +23,25 @@ changing the user's existing table of contents.
 - First install is a non-recording preview. Functional promotion follows
   physical UI acceptance, then a disposable-notebook acceptance exercise.
 - Index is local only in v1. UI errors must not break stock page creation.
+- Default date timezone is =Asia/Jerusalem=, with automatic daylight saving.
+  Make it configurable in the Dates panel and a device-local settings file.
+  A timezone change affects future records only, never existing dates or the
+  tablet's system timezone. Each device maintains its own choice.
 
 * Changed requirements
+- More tools is hidden by firmware when the toolbar container is tall; the
+  user could not reach the first preview there. The three-dot Notebook
+  settings menu is now the primary entry point without forcing overflow on.
+- User selected Israel time, configurable. Tablet UTC offset is no longer the
+  source of the date boundary; the saved IANA timezone computes it instead.
 - Originally considered automatic daily headings in the normal ToC or native
   date tags. User accepted the recommended separate index instead.
 - No requirement to backfill dates for pages created before opt-in; their true
   dates are unknown. No cross-device index sync or firmware-survival service.
 
 * Immediate next steps
+- [X] Deploy refreshed non-recording preview with the visible settings-menu
+  entry, Israel default, and timezone selector; verify hashes and runtime.
 - [X] Pass unit, race, QML composition, generated syntax and version gates.
 - [X] Install disabled recording preview under an independent stock rollback.
 - [ ] Physically confirm Dates layout and normal writing/TOC behavior.

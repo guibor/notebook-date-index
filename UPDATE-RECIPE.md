@@ -42,9 +42,15 @@ Installed paths:
 
 Preview disables the enable button and creation recorder in QML. The service
 also runs with `--preview` and independently rejects all tracking changes.
-Open an ordinary notebook, open toolbar **More tools (+)**, then **Dates**.
+Open an ordinary notebook, open toolbar **⋮ (Notebook settings)**, then **Dates**.
 Check the panel, close it, write normally, and confirm BetterTOC/native PDF
 outline still works. Do not interpret a healthy PID as these checks passing.
+
+To refresh a preview that has not yet passed physical acceptance, use
+`./ops/deploy.sh <verified-IP> refresh-preview <previous-preview-recovery-path>`.
+This preserves preview mode, all index data and existing timezone settings.
+It verifies the previous installed backend/panel/QMD and backs them up before
+replacing them. Rollback covers the configuration's previous presence/absence.
 
 ## Functional promotion
 
@@ -63,9 +69,12 @@ Use a disposable notebook first: enable Dates, add three pages, verify one
 group; expand and navigate; duplicate; reorder; delete/undo; close/reopen;
 pause/add/resume. Test Page Overview, handwriting conversion and Quick Sheets.
 The backend and event unit tests cover midnight/timezone logic, but verify the
-displayed day matches the desired timezone before real use. The tablet was
-observed using UTC on 2026-09-18; an explicit user timezone preference remains
-to be selected before functional promotion if UTC is not desired.
+displayed day matches the desired timezone before real use. The user selected
+Israel time on 2026-09-18. The default is now `Asia/Jerusalem`, computed with
+embedded IANA timezone data, not the tablet's UTC system timezone. The Dates
+panel includes a timezone selector. The atomic, device-local `settings.json`
+also accepts other valid IANA zone names. A change affects future dates only;
+all older recorded day/offset/zone values remain unchanged.
 
 ## Recovery and reboot
 
@@ -117,5 +126,38 @@ refuses to overwrite an existing data directory.
 - The post-deployment source adds tested accumulation of split duplicate-page
   success signals for functional promotion. It has **not** replaced the above
   preview artifacts; use their recorded hashes for current-device checks.
-- Physical preview acceptance, date timezone choice, functional promotion and
-  disposable-notebook acceptance remain pending. Recording is not enabled.
+- At that stage, physical preview acceptance, timezone choice, functional
+  promotion and disposable-notebook acceptance remained pending.
+
+## Preview refresh: configurable Israel time and visible menu
+
+The user could not find More tools. Exact firmware source showed it is gated by
+`toolbarProvider.hasEditingToolsGrouping && !hasEnoughVerticalSpace`, with
+enough vertical space defined as container height >=1000. This was a placement
+error in our preview, not evidence that XOVI or the app had disappeared.
+Dates now also appears at the top of the notebook's three-dot settings menu.
+
+User selected `Asia/Jerusalem`, with a configurable preference. The backend now
+embeds IANA timezone data, defaults to Israel, and records each page's original
+zone and UTC offset. The Dates dropdown offers Israel, UTC, London and New York;
+other IANA zones can be set in its private `settings.json`. Settings changes
+affect only future dates and do not alter the system clock.
+
+Transaction `ndi-20260918T083432Z-refresh-preview` passed at PID `294628`,
+`NRestarts=0`, nine QMDs and AppLoad active, root read-only. Both rollback timers
+were inactive afterward. The eight prior QMDs, four runtime libraries, Vellum
+files and both Gestik files were unchanged. Backend health reported
+`{"enabled":false,"groups":[],"timezone":"Asia/Jerusalem"}`.
+
+Backup SHA-256: `a361c32dd073b119342cccd4c9ca7225ef06ac46452fecd747e695bb2d9117a7`.
+Backend SHA-256: `248598501dbd8022fc40e04ee264e439d45c00dcc5e7aac14b062b9c0b6b2f2e`.
+Preview QMD: `035b0bcae5e9d0ade470d650f5a568afb18a39ced5d9b8cd53594ba538fd6936`.
+Full manifest and off-device backup are in
+`.cache/ndi-20260918T083432Z-refresh-preview/`.
+
+All 11 Go tests including the race detector, six JS event tests, the popup
+runtime test, both exact-resource compositions and wrong-version rejection
+passed. The sandboxed Qt launcher failed CPU detection; the same local harness
+passed outside the sandbox. No device write was needed for that test.
+Physical acceptance of the relocated menu/panel and functional promotion are
+still pending. Tracking remains disabled; timezone preferences can be changed.

@@ -43,6 +43,29 @@ q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/AdditionalEditingToolsMenu.qml\n IMPO
    onPressed: Values.ndiOpenRequested()
  }
  }\n END TRAVERSE\n END TRAVERSE\nEND AFFECT\n`;
+// More tools is deliberately absent on tall toolbar layouts. The notebook
+// settings menu (three vertical dots) is the primary, always-addressable route.
+q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml
+ IMPORT common 1.0
+ TRAVERSE ToolbarTool#root
+ TRAVERSE Component#settingsComponent > ColumnLayout#content
+ LOCATE BEFORE ALL
+ INSERT {
+   ToolbarTool {
+     toolbar: root.toolbar
+     type: ToolbarTool.Type.FoldoutButton
+     Layout.fillWidth: true
+     label: "Dates"
+     visible: root.documentType === "note"
+     shouldShow: root.documentType === "note"
+     iconSource: "qrc:/ark/icons/calendar"
+     onPressed: Values.ndiOpenRequested()
+   }
+ }
+ END TRAVERSE
+ END TRAVERSE
+END AFFECT
+`;
 fs.mkdirSync('build',{recursive:true});
 const popup = inc('popup').replaceAll('root.', 'documentView.')
     .replaceAll('documentView.ndiRefresh()', 'ndiHost.ndiRefresh()')

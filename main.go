@@ -19,15 +19,17 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	_ "time/tzdata" // independent of the tablet's UTC-only timezone files
 )
 
 var uuid = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
 
 type Page struct {
-	ID     string `json:"id"`
-	UTC    string `json:"utc"`
-	Day    string `json:"day"`
-	Offset int    `json:"offset"` // minutes east of UTC
+	ID       string `json:"id"`
+	UTC      string `json:"utc"`
+	Day      string `json:"day"`
+	Offset   int    `json:"offset"` // minutes east of UTC
+	Timezone string `json:"timezone,omitempty"`
 }
 type Index struct {
 	Schema  int             `json:"schema"`
@@ -44,6 +46,7 @@ type Request struct {
 	UTC      string   `json:"utc,omitempty"`
 	Offset   int      `json:"offset,omitempty"`
 	Source   string   `json:"source,omitempty"`
+	Timezone string   `json:"timezone,omitempty"`
 }
 type Link struct {
 	ID     string `json:"id"`
@@ -54,13 +57,56 @@ type Group struct {
 	Pages []Link `json:"pages"`
 }
 type View struct {
-	Enabled bool    `json:"enabled"`
-	Groups  []Group `json:"groups"`
+	Enabled  bool    `json:"enabled"`
+	Groups   []Group `json:"groups"`
+	Timezone string  `json:"timezone"`
 }
 type Store struct {
 	dir     string
 	mu      sync.Mutex
 	preview bool
+}
+
+type Settings struct {
+	Schema   int    `json:"schema"`
+	Timezone string `json:"timezone"`
+}
+
+// Only the Dates index uses this timezone; never change the tablet system clock.
+func (s *Store) settings() (Settings, *time.Location, error) {
+	c := Settings{Schema: 1, Timezone: "Asia/Jerusalem"}
+	b, err := os.ReadFile(filepath.Join(s.dir, "settings.json"))
+	if err == nil {
+		c = Settings{}
+		if err = json.Unmarshal(b, &c); err != nil {
+			return c, nil, err
+		}
+	} else if !os.IsNotExist(err) {
+		return c, nil, err
+	}
+	if c.Schema != 1 {
+		return c, nil, errors.New("invalid settings schema")
+	}
+	loc, err := configuredLocation(c.Timezone)
+	return c, loc, err
+}
+
+func configuredLocation(zone string) (*time.Location, error) {
+	if zone == "Local" || len(zone) > 100 || !regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_+/-]*$`).MatchString(zone) {
+		return nil, errors.New("use an IANA timezone, e.g. Asia/Jerusalem or UTC")
+	}
+	return time.LoadLocation(zone)
+}
+
+func (s *Store) saveTimezone(zone string) error {
+	if _, err := configuredLocation(zone); err != nil {
+		return err
+	}
+	b, err := json.Marshal(Settings{Schema: 1, Timezone: zone})
+	if err != nil {
+		return err
+	}
+	return atomicWrite(filepath.Join(s.dir, "settings.json"), b)
 }
 
 func ids(list []string) (map[string]bool, error) {
@@ -186,9 +232,20 @@ func (s *Store) save(id string, v *Index) error {
 func (s *Store) apply(action string, r Request) (View, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if s.preview && action != "query" {
+	if s.preview && action != "query" && action != "settings" {
 		return View{}, errors.New("preview: recording disabled until physical acceptance")
 	}
+	if action == "settings" {
+		if err := s.saveTimezone(r.Timezone); err != nil {
+			return View{}, err
+		}
+		return View{Groups: []Group{}, Timezone: r.Timezone}, nil
+	}
+	config, location, err := s.settings()
+	if err != nil {
+		return View{}, err
+	}
+	response := func(v *Index) View { out := view(v, r.Current); out.Timezone = config.Timezone; return out }
 	if !uuid.MatchString(r.Notebook) {
 		return View{}, errors.New("invalid notebook ID")
 	}
@@ -211,7 +268,7 @@ func (s *Store) apply(action string, r Request) (View, error) {
 		dirty = true
 	case "record":
 		if !v.Enabled {
-			return view(v, r.Current), nil
+			return response(v), nil
 		}
 		before, e := ids(r.Before)
 		if e != nil {
@@ -243,9 +300,11 @@ func (s *Store) apply(action string, r Request) (View, error) {
 			v.Known[id] = true
 		}
 		if v.Enabled {
+			local := t.In(location)
+			_, offsetSeconds := local.Zone()
 			for _, id := range r.Created {
 				if !v.Known[id] {
-					v.Pages = append(v.Pages, Page{id, t.UTC().Format(time.RFC3339Nano), t.Add(time.Duration(r.Offset) * time.Minute).UTC().Format("2006-01-02"), r.Offset})
+					v.Pages = append(v.Pages, Page{ID: id, UTC: t.UTC().Format(time.RFC3339Nano), Day: local.Format("2006-01-02"), Offset: offsetSeconds / 60, Timezone: config.Timezone})
 				}
 			}
 		}
@@ -261,7 +320,7 @@ func (s *Store) apply(action string, r Request) (View, error) {
 			return View{}, err
 		}
 	}
-	return view(v, r.Current), nil
+	return response(v), nil
 }
 
 func view(v *Index, current []string) View {
@@ -287,7 +346,7 @@ func view(v *Index, current []string) View {
 		days = append(days, d)
 	}
 	sort.Sort(sort.Reverse(sort.StringSlice(days)))
-	out := View{v.Enabled, []Group{}}
+	out := View{Enabled: v.Enabled, Groups: []Group{}}
 	for _, d := range days {
 		out.Groups = append(out.Groups, Group{d, groups[d]})
 	}
@@ -301,7 +360,7 @@ func handler(s *Store, token string) http.Handler {
 			http.Error(w, "forbidden", http.StatusForbidden)
 			return
 		}
-		action := map[string]string{"/v1/query": "query", "/v1/toggle": "toggle", "/v1/record": "record"}[r.URL.Path]
+		action := map[string]string{"/v1/query": "query", "/v1/toggle": "toggle", "/v1/record": "record", "/v1/settings": "settings"}[r.URL.Path]
 		var req Request
 		d := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4<<20))
 		d.DisallowUnknownFields()
@@ -339,6 +398,16 @@ func main() {
 	if err = syscall.Flock(int(lock.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
 		log.Fatal("another writer is active")
 	}
+	s := &Store{dir: *dir, preview: *preview}
+	c, _, err := s.settings()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if _, err = os.Stat(filepath.Join(*dir, "settings.json")); os.IsNotExist(err) {
+		if err = s.saveTimezone(c.Timezone); err != nil {
+			log.Fatal(err)
+		}
+	}
 	keyPath := filepath.Join(*dir, "token")
 	token, err := os.ReadFile(keyPath)
 	if os.IsNotExist(err) {
@@ -352,7 +421,7 @@ func main() {
 	if err != nil || len(token) != 64 {
 		log.Fatal("cannot read private token")
 	}
-	server := &http.Server{Addr: "127.0.0.1:18742", Handler: handler(&Store{dir: *dir, preview: *preview}, string(token)), ReadHeaderTimeout: 3 * time.Second, ReadTimeout: 5 * time.Second, WriteTimeout: 5 * time.Second, IdleTimeout: 10 * time.Second, MaxHeaderBytes: 8192}
+	server := &http.Server{Addr: "127.0.0.1:18742", Handler: handler(s, string(token)), ReadHeaderTimeout: 3 * time.Second, ReadTimeout: 5 * time.Second, WriteTimeout: 5 * time.Second, IdleTimeout: 10 * time.Second, MaxHeaderBytes: 8192}
 	fmt.Println("notebook-date-index: loopback writer ready")
 	log.Fatal(server.ListenAndServe())
 }

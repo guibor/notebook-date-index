@@ -3,7 +3,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 host=${1:?verified candidate IP}; mode=${2:-preview}; accepted=${3:-}
 [[ "$host" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]
-case "$mode" in preview) artifact=build/notebook-date-index-preview.qmd;; functional) artifact=build/notebook-date-index.qmd; test -n "$accepted";; *) exit 2;; esac
+case "$mode" in preview) artifact=build/notebook-date-index-preview.qmd;; refresh-preview) artifact=build/notebook-date-index-preview.qmd; test -n "$accepted";; functional) artifact=build/notebook-date-index.qmd; test -n "$accepted";; *) exit 2;; esac
+if [ -n "$accepted" ]; then [[ "$accepted" =~ ^/home/root/\.codex-backups/ndi-[A-Za-z0-9-]+$ ]]; fi
 mkdir -p .cache
 chmod 700 .cache
 keys=$(ssh-keyscan -T 3 -t ed25519 "$host" 2>/dev/null)
@@ -17,7 +18,7 @@ localdir=.cache/$id
 mkdir -m 700 "$localdir"
 cp build/notebook-date-index "$localdir/notebook-date-index"
 cp "$artifact" "$localdir/candidate.qmd"
-if [ "$mode" = preview ]; then cp build/DatesPanel-preview.qml "$localdir/DatesPanel.qml"; else cp build/DatesPanel.qml "$localdir/DatesPanel.qml"; fi
+if [ "$mode" != functional ]; then cp build/DatesPanel-preview.qml "$localdir/DatesPanel.qml"; else cp build/DatesPanel.qml "$localdir/DatesPanel.qml"; fi
 cp ops/{install-device,rollback-device}.sh profiles/co-resident.sha256 "$localdir/"
 (cd "$localdir" && shasum -a 256 notebook-date-index candidate.qmd DatesPanel.qml install-device.sh rollback-device.sh co-resident.sha256 > SHA256SUMS)
 reviewed=$(shasum -a 256 "$localdir/SHA256SUMS" | awk '{print $1}')

@@ -224,3 +224,50 @@ func TestPreviewRejectsWrites(t *testing.T) {
 		}
 	}
 }
+
+func TestIsraelTimezoneDSTAndConfiguration(t *testing.T) {
+	s, r := setup(t)
+	v := add(t, s, &r, 3, "2026-09-18T21:30:00Z", 0) // tablet says UTC, Israel is already tomorrow
+	if v.Timezone != "Asia/Jerusalem" || v.Groups[0].Day != "2026-09-19" {
+		t.Fatal(v)
+	}
+	saved, e := s.load(r.Notebook)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if saved.Pages[0].Offset != 180 || saved.Pages[0].Timezone != "Asia/Jerusalem" {
+		t.Fatal(saved.Pages)
+	}
+	add(t, s, &r, 4, "2026-01-01T21:30:00Z", 0)
+	saved, _ = s.load(r.Notebook)
+	if saved.Pages[1].Offset != 120 || saved.Pages[1].Day != "2026-01-01" {
+		t.Fatal("winter offset", saved.Pages)
+	}
+	s.preview = true
+	if _, e = s.apply("settings", Request{Timezone: "UTC"}); e != nil {
+		t.Fatal(e)
+	}
+	s.preview = false
+	v = add(t, s, &r, 5, "2026-09-18T21:40:00Z", 180)
+	if v.Timezone != "UTC" || len(v.Groups) != 3 {
+		t.Fatal(v)
+	}
+	saved, _ = s.load(r.Notebook)
+	if saved.Pages[0].Day != "2026-09-19" || saved.Pages[2].Day != "2026-09-18" || saved.Pages[2].Offset != 0 {
+		t.Fatal(saved.Pages)
+	}
+	restarted := &Store{dir: s.dir}
+	v, e = restarted.apply("query", r)
+	if e != nil || v.Timezone != "UTC" {
+		t.Fatal(v, e)
+	}
+	for _, bad := range []string{"", "Local", "/etc/passwd", "../UTC", "Not/AZone"} {
+		if _, e = s.apply("settings", Request{Timezone: bad}); e == nil {
+			t.Fatal("accepted invalid timezone", bad)
+		}
+	}
+	v, _ = s.apply("query", r)
+	if v.Timezone != "UTC" {
+		t.Fatal("invalid change overwrote settings")
+	}
+}

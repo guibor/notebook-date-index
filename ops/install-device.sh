@@ -2,7 +2,7 @@
 set -euo pipefail
 phase=${1:?prepare or activate}; stage=${2:?stage}; reviewed=${3:?manifest hash}; mode=${4:-preview}
 case "$stage" in /home/root/.codex-staging/ndi-*) ;; *) exit 2;; esac
-case "$mode" in preview|functional) ;; *) exit 2;; esac
+case "$mode" in preview|refresh-preview|functional) ;; *) exit 2;; esac
 [[ "$reviewed" =~ ^[a-f0-9]{64}$ ]]
 test "$(readlink -f "$stage")" = "$stage"
 test -z "$(find "$stage" -type l)"
@@ -49,8 +49,9 @@ if [ "$mode" = preview ]; then
   test ! -e "$data"; test ! -L "$data"
   test "$(find "$qdir" -name '*.qmd' | wc -l)" = 8
 else
-  # The caller supplies the physically accepted preview transaction, not just a flag.
-  prior=${5:?accepted preview transaction required}
+  # Refresh requires the exact previous preview; functional requires its
+  # physical acceptance as well. Neither path relaxes the installed hashes.
+  prior=${5:?prior preview transaction required}
   case "$prior" in /home/root/.codex-backups/ndi-*) ;; *) exit 2;; esac
   test "$(readlink -f "$prior")" = "$prior"
   grep -qx 'mode=preview' "$prior/committed"
@@ -58,10 +59,10 @@ else
   test "$(find "$qdir" -name '*.qmd' | wc -l)" = 9
   test "$(readlink -f "$payload")" = "$payload"
   test "$(readlink -f "$data")" = "$data"
-  # Initial promotion never replaces a different backend binary or index schema.
-  cmp "$stage/notebook-date-index" "$payload/notebook-date-index"
   prior_stage=/home/root/.codex-staging/${prior##*/}
+  cmp "$prior_stage/notebook-date-index" "$payload/notebook-date-index"
   cmp "$prior_stage/DatesPanel.qml" "$payload/DatesPanel.qml"
+  if [ "$mode" = functional ]; then cmp "$stage/notebook-date-index" "$payload/notebook-date-index"; fi
 fi
 if [ "$phase" = prepare ]; then
   test ! -e "$rec"; mkdir -m 700 "$rec"
@@ -69,6 +70,8 @@ if [ "$phase" = prepare ]; then
   cp -p "$stage/rollback-device.sh" "$rec/rollback-device.sh"
   if [ -f "$qdir/notebook-date-index.qmd" ]; then cp -p "$qdir/notebook-date-index.qmd" "$rec/prior.qmd"; fi
   if [ -f "$payload/DatesPanel.qml" ]; then cp -p "$payload/DatesPanel.qml" "$rec/prior-panel.qml"; fi
+  if [ -f "$payload/notebook-date-index" ]; then cp -p "$payload/notebook-date-index" "$rec/prior-backend"; fi
+  if [ -f "$data/settings.json" ]; then cp -p "$data/settings.json" "$rec/prior-settings.json"; else touch "$rec/settings-were-absent"; fi
   backup_paths=(xovi/exthome/qt-resource-rebuilder .config/gestik.json .local/share/gestik-beta/gestik.json)
   if [ -d "$data" ]; then backup_paths+=(.local/share/notebook-date-index .local/lib/notebook-date-index); fi
   tar -czf "$rec/safety-backup.tgz" -C /home/root "${backup_paths[@]}"
@@ -92,18 +95,24 @@ trap fail EXIT HUP INT TERM
 if [ "$mode" = preview ]; then
   mkdir -p /home/root/.local/lib
   mkdir -m 700 "$payload" "$data"
-  cp "$stage/notebook-date-index" "$payload/notebook-date-index"
-  chmod 700 "$payload/notebook-date-index"
 fi
+systemctl stop notebook-date-index.service 2>/dev/null || true
+cp "$stage/notebook-date-index" "$payload/notebook-date-index.ready"
+chmod 700 "$payload/notebook-date-index.ready"
+mv "$payload/notebook-date-index.ready" "$payload/notebook-date-index"
 cp "$stage/DatesPanel.qml" "$payload/DatesPanel.qml.ready"
 chmod 600 "$payload/DatesPanel.qml.ready"
 mv "$payload/DatesPanel.qml.ready" "$payload/DatesPanel.qml"
-systemctl stop notebook-date-index.service 2>/dev/null || true
-args=(); if [ "$mode" = preview ]; then args=(--preview); fi
+args=(); if [ "$mode" != functional ]; then args=(--preview); fi
 systemd-run --unit=notebook-date-index --collect --property=Restart=on-failure --property=RestartSec=5 --property=MemoryMax=96M --property=NoNewPrivileges=yes "$payload/notebook-date-index" "${args[@]}"
-for i in 1 2 3 4 5; do [ ! -f "$data/token" ] || break; sleep 1; done
+ready=0
+for i in 1 2 3 4 5; do
+  if [ -f "$data/token" ] && /home/root/.vellum/bin/curl -fsS --max-time 2 -H 'Content-Type: application/json' -H "X-Date-Index-Token: $(cat "$data/token")" -d '{"notebook":"00000000-0000-0000-0000-000000000000","current":[]}' http://127.0.0.1:18742/v1/query > "$rec/service-health.json"; then ready=1; break; fi
+  sleep 1
+done
+test "$ready" = 1
 systemctl is-active --quiet notebook-date-index
-/home/root/.vellum/bin/curl -fsS --max-time 5 -H 'Content-Type: application/json' -H "X-Date-Index-Token: $(cat "$data/token")" -d '{"notebook":"00000000-0000-0000-0000-000000000000","current":[]}' http://127.0.0.1:18742/v1/query
+cat "$rec/service-health.json"
 cp "$stage/candidate.qmd" "$rec/candidate.ready"
 sha256sum "$rec/candidate.ready" | cut -d' ' -f1 > "$rec/candidate.sha256"
 sync
@@ -121,7 +130,8 @@ systemctl is-active --quiet notebook-date-index
 grep -qF 'notebook-date-index.qmd' /tmp/remagic-live-test.log
 if grep -Ei 'ReferenceError|TypeError|is not a type|Cannot assign|is not installed|notebook-date-index.*error' /tmp/remagic-live-test.log | grep -E 'ndi[A-Z]|DatesPanel|Values.qml|DocumentView.qml|AdditionalEditingToolsMenu.qml'; then exit 1; fi
 test "$(findmnt -n -o OPTIONS / | cut -d, -f1)" = ro
-printf 'mode=%s\npid=%s\n' "$mode" "$pid" > "$rec/committed.ready"
+runtime_mode=preview; if [ "$mode" = functional ]; then runtime_mode=functional; fi
+printf 'mode=%s\npid=%s\n' "$runtime_mode" "$pid" > "$rec/committed.ready"
 sync; mv "$rec/committed.ready" "$rec/committed"; sync
 trap - EXIT HUP INT TERM
 systemctl stop notebook-date-index-rollback.timer

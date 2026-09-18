@@ -4,7 +4,7 @@ function ndiRefresh() {
     Values.ndiRequest("query", {notebook: notebook, current: Values.ndiIds(root.document)}, function(result) {
         if (!root.document || String(root.document.id) !== notebook) return;
         ndiPopup.ready = !!result;
-        if (result) { ndiPopup.tracking = result.enabled; ndiPopup.groups = result.groups; }
+        if (result) { ndiPopup.tracking = result.enabled; ndiPopup.groups = result.groups; ndiPopup.timezone = result.timezone || "Asia/Jerusalem"; }
     });
 }
 
@@ -27,6 +27,10 @@ NdiControls.Popup {
     property bool tracking: false
     property var groups: []
     property string expandedDay: ""
+    property string timezone: "Asia/Jerusalem"
+    property var timezoneOptions: ["Asia/Jerusalem", "UTC", "Europe/London", "America/New_York"].indexOf(timezone) >= 0
+        ? ["Asia/Jerusalem", "UTC", "Europe/London", "America/New_York"]
+        : [timezone, "Asia/Jerusalem", "UTC", "Europe/London", "America/New_York"]
     modal: true
     focus: true
     width: Math.min(root.width - 40, 680)
@@ -38,8 +42,9 @@ NdiControls.Popup {
     background: Rectangle { color: "white"; border.color: "black"; border.width: 2; radius: 8 }
     contentItem: Column {
         spacing: 12
-        NdiControls.Label { text: "Dates"; font.pixelSize: 32; font.bold: true; color: "black" }
+        NdiControls.Label { id: dateHeader; text: "Dates"; font.pixelSize: 32; font.bold: true; color: "black" }
         NdiControls.Label {
+            id: dateIntro
             width: parent.width
             text: "New pages, grouped by creation date. Existing pages stay undated. Stored only on this tablet."
             wrapMode: Text.WordWrap
@@ -47,6 +52,7 @@ NdiControls.Popup {
             color: "black"
         }
         NdiControls.Button {
+            id: trackingButton
             width: parent.width
             text: ndiPopup.tracking ? "Tracking on — pause for this notebook" : "Enable for this notebook"
             enabled: ndiPopup.ready
@@ -59,7 +65,24 @@ NdiControls.Popup {
                 });
             }
         }
+        Column {
+            id: timezoneControls
+            width: parent.width
+            spacing: 4
+            NdiControls.Label { text: "Timezone for new pages (this tablet):"; font.pixelSize: 20; color: "black" }
+            NdiControls.ComboBox {
+                width: parent.width
+                model: ndiPopup.timezoneOptions
+                currentIndex: ndiPopup.timezoneOptions.indexOf(ndiPopup.timezone)
+                enabled: ndiPopup.ready
+                onActivated: {
+                    ndiPopup.ready = false;
+                    Values.ndiRequest("settings", {timezone: currentText}, function(result) { root.ndiRefresh(); });
+                }
+            }
+        }
         NdiControls.Label {
+            id: dateStatus
             width: parent.width
             visible: text !== ""
             text: Values.ndiError || (ndiPopup.groups.length === 0 ? "No dated pages yet. Enable tracking, then add a new page." : "Tap a date to open its first page; + shows all pages.")
@@ -69,7 +92,7 @@ NdiControls.Popup {
         }
         ListView {
             width: parent.width
-            height: Math.max(100, ndiPopup.availableHeight - 300)
+            height: Math.max(60, ndiPopup.availableHeight - dateHeader.height - dateIntro.height - trackingButton.height - timezoneControls.height - dateStatus.height - closeDatesButton.height - 6 * parent.spacing)
             clip: true
             model: ndiPopup.groups
             spacing: 8
@@ -102,6 +125,6 @@ NdiControls.Popup {
                 }
             }
         }
-        NdiControls.Button { width: parent.width; text: "Close"; onClicked: ndiPopup.close() }
+        NdiControls.Button { id: closeDatesButton; width: parent.width; text: "Close"; onClicked: ndiPopup.close() }
     }
 }

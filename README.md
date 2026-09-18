@@ -4,15 +4,21 @@ Separate, opt-in date navigation for notebooks. It does **not** modify normal
 TOC entries, PDF outlines, native tags, or notebook files. RMStream remains a
 separate app in `../remarkable-beta-os/playbook/RMSTREAM.md`.
 
-On a qualified functional build, open a notebook → toolbar **More tools (+)**
+On a qualified functional build, open a notebook → toolbar **⋮ (Notebook settings)**
 → **Dates** → **Enable for this notebook**. Only newly created pages are dated.
 Tap a date to jump to its first surviving page; tap **+** to expand the day's
 pages. Pause tracking using the same panel. Dates remain available while paused.
 
 Local data: `/home/root/.local/share/notebook-date-index/`. Back it up separately;
 v1 does not sync to cloud or another device. Existing pages and imported/moved-in
-pages stay undated. Dates use the tablet's local clock at successful creation;
-check its date/time if the date differs from your expectation.
+pages stay undated. Dates default to **Israel time (Asia/Jerusalem)**, including
+daylight-saving changes, independently of the tablet's UTC system clock.
+Change the timezone using the selector in Dates. This changes future page dates
+only, on this tablet. For other IANA zones, edit the device-local
+`/home/root/.local/share/notebook-date-index/settings.json` with content such as
+`{"schema":1,"timezone":"Europe/Paris"}`; changes take effect on the next request.
+The **More tools (+)** entry is also present when the firmware displays that
+overflow menu, but tall toolbar layouts deliberately hide it.
 
 Exact target: Ferrari / `3.28.0.169`. Move is **not** qualified by this branch.
 No boot persistence is added; the loopback writer must be restarted with the

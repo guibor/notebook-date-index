@@ -56,13 +56,13 @@ function ndiPump() {
             try { result = JSON.parse(req.responseText); } catch (e) {}
         }
         ndiError = result ? "" : "Dates could not be saved or loaded. Your notebook is unchanged. Reopen Dates to retry.";
-        if (result) {
+        if (result && job.body.notebook) {
             ndiEnabled[job.body.notebook] = result.enabled;
         }
         ndiQueue.shift();
         ndiBusy = false;
         if (job.done) job.done(result);
-        if (result && job.action !== "query") ndiChanged(job.body.notebook);
+        if (result && job.body.notebook && job.action !== "query") ndiChanged(job.body.notebook);
         ndiPump();
     };
     req.send(JSON.stringify(job.body));

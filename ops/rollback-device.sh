@@ -12,6 +12,16 @@ q=/home/root/xovi/exthome/qt-resource-rebuilder/notebook-date-index.qmd
 if [ -f "$q" ]; then mv "$q" "$rec/failed.qmd"; fi
 if [ -f "$rec/prior.qmd" ]; then cp -p "$rec/prior.qmd" "$q"; fi
 if [ -f "$rec/prior-panel.qml" ]; then cp -p "$rec/prior-panel.qml" /home/root/.local/lib/notebook-date-index/DatesPanel.qml; fi
+if [ -f "$rec/prior-backend" ]; then
+  cp -p "$rec/prior-backend" /home/root/.local/lib/notebook-date-index/notebook-date-index.ready
+  mv /home/root/.local/lib/notebook-date-index/notebook-date-index.ready /home/root/.local/lib/notebook-date-index/notebook-date-index
+fi
+settings=/home/root/.local/share/notebook-date-index/settings.json
+if [ -f "$rec/prior-settings.json" ]; then
+  cp -p "$rec/prior-settings.json" "$settings.ready"; mv "$settings.ready" "$settings"
+elif [ -e "$rec/settings-were-absent" ] && [ -f "$settings" ]; then
+  mv "$settings" "$rec/failed-settings.json"
+fi
 sync
 if [ -e "$rec/activation-attempted" ]; then
   /home/root/xovi/stock > "$rec/rollback-stock.log" 2>&1
