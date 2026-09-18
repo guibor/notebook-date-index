@@ -29,14 +29,22 @@ each device's actual qualification state; a pending target is not a release.
 
 ## What sync means
 
-Feature/release parity is the maintenance goal, not automatic deployment.
+Both feature/release parity and shared Dates history are maintenance goals,
+not automatic deployment.
 The Move implementation is currently pending qualification. It must receive
 the same date grouping, per-notebook opt-in, pause/resume and timezone options.
 
-Notebook content, date-index records, per-notebook opt-ins, timezone choice,
-and Gestik settings remain device-local. Do not copy one device's settings or
-private index onto the other. A future request to synchronize date metadata
-would require a separate design for notebook/page identities and conflicts.
+The user clarified that date-index records for the same notebook must sync
+between Pro and Move. This supersedes the earlier local-only data policy, but
+is not implemented in the current deployed build. Merge individual page-date
+records by verified notebook/page identity; never overwrite an entire index.
+Native notebook content keeps its existing sync path and remains untouched by
+Dates. Preserve original creation date/timezone and retain records for pages
+that have not arrived yet or are temporarily missing after deletion.
+
+Gestik and unrelated device settings remain independent. The scope of shared
+Dates enable/pause preferences and the transport/storage choice must be defined
+with the sync design; do not treat an app-version update as metadata migration.
 
 ## Publication boundary
 
@@ -47,6 +55,9 @@ the private exact-firmware resource cache and qualified co-resident artifacts;
 publishing the source does not make these caches part of the repository.
 
 ## Immediate work
+
+Choose the metadata sync transport and validate cross-device identity first;
+shared history must then receive its own offline/merge/rollback acceptance.
 
 1. Complete physical Pro creation/navigation acceptance.
 2. Read-only qualify Move's current model/firmware/runtime and independent settings.

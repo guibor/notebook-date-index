@@ -7,11 +7,38 @@ shared Pro/Move feature development and target-specific release gates;
 `compatibility.json` records actual deployment/acceptance status without
 claiming an untested Move build. Shared logic remains in the backend and QML
 modules below, while each firmware branch owns its exact hooks and deployment
-pins. Feature parity does not add data transport or merge device-local settings.
+pins. The deployed implementation has no data transport. The user now also
+requires shared Dates history for the same notebook; that is a pending feature,
+not permission to merge unrelated device-local settings.
 The existing source history was published privately on 2026-09-18, retaining
 `beta/pro/3.28.0.169` as the current branch rather than renaming a deployed target.
 
 ## Modules
+
+### Pending cross-device Dates synchronization
+
+The local store remains the offline source for the UI. A future sync layer must
+exchange individual creation records keyed by verified notebook/page identity,
+preserving the originating timestamp, calendar day, timezone and offset.
+Receiving notebook content or metadata must never create a new date event.
+The existing local single-writer/atomic-save boundary must also serialize merges.
+Do not use whole-file last-writer-wins synchronization: it can lose offline
+events from either tablet. Conflicting records need a documented deterministic
+policy with retained provenance, rather than silently guessing the true date.
+
+Page absence on one tablet may mean content has not synced yet, not deletion.
+Keep such records; resolve navigation against locally available page IDs and
+do not propagate inferred deletions. A copied notebook must not inherit another
+notebook's history solely because its name or page numbers match.
+
+An authenticated private metadata service on the user's md-server is a proposed
+transport, not a deployed/approved component. It would exchange only identity
+and date-event metadata, not handwriting, page content or notebook titles.
+Server choice, access controls, device credentials and notebook-wide versus
+device-local enable/pause semantics remain design gates. No new network exposure
+or data transfer has been enabled. Existing notebook/cloud sync is unchanged.
+
+### Current implementation
 
 - `main.go`: static Go loopback service on `127.0.0.1:18742`. A private random
   token authorizes JSON POSTs; no CORS, no external bind, no notebook file access.

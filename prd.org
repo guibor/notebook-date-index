@@ -8,8 +8,16 @@ changing the user's existing table of contents.
 - Own a standalone private GitHub repository, =guibor/notebook-date-index=.
 - Keep the Dates feature set aligned across Pro and Move using separately
   qualified exact-firmware branches, release evidence and a compatibility matrix.
-- Preserve independent device settings/data; feature parity does not imply
-  cross-device notebook/date-metadata sync or automatic deployment.
+- Synchronize date-history metadata for the same notebook between Pro and Move.
+  Pages created on either device retain their original recorded date on both.
+- Support offline creation followed by idempotent merging, without duplicate
+  date/page entries or replacing one device's whole index with the other's.
+- Verify stable notebook/page identity across native sync before implementation;
+  never match by notebook title or page number. Copies remain separate notebooks.
+- Sync arrival is not page creation. Preserve each entry's original timestamp,
+  date, timezone and offset, regardless of the receiving device's settings.
+- Preserve unrelated device settings, especially Gestik. Dates metadata sync
+  is not permission to copy all device settings or automatically install builds.
 - Per-notebook opt-in, default off. A copied notebook has a new ID and stays off.
 - Separate Dates panel under the notebook's three-dot settings menu, with an
   additional entry under More tools when available. One group per local date; tap first
@@ -27,7 +35,9 @@ changing the user's existing table of contents.
   QMD/Gestik bytes, and read-only root. No boot/firmware/kernel changes.
 - First install is a non-recording preview. Functional promotion follows
   physical UI acceptance, then a disposable-notebook acceptance exercise.
-- Index is local only in v1. UI errors must not break stock page creation.
+- The deployed v1 index is currently local-only; shared date history is required
+  next, not yet implemented. Sync errors/offline use must not block stock page
+  creation or existing local date navigation.
 - Test the real Qt XMLHttpRequest queue against the actual HTTP service,
   including Qt's JSON Content-Type charset parameter. A mocked popup and a
   curl-only health check do not prove this interface works.
@@ -37,6 +47,10 @@ changing the user's existing table of contents.
   tablet's system timezone. Each device maintains its own choice.
 
 * Changed requirements
+- User clarified that "in sync" includes actual Dates history for the same
+  notebook, not only app feature/version parity. The prior no-cross-device-index
+  requirement is superseded. Notebook content/normal ToC remain unmodified;
+  unrelated device settings still remain independent.
 - Maintenance scope expands from the initial Pro-only implementation to
   shared Pro/Move features. Move remains unqualified until independently ported.
 - A local-only repository is insufficient; publish and maintain this app's
@@ -53,9 +67,14 @@ changing the user's existing table of contents.
 - Originally considered automatic daily headings in the normal ToC or native
   date tags. User accepted the recommended separate index instead.
 - No requirement to backfill dates for pages created before opt-in; their true
-  dates are unknown. No cross-device index sync or firmware-survival service.
+  dates are unknown. No firmware-survival service is required. The former
+  exclusion of cross-device index sync is superseded by the clarification above.
 
 * Immediate next steps
+- [ ] Choose/authorize metadata transport and storage, then verify notebook/page
+  IDs across both devices before implementing sync.
+- [ ] Test offline bidirectional creation, retries, duplicate events, divergent
+  page availability, deletion/undo, reorder, timezone changes and notebook copies.
 - [X] Publish this standalone private repository and verify its GitHub branch.
 - [ ] Qualify Move's exact firmware and port feature revision 1 independently.
 - [X] Reproduce the panel's HTTP 403 with real Qt, repair MIME parsing, and

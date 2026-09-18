@@ -15,7 +15,9 @@ Tap a date to jump to its first surviving page; tap **+** to expand the day's
 pages. Pause tracking using the same panel. Dates remain available while paused.
 
 Local data: `/home/root/.local/share/notebook-date-index/`. Back it up separately;
-v1 does not sync to cloud or another device. Existing pages and imported/moved-in
+the deployed v1 does not yet sync to cloud or another device. **Shared date
+history for the same notebook on Pro and Move is now required and planned**;
+see `prd.org` and `design.md`. Existing pages and imported/moved-in
 pages stay undated. Dates default to **Israel time (Asia/Jerusalem)**, including
 daylight-saving changes, independently of the tablet's UTC system clock.
 Change the timezone using the selector in Dates. This changes future page dates
