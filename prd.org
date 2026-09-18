@@ -56,7 +56,7 @@ changing the user's existing table of contents.
   dates are unknown. No cross-device index sync or firmware-survival service.
 
 * Immediate next steps
-- [ ] Publish this standalone repository and verify the GitHub branch matches HEAD.
+- [X] Publish this standalone private repository and verify its GitHub branch.
 - [ ] Qualify Move's exact firmware and port feature revision 1 independently.
 - [X] Reproduce the panel's HTTP 403 with real Qt, repair MIME parsing, and
   update only the background service without restarting the tablet UI.

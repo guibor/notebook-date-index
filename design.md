@@ -8,6 +8,8 @@ shared Pro/Move feature development and target-specific release gates;
 claiming an untested Move build. Shared logic remains in the backend and QML
 modules below, while each firmware branch owns its exact hooks and deployment
 pins. Feature parity does not add data transport or merge device-local settings.
+The existing source history was published privately on 2026-09-18, retaining
+`beta/pro/3.28.0.169` as the current branch rather than renaming a deployed target.
 
 ## Modules
 
