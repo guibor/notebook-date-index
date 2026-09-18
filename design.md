@@ -24,6 +24,9 @@
 - `ui-harness.mjs`: local Qt runtime test for the actual popup with synthetic
   date groups. Standard controls are qualified as `NdiControls` because the
   tablet imports an unrelated `Popup` type with the same short name.
+- `transport-test.mjs`: actual QML `ndiRequest`/`ndiPump` code against a native
+  build of the real Go service, with a private synthetic token/data directory.
+  This catches protocol mismatches that the mocked visual harness cannot.
 - `ops/deploy.sh`, `install-device.sh`, `rollback-device.sh`: strict key-only
   host verification, exact-state preflight, off-device backup proof, transient
   controller and independent timer. The initial preview service rejects writes
@@ -70,6 +73,10 @@ several single-page signals; unexpected IDs make that ticket fail closed.
 `ndiRequest`/`ndiPump` serialize HTTP requests so opt-in changes and records stay
 ordered. `ndiRefresh` queries just the current notebook and rejects stale UI
 responses after switching documents. Navigation re-resolves IDs at tap time.
+The HTTP gate parses Content-Type with `mime.ParseMediaType`, accepting JSON
+with an absent or UTF-8 charset (which Qt appends), while still rejecting
+non-JSON, malformed content types, other charsets, any Origin, non-POST requests
+and invalid tokens. The service remains bound to loopback only.
 
 ## Deployment boundary
 
@@ -82,3 +89,8 @@ returns to stock if the controller vanishes or the guarded UI fails.
 `refresh-preview` replaces a hash-matched existing preview without claiming
 physical acceptance. Its rollback preimages also cover the old backend,
 panel and presence/absence of settings.json; the service stays in preview.
+`backend-preview` additionally requires byte-identical candidate QMD/panel and
+does not replace or reload either. It swaps only the backend, health-checks
+the Qt-style JSON header, and requires the same live xochitl PID throughout.
+Rollback restores and restarts only the previous writer in this mode, leaving
+the tablet UI alone. Both variants retain the independent recovery timer.

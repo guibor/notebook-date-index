@@ -3,7 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 host=${1:?verified candidate IP}; mode=${2:-preview}; accepted=${3:-}
 [[ "$host" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]
-case "$mode" in preview) artifact=build/notebook-date-index-preview.qmd;; refresh-preview) artifact=build/notebook-date-index-preview.qmd; test -n "$accepted";; functional) artifact=build/notebook-date-index.qmd; test -n "$accepted";; *) exit 2;; esac
+case "$mode" in preview) artifact=build/notebook-date-index-preview.qmd;; refresh-preview|backend-preview) artifact=build/notebook-date-index-preview.qmd; test -n "$accepted";; functional) artifact=build/notebook-date-index.qmd; test -n "$accepted";; *) exit 2;; esac
 if [ -n "$accepted" ]; then [[ "$accepted" =~ ^/home/root/\.codex-backups/ndi-[A-Za-z0-9-]+$ ]]; fi
 mkdir -p .cache
 chmod 700 .cache

@@ -225,6 +225,35 @@ func TestPreviewRejectsWrites(t *testing.T) {
 	}
 }
 
+func TestQtJSONContentType(t *testing.T) {
+	s, r := setup(t)
+	body, _ := json.Marshal(r)
+	h := handler(s, "test-token")
+	for _, c := range []struct {
+		contentType, origin, token string
+		want                       int
+	}{
+		{"application/json;charset=UTF-8", "", "test-token", 200},
+		{"application/json; charset=utf-8", "", "test-token", 200},
+		{"Application/JSON; Charset=\"UTF-8\"", "", "test-token", 200},
+		{"application/json; charset=UTF-16", "", "test-token", 403},
+		{"text/plain; charset=UTF-8", "", "test-token", 403},
+		{"application/json; charset=", "", "test-token", 403},
+		{"application/json;charset=UTF-8", "https://evil.test", "test-token", 403},
+		{"application/json;charset=UTF-8", "", "wrong-token", 403},
+	} {
+		req := httptest.NewRequest("POST", "http://127.0.0.1:18742/v1/query", bytes.NewReader(body))
+		req.Header.Set("Content-Type", c.contentType)
+		req.Header.Set("Origin", c.origin)
+		req.Header.Set("X-Date-Index-Token", c.token)
+		response := httptest.NewRecorder()
+		h.ServeHTTP(response, req)
+		if response.Code != c.want {
+			t.Fatalf("%+v: got %d", c, response.Code)
+		}
+	}
+}
+
 func TestIsraelTimezoneDSTAndConfiguration(t *testing.T) {
 	s, r := setup(t)
 	v := add(t, s, &r, 3, "2026-09-18T21:30:00Z", 0) // tablet says UTC, Israel is already tomorrow

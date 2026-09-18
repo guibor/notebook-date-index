@@ -12,6 +12,8 @@ test "$(shasum -a 256 "$qmldiff" | awk '{print $1}')" = 5d48704b2b55702bf553f65e
 test "$(find build/co-resident -name '*.qmd' | wc -l | tr -d ' ')" = 8
 go test -race -count=1 -v ./...
 go vet ./...
+CGO_ENABLED=0 go build -o build/notebook-date-index-host .
+node transport-test.mjs
 node --test qml-test.mjs
 node ui-harness.mjs
 QT_QUICK_CONTROLS_STYLE=Basic QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software qml --disable-context-sharing build/ui-harness.qml >build/ui-harness.log 2>&1

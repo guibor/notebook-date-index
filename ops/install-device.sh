@@ -2,7 +2,7 @@
 set -euo pipefail
 phase=${1:?prepare or activate}; stage=${2:?stage}; reviewed=${3:?manifest hash}; mode=${4:-preview}
 case "$stage" in /home/root/.codex-staging/ndi-*) ;; *) exit 2;; esac
-case "$mode" in preview|refresh-preview|functional) ;; *) exit 2;; esac
+case "$mode" in preview|refresh-preview|backend-preview|functional) ;; *) exit 2;; esac
 [[ "$reviewed" =~ ^[a-f0-9]{64}$ ]]
 test "$(readlink -f "$stage")" = "$stage"
 test -z "$(find "$stage" -type l)"
@@ -39,6 +39,7 @@ test "$(systemctl show xochitl -p NRestarts --value)" = 0
 test -x /home/root/.vellum/bin/curl
 systemctl is-active --quiet xochitl
 test "$(pidof xochitl)" = "$(systemctl show xochitl -p MainPID --value)"
+ui_before=$(systemctl show xochitl -p MainPID --value)
 for dir in "$x" "$qdir" /home/root/.local /home/root/.local/share /home/root/.codex-backups; do
   test "$(readlink -f "$dir")" = "$dir"
   test "$(stat -c %u "$dir")" = 0
@@ -63,6 +64,10 @@ else
   cmp "$prior_stage/notebook-date-index" "$payload/notebook-date-index"
   cmp "$prior_stage/DatesPanel.qml" "$payload/DatesPanel.qml"
   if [ "$mode" = functional ]; then cmp "$stage/notebook-date-index" "$payload/notebook-date-index"; fi
+  if [ "$mode" = backend-preview ]; then
+    cmp "$stage/candidate.qmd" "$qdir/notebook-date-index.qmd"
+    cmp "$stage/DatesPanel.qml" "$payload/DatesPanel.qml"
+  fi
 fi
 if [ "$phase" = prepare ]; then
   test ! -e "$rec"; mkdir -m 700 "$rec"
@@ -72,6 +77,7 @@ if [ "$phase" = prepare ]; then
   if [ -f "$payload/DatesPanel.qml" ]; then cp -p "$payload/DatesPanel.qml" "$rec/prior-panel.qml"; fi
   if [ -f "$payload/notebook-date-index" ]; then cp -p "$payload/notebook-date-index" "$rec/prior-backend"; fi
   if [ -f "$data/settings.json" ]; then cp -p "$data/settings.json" "$rec/prior-settings.json"; else touch "$rec/settings-were-absent"; fi
+  if [ "$mode" = backend-preview ]; then touch "$rec/backend-only"; fi
   backup_paths=(xovi/exthome/qt-resource-rebuilder .config/gestik.json .local/share/gestik-beta/gestik.json)
   if [ -d "$data" ]; then backup_paths+=(.local/share/notebook-date-index .local/lib/notebook-date-index); fi
   tar -czf "$rec/safety-backup.tgz" -C /home/root "${backup_paths[@]}"
@@ -100,26 +106,40 @@ systemctl stop notebook-date-index.service 2>/dev/null || true
 cp "$stage/notebook-date-index" "$payload/notebook-date-index.ready"
 chmod 700 "$payload/notebook-date-index.ready"
 mv "$payload/notebook-date-index.ready" "$payload/notebook-date-index"
-cp "$stage/DatesPanel.qml" "$payload/DatesPanel.qml.ready"
-chmod 600 "$payload/DatesPanel.qml.ready"
-mv "$payload/DatesPanel.qml.ready" "$payload/DatesPanel.qml"
+if [ "$mode" != backend-preview ]; then
+  cp "$stage/DatesPanel.qml" "$payload/DatesPanel.qml.ready"
+  chmod 600 "$payload/DatesPanel.qml.ready"
+  mv "$payload/DatesPanel.qml.ready" "$payload/DatesPanel.qml"
+fi
 args=(); if [ "$mode" != functional ]; then args=(--preview); fi
 systemd-run --unit=notebook-date-index --collect --property=Restart=on-failure --property=RestartSec=5 --property=MemoryMax=96M --property=NoNewPrivileges=yes "$payload/notebook-date-index" "${args[@]}"
 ready=0
 for i in 1 2 3 4 5; do
-  if [ -f "$data/token" ] && /home/root/.vellum/bin/curl -fsS --max-time 2 -H 'Content-Type: application/json' -H "X-Date-Index-Token: $(cat "$data/token")" -d '{"notebook":"00000000-0000-0000-0000-000000000000","current":[]}' http://127.0.0.1:18742/v1/query > "$rec/service-health.json"; then ready=1; break; fi
+  if [ -f "$data/token" ] && /home/root/.vellum/bin/curl -fsS --max-time 2 -H 'Content-Type: application/json;charset=UTF-8' -H "X-Date-Index-Token: $(cat "$data/token")" -d '{"notebook":"00000000-0000-0000-0000-000000000000","current":[]}' http://127.0.0.1:18742/v1/query > "$rec/service-health.json"; then ready=1; break; fi
   sleep 1
 done
 test "$ready" = 1
 systemctl is-active --quiet notebook-date-index
 cat "$rec/service-health.json"
-cp "$stage/candidate.qmd" "$rec/candidate.ready"
-sha256sum "$rec/candidate.ready" | cut -d' ' -f1 > "$rec/candidate.sha256"
-sync
-mv "$rec/candidate.ready" "$qdir/notebook-date-index.qmd"
-sync
-touch "$rec/activation-attempted"; sync
-REMAGIC_SAMPLE_SECONDS=30 "$x/remagic-live-test-safe.sh"
+sha256sum "$stage/candidate.qmd" | cut -d' ' -f1 > "$rec/candidate.sha256"
+if [ "$mode" = backend-preview ]; then
+  for i in 1 2 3 4 5; do
+    systemctl is-active --quiet notebook-date-index
+    test "$(systemctl show notebook-date-index -p NRestarts --value)" = 0
+    test "$(systemctl show xochitl -p MainPID --value)" = "$ui_before"
+    sleep 1
+  done
+  cmp "$rec/prior-panel.qml" "$payload/DatesPanel.qml"
+  cmp "$rec/prior.qmd" "$qdir/notebook-date-index.qmd"
+  cmp "$rec/prior-settings.json" "$data/settings.json"
+else
+  cp "$stage/candidate.qmd" "$rec/candidate.ready"
+  sync
+  mv "$rec/candidate.ready" "$qdir/notebook-date-index.qmd"
+  sync
+  touch "$rec/activation-attempted"; sync
+  REMAGIC_SAMPLE_SECONDS=30 "$x/remagic-live-test-safe.sh"
+fi
 snapshot > "$rec/after-with-date.sha256"
 sed '\|/notebook-date-index.qmd$|d' "$rec/after-with-date.sha256" > "$rec/after-unrelated.sha256"
 sed '\|/notebook-date-index.qmd$|d' "$rec/before.sha256" > "$rec/before-unrelated.sha256"

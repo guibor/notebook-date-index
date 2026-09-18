@@ -11,11 +11,13 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -356,7 +358,9 @@ func view(v *Index, current []string) View {
 func handler(s *Store, token string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-store")
-		if r.Method != "POST" || r.Header.Get("Origin") != "" || r.Header.Get("Content-Type") != "application/json" || subtle.ConstantTimeCompare([]byte(r.Header.Get("X-Date-Index-Token")), []byte(token)) != 1 {
+		mediaType, params, mediaErr := mime.ParseMediaType(r.Header.Get("Content-Type"))
+		charsetOK := params["charset"] == "" || strings.EqualFold(params["charset"], "utf-8")
+		if r.Method != "POST" || r.Header.Get("Origin") != "" || mediaErr != nil || mediaType != "application/json" || !charsetOK || subtle.ConstantTimeCompare([]byte(r.Header.Get("X-Date-Index-Token")), []byte(token)) != 1 {
 			http.Error(w, "forbidden", http.StatusForbidden)
 			return
 		}

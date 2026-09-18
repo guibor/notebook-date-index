@@ -23,12 +23,19 @@ changing the user's existing table of contents.
 - First install is a non-recording preview. Functional promotion follows
   physical UI acceptance, then a disposable-notebook acceptance exercise.
 - Index is local only in v1. UI errors must not break stock page creation.
+- Test the real Qt XMLHttpRequest queue against the actual HTTP service,
+  including Qt's JSON Content-Type charset parameter. A mocked popup and a
+  curl-only health check do not prove this interface works.
 - Default date timezone is =Asia/Jerusalem=, with automatic daylight saving.
   Make it configurable in the Dates panel and a device-local settings file.
   A timezone change affects future records only, never existing dates or the
   tablet's system timezone. Each device maintains its own choice.
 
 * Changed requirements
+- The visible preview failed to load because the backend rejected Qt's valid
+  =application/json;charset=UTF-8= header. Accept parsed JSON with UTF-8 while
+  retaining token, Origin, HTTP-method and body validation. Prefer a backend-only
+  repair, preserving the live tablet UI and every QMD byte.
 - More tools is hidden by firmware when the toolbar container is tall; the
   user could not reach the first preview there. The three-dot Notebook
   settings menu is now the primary entry point without forcing overflow on.
@@ -40,6 +47,8 @@ changing the user's existing table of contents.
   dates are unknown. No cross-device index sync or firmware-survival service.
 
 * Immediate next steps
+- [X] Reproduce the panel's HTTP 403 with real Qt, repair MIME parsing, and
+  update only the background service without restarting the tablet UI.
 - [X] Deploy refreshed non-recording preview with the visible settings-menu
   entry, Israel default, and timezone selector; verify hashes and runtime.
 - [X] Pass unit, race, QML composition, generated syntax and version gates.

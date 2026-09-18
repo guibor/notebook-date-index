@@ -52,6 +52,13 @@ This preserves preview mode, all index data and existing timezone settings.
 It verifies the previous installed backend/panel/QMD and backs them up before
 replacing them. Rollback covers the configuration's previous presence/absence.
 
+For a writer-only repair with byte-identical QMD and panel, use
+`./ops/deploy.sh <verified-IP> backend-preview <previous-preview-recovery-path>`.
+This checks both UI artifacts against the live files, replaces only the writer,
+probes JSON using Qt's UTF-8 Content-Type, and requires xochitl's PID to remain
+unchanged. It does not restart the UI. Its independent rollback restores the
+old backend and restarts only that service if needed.
+
 ## Functional promotion
 
 Only after the exact preview has been physically accepted:
@@ -161,3 +168,31 @@ passed. The sandboxed Qt launcher failed CPU detection; the same local harness
 passed outside the sandbox. No device write was needed for that test.
 Physical acceptance of the relocated menu/panel and functional promotion are
 still pending. Tracking remains disabled; timezone preferences can be changed.
+
+## Qt transport repair: 2026-09-18
+
+The user's screenshot confirmed that Dates opened, but showed the load/save
+error and a disabled timezone selector. The background service was healthy.
+Plain `application/json` returned HTTP 200, whereas Qt's valid
+`application/json;charset=UTF-8` returned 403. The new `transport-test.mjs`
+reproduced this with the actual QML queue against the actual Go service.
+The old popup test had mocked this boundary and therefore missed the bug.
+
+The handler now parses the media type instead of comparing the whole header
+string. JSON with UTF-8 is accepted; token/Origin/method checks and body
+validation remain intact. Non-JSON, malformed types and UTF-16 are rejected.
+The genuine Qt-to-Go test now passes (HTTP 200). All 12 Go tests, six JS tests,
+the popup harness and both exact-firmware composition/version gates pass.
+
+Writer-only transaction `ndi-20260918T091158Z-backend-preview` passed in 12s.
+The UI stayed at PID `294628` with zero restarts. QMD, panel, timezone settings,
+all co-resident packages and Gestik bytes were preserved; root remained ro.
+The Qt-style device probe returned the empty index with `Asia/Jerusalem`.
+New backend SHA-256:
+`3f4df0ae95d4d3a83301a968a43a5f7f078e0a258452ec6529f71262543d3cef`.
+Backup SHA-256:
+`9fcbf971b97c10ad790e33c9d962822cb027023aed4f6f071fdeb2384ad10a36`.
+Full manifest/preimages are in the matching Mac `.cache/` transaction folder.
+Use this transaction as the previous preview for subsequent promotion/repair.
+The user must close/reopen Dates to retry the failed request. Tracking remains
+disabled pending healthy panel/pen acceptance and functional promotion.

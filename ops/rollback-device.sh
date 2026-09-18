@@ -9,9 +9,11 @@ test ! -e "$rec/rolled-back" || exit 0
 systemctl kill --kill-whom=all --signal=KILL notebook-date-index-install.service 2>/dev/null || true
 systemctl stop notebook-date-index.service 2>/dev/null || true
 q=/home/root/xovi/exthome/qt-resource-rebuilder/notebook-date-index.qmd
-if [ -f "$q" ]; then mv "$q" "$rec/failed.qmd"; fi
-if [ -f "$rec/prior.qmd" ]; then cp -p "$rec/prior.qmd" "$q"; fi
-if [ -f "$rec/prior-panel.qml" ]; then cp -p "$rec/prior-panel.qml" /home/root/.local/lib/notebook-date-index/DatesPanel.qml; fi
+if [ ! -e "$rec/backend-only" ]; then
+  if [ -f "$q" ]; then mv "$q" "$rec/failed.qmd"; fi
+  if [ -f "$rec/prior.qmd" ]; then cp -p "$rec/prior.qmd" "$q"; fi
+  if [ -f "$rec/prior-panel.qml" ]; then cp -p "$rec/prior-panel.qml" /home/root/.local/lib/notebook-date-index/DatesPanel.qml; fi
+fi
 if [ -f "$rec/prior-backend" ]; then
   cp -p "$rec/prior-backend" /home/root/.local/lib/notebook-date-index/notebook-date-index.ready
   mv /home/root/.local/lib/notebook-date-index/notebook-date-index.ready /home/root/.local/lib/notebook-date-index/notebook-date-index
@@ -25,6 +27,9 @@ fi
 sync
 if [ -e "$rec/activation-attempted" ]; then
   /home/root/xovi/stock > "$rec/rollback-stock.log" 2>&1
+fi
+if [ -e "$rec/backend-only" ]; then
+  systemd-run --unit=notebook-date-index --collect --property=Restart=on-failure --property=RestartSec=5 --property=MemoryMax=96M --property=NoNewPrivileges=yes /home/root/.local/lib/notebook-date-index/notebook-date-index --preview
 fi
 systemctl is-active --quiet xochitl
 test "$(findmnt -n -o OPTIONS / | cut -d, -f1)" = ro
