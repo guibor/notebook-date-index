@@ -36,15 +36,18 @@ the same date grouping, per-notebook opt-in, pause/resume and timezone options.
 
 The user clarified that date-index records for the same notebook must sync
 between Pro and Move. This supersedes the earlier local-only data policy, but
-is not implemented in the current deployed build. Merge individual page-date
+is not enabled in the current deployed tablet build. The md-server hub is live
+and the client merge code is tested; consult `SYNC-DEPLOYMENT.md` before rollout.
+Merge individual page-date
 records by verified notebook/page identity; never overwrite an entire index.
 Native notebook content keeps its existing sync path and remains untouched by
 Dates. Preserve original creation date/timezone and retain records for pages
 that have not arrived yet or are temporarily missing after deletion.
 
-Gestik and unrelated device settings remain independent. The scope of shared
-Dates enable/pause preferences and the transport/storage choice must be defined
-with the sync design; do not treat an app-version update as metadata migration.
+Gestik and unrelated device settings remain independent. The authorized transport
+is the private authenticated md-server HTTPS hub. Dates enable/pause preferences
+remain per-device for this version; do not treat an app-version update as
+metadata migration or automatically enable recording on the other device.
 
 ## Publication boundary
 
@@ -56,8 +59,8 @@ publishing the source does not make these caches part of the repository.
 
 ## Immediate work
 
-Choose the metadata sync transport and validate cross-device identity first;
-shared history must then receive its own offline/merge/rollback acceptance.
+The transport and sampled notebook/page identities are validated. Shared history
+must still receive its own on-device offline/merge/rollback acceptance.
 
 1. Complete physical Pro creation/navigation acceptance.
 2. Read-only qualify Move's current model/firmware/runtime and independent settings.

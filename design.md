@@ -15,7 +15,7 @@ The existing source history was published privately on 2026-09-18, retaining
 
 ## Modules
 
-### Pending cross-device Dates synchronization
+### Cross-device Dates synchronization (hub deployed; tablets pending)
 
 The local store remains the offline source for the UI. A future sync layer must
 exchange individual creation records keyed by verified notebook/page identity,
@@ -31,12 +31,46 @@ Keep such records; resolve navigation against locally available page IDs and
 do not propagate inferred deletions. A copied notebook must not inherit another
 notebook's history solely because its name or page numbers match.
 
-An authenticated private metadata service on the user's md-server is a proposed
-transport, not a deployed/approved component. It would exchange only identity
-and date-event metadata, not handwriting, page content or notebook titles.
-Server choice, access controls, device credentials and notebook-wide versus
-device-local enable/pause semantics remain design gates. No new network exposure
-or data transfer has been enabled. Existing notebook/cloud sync is unchanged.
+The user authorized md-server on 2026-09-18. `sync.go` implements an authenticated
+loopback hub behind the existing HTTPS origin at `/dates/v1/exchange`, plus an
+optional tablet worker enabled by private `sync.json`. Independent Pro/Move
+tokens authorize a shared history namespace; a probe token has a separate test
+namespace. Tokens are generated on the server, stored privately and never logged.
+No handwriting, notebook titles or document content is transmitted. Native
+notebook/cloud sync is unchanged. Enable/pause and future-event timezone choices
+remain per-device; receiving history never enables tracking automatically.
+
+`captureLocked` records local observations in `sync-events/<notebook>.json`
+before network I/O and again afterward, so concurrent creation cannot be lost.
+`mergeEvents` forms a sorted, deduplicated append-only set keyed by event hash;
+received observations are not reattributed to the receiving device.
+`canonicalPages` selects the earliest recorded UTC for each page with a stable
+hash tie-break. All conflicting observations/provenance remain in the journal;
+an incorrect device clock cannot be inferred or repaired automatically.
+`syncNotebook` merges journals before updating the existing schema-1 local
+index through its existing single-writer lock and atomic save. Corrupt journals
+fail closed and retain their bytes and prior backups. No inferred deletion sync.
+`syncLoop` checks watched/indexed notebooks once per minute; network calls never
+hold the UI writer lock. TLS verification is mandatory and redirects forbidden.
+Preview mode never starts the sync worker. Existing local-only deployments are
+unchanged until explicitly supplied a sync configuration and compatible writer.
+
+`SyncHub.ServeHTTP` authenticates per-device credentials, rejects foreign origin
+claims and unknown content fields, bounds requests/events, atomically persists
+before acknowledging, and does not create notebook files for empty reads.
+`ops/install-hub.sh` deploys a restricted user service on loopback port 18743,
+backs up/pins the shared nginx config, adds one TLS-only include, validates nginx
+and existing health before/after, and uses an independent timed rollback.
+No extra public port is opened and no OpenClaw service is changed.
+`ops/upgrade-hub.sh` provides independently guarded binary-only hub updates;
+`ops/smoke-hub.mjs` validates authentication/persistence/isolation using only
+synthetic data. `SYNC-DEPLOYMENT.md` distinguishes live server evidence from
+the unperformed tablet rollout, and records exact paths/hashes and recovery.
+
+Read-only identity checks found both devices on 3.28.0.169 and 1,331 shared
+document UUIDs. Two sampled notebooks matched all 8/8 and 15/15 page UUIDs.
+This validates the identity approach for those notebooks, not physical sync
+acceptance or Move compatibility of the current Pro QMD.
 
 ### Current implementation
 

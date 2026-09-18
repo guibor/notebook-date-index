@@ -62,11 +62,14 @@ type View struct {
 	Enabled  bool    `json:"enabled"`
 	Groups   []Group `json:"groups"`
 	Timezone string  `json:"timezone"`
+	Sync     string  `json:"sync,omitempty"`
 }
 type Store struct {
-	dir     string
-	mu      sync.Mutex
-	preview bool
+	dir        string
+	mu         sync.Mutex
+	preview    bool
+	watched    map[string]bool
+	syncStatus string
 }
 
 type Settings struct {
@@ -247,10 +250,19 @@ func (s *Store) apply(action string, r Request) (View, error) {
 	if err != nil {
 		return View{}, err
 	}
-	response := func(v *Index) View { out := view(v, r.Current); out.Timezone = config.Timezone; return out }
+	response := func(v *Index) View {
+		out := view(v, r.Current)
+		out.Timezone = config.Timezone
+		out.Sync = s.syncStatus
+		return out
+	}
 	if !uuid.MatchString(r.Notebook) {
 		return View{}, errors.New("invalid notebook ID")
 	}
+	if s.watched == nil {
+		s.watched = map[string]bool{}
+	}
+	s.watched[r.Notebook] = true
 	current, err := ids(r.Current)
 	if err != nil {
 		return View{}, err
@@ -390,7 +402,20 @@ func handler(s *Store, token string) http.Handler {
 func main() {
 	dir := flag.String("data", "/home/root/.local/share/notebook-date-index", "private data directory")
 	preview := flag.Bool("preview", false, "forbid all tracking changes")
+	hub := flag.Bool("sync-server", false, "run the metadata hub on loopback port 18743")
+	credentials := flag.String("credentials", "", "hub credential hashes JSON")
+	initCredentials := flag.String("init-sync-credentials", "", "initialize private hub/client credentials in this directory")
 	flag.Parse()
+	if *initCredentials != "" {
+		if err := initSyncCredentials(*initCredentials); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+	if *hub {
+		log.Fatal(runSyncHub(*dir, *credentials))
+		return
+	}
 	if err := os.MkdirAll(*dir, 0700); err != nil {
 		log.Fatal(err)
 	}
@@ -403,6 +428,16 @@ func main() {
 		log.Fatal("another writer is active")
 	}
 	s := &Store{dir: *dir, preview: *preview}
+	if !*preview {
+		c, e := loadSyncConfig(filepath.Join(*dir, "sync.json"))
+		if e != nil {
+			s.syncStatus = "Sync configuration needs attention"
+			log.Println("Dates sync disabled: invalid configuration")
+		} else if c != nil {
+			s.syncStatus = "Waiting to sync"
+			go s.syncLoop(c)
+		}
+	}
 	c, _, err := s.settings()
 	if err != nil {
 		log.Fatal(err)

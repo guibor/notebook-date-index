@@ -2,6 +2,12 @@
   "schema": 1,
   "application": "notebook-date-index",
   "feature_revision": 1,
+  "metadata_sync": {
+    "hub": "deployed-and-https-tested-on-md-server",
+    "tablet_client_code": "implemented-regression-tested-not-deployed",
+    "end_to_end_acceptance": "pending",
+    "deployment_recipe": "SYNC-DEPLOYMENT.md"
+  },
   "features": ["per-notebook-opt-in", "date-groups", "pause-resume", "configurable-iana-timezone"],
   "devices": {
     "pro": {

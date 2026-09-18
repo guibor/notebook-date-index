@@ -5,6 +5,11 @@ See [MAINTENANCE.md](MAINTENANCE.md) for shared Pro/Move development and
 [compatibility.json](compatibility.json) for actual device qualification.
 The current Pro build is deployed; the Move port is still pending.
 
+The private md-server Dates sync hub is now live and tested. The optional
+client/merge implementation is tested but **not yet rolled out to the tablets**;
+their date histories are not syncing yet. See [SYNC-DEPLOYMENT.md](SYNC-DEPLOYMENT.md)
+for server evidence, credentials/recovery boundaries and remaining device gates.
+
 Separate, opt-in date navigation for notebooks. It does **not** modify normal
 TOC entries, PDF outlines, native tags, or notebook files. RMStream remains a
 separate app in `../remarkable-beta-os/playbook/RMSTREAM.md`.
@@ -16,7 +21,8 @@ pages. Pause tracking using the same panel. Dates remain available while paused.
 
 Local data: `/home/root/.local/share/notebook-date-index/`. Back it up separately;
 the deployed v1 does not yet sync to cloud or another device. **Shared date
-history for the same notebook on Pro and Move is now required and planned**;
+history for the same notebook on Pro and Move is now required; its server and
+client code exist, with tablet rollout still pending**;
 see `prd.org` and `design.md`. Existing pages and imported/moved-in
 pages stay undated. Dates default to **Israel time (Asia/Jerusalem)**, including
 daylight-saving changes, independently of the tablet's UTC system clock.

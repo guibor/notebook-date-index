@@ -1,0 +1,20 @@
+[Unit]
+Description=Private notebook Dates metadata sync hub
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/home/mdf/.local/lib/notebook-date-sync/notebook-date-index --sync-server --data /home/mdf/.local/share/notebook-date-sync/history --credentials /home/mdf/.local/share/notebook-date-sync/credentials/devices.json
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/mdf/.local/share/notebook-date-sync/history
+MemoryMax=192M
+CPUQuota=30%
+
+[Install]
+WantedBy=default.target

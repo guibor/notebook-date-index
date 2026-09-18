@@ -71,8 +71,14 @@ changing the user's existing table of contents.
   exclusion of cross-device index sync is superseded by the clarification above.
 
 * Immediate next steps
-- [ ] Choose/authorize metadata transport and storage, then verify notebook/page
-  IDs across both devices before implementing sync.
+- [X] User authorized md-server metadata transport/storage; verified matching
+  notebook/page UUIDs on two real shared notebooks before implementation.
+- [X] Implement/test authenticated hub and offline event-set merging locally.
+- [X] Deploy and verify the HTTPS hub with isolated synthetic records; confirm
+  both tablets can validate TLS and reach its protected endpoint.
+- [ ] Qualify/deploy sync clients and validate actual two-tablet date history.
+- [ ] Update the Dates panel's local-only wording and add per-notebook sync
+  status before enabling synchronization on either tablet.
 - [ ] Test offline bidirectional creation, retries, duplicate events, divergent
   page availability, deletion/undo, reorder, timezone changes and notebook copies.
 - [X] Publish this standalone private repository and verify its GitHub branch.
