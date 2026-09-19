@@ -32,7 +32,7 @@ each device's actual qualification state; a pending target is not a release.
 
 Both feature/release parity and shared Dates history are maintenance goals,
 not automatic deployment.
-The Move revision-5 implementation is installed and independently runtime-qualified,
+The Move revision-6 implementation is installed and independently runtime-qualified,
 with the same grouping, per-notebook opt-in, pause/resume and timezone options.
 
 The user clarified that date-index records for the same notebook must sync

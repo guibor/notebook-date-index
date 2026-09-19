@@ -1,11 +1,54 @@
 # Paper Pro notebook Dates update recipe
 
 Exact branch: `beta/pro/3.28.0.169`, model `reMarkable Ferrari`.
-Move revision 5 is separately installed; see [its recipe](MOVE-UPDATE-RECIPE.md).
+Move revision 6 is separately installed; see [its recipe](MOVE-UPDATE-RECIPE.md).
 This branch is not a Move build. Read the sibling
 `remarkable-beta-os/KNOWLEDGE-BASE.md` and its current dated log first.
 
-## Current state: navigation revision 5 (2026-09-19)
+## Current state: calendar polish revision 6 (2026-09-19)
+
+Installed with `dates-polish-20260919T142350Z`: one-month arrow navigation,
+actionable adjacent-month dates, selected-state layout icons, and cache-preserving
+opening without our own dim/fade or post-open clear. Settings writes no longer
+hide loaded dates while their follow-up query is pending or fails.
+
+Only **DatesPanel.qml** and **DateTree.js** changed. The writer remained PID
+307144; the guarded UI became PID 323008, active with zero restarts and read-only
+root. All eleven QMDs, other apps, private Dates settings/token/sync config and
+both independent Gestik files were preserved. The new eleventh QMD belongs to
+the separate Dispatch partial-repaint work, not Dates; its exact composition
+was independently rechecked in both AppLoad load orders (29 parsed resources).
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Panel | `5280822baf8891bfb3f091d4c598f03413cc78373b76761eebe2fc133517b23a` |
+| DateTree | `336c47e7f619734214467b9f30e5324b82deeccae4977106bf8c64310f1e87dd` |
+| Writer (unchanged) | `445f532f18a7bf26d429aff0a481ab02ea3b74bef9b73f956f9b5ad77a09f979` |
+| Pro Dates QMD (unchanged) | `2d4681414ac00b534b2f21d179365601ce9e876c7cfbf6c6c8d25a2f8738e580` |
+| Exact eleven-QMD/runtime preimage profile | `ffda5bd48b76895cbeca0073c9deb4222015b37951f148ff804ba89a848e007f` |
+| Verified preimage archive | `27f64635f8c975168aa96ab5f4c0fe3389de3c3215e1096c3d19bfba918ee887` |
+| Reviewed staged manifest | `7f431910237b1558748113d23d0db0f6b3ccd0db3175379e8937f53027f871b8` |
+
+`ops/deploy-polish.sh` is the **exact r5 + Dispatch → r6 transition**, not an
+idempotent reinstall. Its new explicit eleven-QMD profile does not loosen older
+ten-QMD controllers. It verifies the off-device backup before arming independent
+rollback and ReMagic guards. Rollback proves its exact installer cgroup is empty
+before restoring files, and rechecks whether the transaction already committed.
+The tablets use `/sys/fs/cgroup/unified`; absence of that qualified layout fails
+preflight. Do not substitute a mainline `/sys/fs/cgroup` cgroup2 assumption.
+
+Backup/evidence: `/home/root/.codex-backups/dates-polish-20260919T142350Z`
+and local `.cache/dates-polish-20260919T142350Z`. Rollback never restores older
+Dates history over new records. No firmware or native notebook files were written.
+
+Gates passed: 30 Go/race tests, 23 Node tests, real Qt transport/creation tests,
+UI rendering at Pro/Move sizes, delayed callback/cache/settings-failure tests,
+26 mocked rollback cases, exact-firmware composition and wrong-version rejection.
+Live read-only notebook probe still found 356 pages, 282 modified pages in 113
+days, tracking on, Israel timezone and sync **Up to date**, with unchanged native
+metadata. Actual e-ink flash/touch acceptance remains a physical user check.
+
+## Previous state: navigation revision 5 (2026-09-19)
 
 The Pro is on revision 5, transaction `dates-navigation-20260919T111620Z`.
 Its header has a compact layout button, Modified-calendar day pages are numeric

@@ -177,7 +177,7 @@ cluttering or changing the user's existing table of contents.
 * Immediate next steps
 - [X] Implement/test single-month arrows, spillover links and selected-state icons.
 - [X] Add delayed-response opening/cache/error regressions without recording changes.
-- [ ] Deploy revision 6 panel/helper on both independently qualified devices.
+- [X] Deploy revision 6 panel/helper on both independently qualified devices.
 - [ ] Physically check reduced opening flash, both arrows and adjacent-month dots.
 - [X] Deploy navigation refinement to Pro under rollback protection.
 - [X] Install the same revision on freshly qualified Move and verify real

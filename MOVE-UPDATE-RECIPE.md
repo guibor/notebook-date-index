@@ -4,7 +4,55 @@ Exact branch: `beta/move/3.28.0.169`, model `reMarkable Chiappa`.
 Read the Move firmware-maintenance knowledge base and dated log first.
 Never use the Pro ReMagic wrapper, Pro profile or a copied Gestik configuration.
 
-## Revision 5 installed on 2026-09-19
+## Current: revision 6 installed on 2026-09-19
+
+Transaction `dates-move-polish-20260919T142554Z-6164` changed only the external
+panel/helper: one-month arrows, tappable spillover dates, selected layout icons,
+and cache-preserving opening. The notebook-menu entry is unchanged.
+
+The existing Move guard returned to stable stock PID 645829, then the unchanged
+dummy-service canary was rerun for that process. Its original evidence was
+preserved under this transaction's `previous-canary/`. The same ten-QMD runtime
+then activated the new panel under independent rollback: UI PID **647721**,
+writer **629024** unchanged, watchdog **647513**, all active with zero restarts.
+Root stayed read-only. The temporary rollback timer is inactive; the qualified
+Move watchdog deliberately remains active.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Panel | `5280822baf8891bfb3f091d4c598f03413cc78373b76761eebe2fc133517b23a` |
+| DateTree | `336c47e7f619734214467b9f30e5324b82deeccae4977106bf8c64310f1e87dd` |
+| Writer (unchanged) | `445f532f18a7bf26d429aff0a481ab02ea3b74bef9b73f956f9b5ad77a09f979` |
+| Move Dates QMD (unchanged) | `f6cba3190f3f690c2729539f0ecc3b629dd0d18366dc22fc5a89174df73731e0` |
+| Verified preimage archive | `2001f70cfb459f1618a70326be64fdaf14011214d8f8ad840ceb53a9bd2ae171` |
+| Reviewed stage manifest | `b78e2a9ff9afa173db8113f6991a16a0aba192dc62d27ab43096f855714ccc06` |
+
+Device backup: `/home/root/.codex-backups/dates-move-polish-20260919T142554Z-6164`.
+Its verified Mac copy is in this Move checkout's `.cache/` with the same name.
+Both local Gestik files, all QMDs, Vellum state, token, timezone and private sync
+configuration are unchanged. No native notebook or firmware file was written.
+
+`ops/deploy-move-polish.sh` is the one-time exact **r5 → r6** transition, not
+an installer to replay over r6. It creates the Mac cache directory when needed,
+verifies the backup, deactivates through the existing Move guard, refreshes the
+stock canary, then publishes/activates inside one guarded device process group.
+Rollback proves that group is quiescent and rechecks commit before restoring
+only the old panel/helper; it does not stop the writer or rewind history.
+Both tablets use the verified hybrid cgroup2 mount at
+`/sys/fs/cgroup/unified`, which is checked before publication.
+
+The **r5-named Move profile/runtime remains current**, because its QMD inventory
+and recovery code are unchanged. Continue using this app's
+`ops/run-move-session.sh`, not an older nine-QMD firmware runner or a Pro helper.
+
+Both branch test suites and exact Move composition passed. The read-only real
+notebook check found 356 pages, 282 modified pages in 113 days, Israel time,
+tracking off and sync **Up to date**. The paired probe again verified all three
+real Pro creation records on Move, without changing either native notebook file.
+This is not a physical newly-created-page round trip. Arrow/spillover taps and
+the actual e-ink opening flash remain physical acceptance items.
+
+## Historical: revision 5 installed on 2026-09-19
 
 Dates is in **notebook ⋮ → Dates**, with the same compact layout action,
 Created/Modified modes, calendar and settings as Pro. There is no Move sidebar
