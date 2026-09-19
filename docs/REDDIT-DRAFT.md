@@ -1,14 +1,25 @@
-# Reddit draft — not posted
+# Reddit publication record
 
-Prepared 2026-09-20. The post below is for use **after** a public repository is
-accessible and moderators approve it. Recheck the compatibility details then.
-The current source repository is private and the license decision is pending.
+Published 2026-09-20 as u/Patient_Chance_3795 in r/Remarkable, with Tips & Tricks
+flair, after making the existing GitHub repository public and verifying signed-out
+access. The license decision remains pending. The user-approved revision was
+published; the earlier draft below is retained only as historical preparation.
+
+**Published title:** I made an automatic date-based table of contents for reMarkable notebooks
+
+**Permalink:** https://www.reddit.com/r/Remarkable/comments/1wkzszw/i_made_an_automatic_datebased_table_of_contents/
+
+The published revision describes Dates as an automatic date-based table of
+contents and recommends BetterTOC for thematic navigation. Its title, body,
+author and GitHub link were verified on the resulting post page. No removal or
+pending-moderation notice was visible at verification. No moderator permission
+message was sent, and moderator approval is not claimed.
 
 r/Remarkable currently prohibits self-promotion:
 [community rules](https://www.reddit.com/r/Remarkable/).
 Do not post this as though it were an unrelated discovery.
 
-## Ask moderators first
+## Historical moderator-permission draft — not sent
 
 Hi mods — I've built a small, non-commercial reMarkable extension called
 Notebook Dates. It adds a calendar/list inside notebooks so you can find pages
@@ -21,11 +32,11 @@ firmware/installation limitations be welcome? I'm the author; this would not
 be an ad, affiliate link, or paid service. Happy to follow whatever format
 you prefer—or not post if it isn't appropriate.
 
-## Suggested title
+## Earlier title — superseded, not published
 
 I built Notebook Dates: find reMarkable pages by date, in a calendar or list
 
-## Post
+## Earlier post — superseded, not published
 
 I often remember *when* I wrote something more easily than which page it was on.
 So I built **Notebook Dates**, a small extension that lets me browse notebook
@@ -68,7 +79,7 @@ I'd be interested in how others would use it—daily work notes, meeting history
 journaling, or finding the last page you edited. Feedback on the date-navigation
 idea and help making installation more portable would be very welcome.
 
-## Attachments and publication checks
+## Historical attachment/publication checklist
 
 Use `images/dates-calendar.png` first and `images/dates-panel.png` second.
 They are synthetic examples; label them as such if sharing the images.

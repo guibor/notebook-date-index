@@ -8,7 +8,10 @@ deployment from a general installer, and local/offline use from optional metadat
 sync. `CONTRIBUTING.md` maps modules and source versus firmware/physical gates;
 `SECURITY.md`, `THIRD_PARTY.md` and `docs/PUBLICATION.md` record privacy,
 provenance, license/publication decisions and remaining distribution work.
-`docs/REDDIT-DRAFT.md` contains an unpublished post and moderator request.
+`docs/REDDIT-DRAFT.md` records the published post and the unsent moderator draft.
+The owner chose public visibility for the existing repository/history on
+2026-09-20, followed by the approved Reddit submission. This documentation-only
+publication step changes no runtime behavior, firmware guards or device state.
 
 `scripts/test-portable.sh` resolves paths relative to its repository, requires
 installed Go 1.24+/Node 18+, disables implicit toolchain/module downloads and

@@ -1,6 +1,6 @@
 # Dates ownership and device releases
 
-Canonical repository: https://github.com/guibor/notebook-date-index (private).
+Canonical repository: https://github.com/guibor/notebook-date-index (public).
 This is our original application, not a patch carried inside another app's repo.
 The firmware-marker repository links here but does not own this application's
 source, tests, release history or local metadata.
@@ -54,16 +54,15 @@ metadata migration or automatically enable recording on the other device.
 ## Publication boundary
 
 Public-sharing preparation is documented in [docs/PUBLICATION.md](docs/PUBLICATION.md).
-The repository remains private and unlicensed pending owner decisions. Historical
-operational identifiers exist in Git history; removing them only from HEAD is
-not sanitization. Prefer a reviewed clean public source repository while keeping
-these private deployment receipts/profiles intact. Do not rewrite accepted history
-or loosen device guards to create a superficially portable installer.
+The owner explicitly chose to make the existing repository and history public
+on 2026-09-20, after review of historical operational metadata. Signed-out source
+access was verified. No history rewrite or license grant was made. Do not rewrite
+accepted history or loosen device guards to create a superficially portable installer.
 
 Use `scripts/test-portable.sh` for source-only contributor/CI validation. The
 full Qt/firmware/device gates remain separate and required for device releases.
-The new guides and draft do not authorize a GitHub visibility change, release
-tag, server/tablet reinstall, or Reddit/moderator submission.
+The approved Reddit post was submitted on 2026-09-20; see `docs/REDDIT-DRAFT.md`.
+Publication did not include a release tag, server/tablet reinstall or moderator message.
 
 Commit source, tests, requirements, recipes and non-secret hash manifests.
 Never publish `.cache/`, `build/`, notebook files, index JSON, access tokens,
