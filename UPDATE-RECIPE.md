@@ -1,5 +1,12 @@
 # Paper Pro notebook Dates update recipe
 
+> **Maintainer transaction history, not a public installer.** New readers should
+> start with [the installation guide](docs/INSTALL.md). A later independent
+> Dispatch document-menu addition made the maintainer's Pro inventory twelve
+> QMDs. The eleven-QMD r5-to-r6 transaction below remains historical and must
+> not be replayed or loosened against that newer stack. It is a payload/receipt
+> reference, not authorization for current-stack reactivation.
+
 Exact branch: `beta/pro/3.28.0.169`, model `reMarkable Ferrari`.
 Move revision 6 is separately installed; see [its recipe](MOVE-UPDATE-RECIPE.md).
 This branch is not a Move build. Read the sibling

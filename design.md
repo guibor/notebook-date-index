@@ -1,5 +1,31 @@
 # Design
 
+## Community-sharing preparation (2026-09-20)
+
+The user-facing entry point is `README.md`, with task-specific guides in
+`docs/INSTALL.md` and `docs/SELF-HOSTING.md`. These separate a working exact-device
+deployment from a general installer, and local/offline use from optional metadata
+sync. `CONTRIBUTING.md` maps modules and source versus firmware/physical gates;
+`SECURITY.md`, `THIRD_PARTY.md` and `docs/PUBLICATION.md` record privacy,
+provenance, license/publication decisions and remaining distribution work.
+`docs/REDDIT-DRAFT.md` contains an unpublished post and moderator request.
+
+`scripts/test-portable.sh` resolves paths relative to its repository, requires
+installed Go 1.24+/Node 18+, disables implicit toolchain/module downloads and
+surrounding Go workspaces, and runs source/race/policy/shell tests with synthetic
+data. It cross-builds only `build/portable/notebook-date-index`, leaving accepted
+maintainer payloads and all runtime guards unchanged. It does not run Qt,
+generate QMDs, authenticate to devices, activate services or certify firmware.
+`.github/workflows/source-tests.yml` runs the same gate on Linux with pinned
+official action commits and read-only permissions; no deployment step exists.
+
+The existing `test.sh` remains a Pro-resource-oriented maintainer gate even in
+the Move checkout. Move composition/runtime/physical evidence remains separate.
+No application behavior, notebook data, device settings, deployment pins, or
+working tablet/server state changes as part of this documentation/test tooling.
+The user's overall Dates satisfaction is recorded without claiming that every
+previously listed physical/offline edge case has now been explicitly tested.
+
 ## Calendar polish (revision 6)
 
 The header now contains a small two-icon `layoutPicker`: its black icon is the

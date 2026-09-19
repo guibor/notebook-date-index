@@ -1,249 +1,197 @@
 # Notebook Dates
 
-**Find the page by the day.** A separate date navigator for reMarkable
-notebooks—without adding headings, changing your table of contents, or touching
-your handwriting.
+**Remember the day, find the page.**
 
-On **Paper Pro**, open a notebook and tap the **calendar icon above BetterTOC**
-in the sidebar. On **Move**, use **⋮ → Dates**. Browse by **Created** or **Modified**;
-the compact **list/calendar icons** in the header switch the layout. The black
-icon is the view you are currently using.
-Pro also retains the menu entry when a short toolbar has no room for the icon.
-The interface is designed for e-ink: readable type, generous touch targets,
-quiet separators, and no animation-dependent controls.
+Notebook Dates adds a date navigator inside your reMarkable notebooks. Browse
+a calendar or a compact date list, then jump straight to the page you want.
+Your handwriting, normal table of contents, and PDF outlines stay unchanged.
 
-![Dates, with collapsible years, months, days and pages. Synthetic example.](docs/images/dates-panel.png)
+![Notebook Dates calendar with one month and marked days. Synthetic example.](docs/images/dates-calendar.png)
 
-> **Beta software, exact firmware only.** This branch targets **Paper Pro / Ferrari
-> 3.28.0.169**. Move has its own separately qualified `beta/move/3.28.0.169`
-> branch. Do not install the Pro payload/guard on Move or bypass compatibility checks.
+> **Experimental, firmware-specific extension.** Installed on Paper Pro and Paper Pro
+> Move running **3.28.0.169**, with separately qualified builds.
+> This is not an official reMarkable app or a general one-click installation.
+> Read the [installation and compatibility guide](docs/INSTALL.md) before
+> changing a tablet. A nearby firmware version is not automatically compatible.
 
-## Two useful ways to find a page
+## At a glance
 
-| View | Date source | Needs tracking? | What changes after editing? |
+- **Created or Modified:** find pages by their recorded creation day or their
+  latest saved modification day.
+- **Calendar or list:** one month with arrow navigation, or days nested inside
+  months and, for longer histories, years.
+- **Direct page links:** marked calendar days open page choices; stable page IDs
+  keep navigation working after pages are reordered.
+- **Per-notebook tracking:** enable it where useful, pause without losing history.
+- **Optional historical estimates:** initialize undated pages from their saved
+  modification dates, clearly labelled as estimates.
+- **Offline first:** no account, API key, LLM, or server is needed for local use.
+- **Optional self-hosted sync:** share creation-date history for the same
+  notebook between your devices, without uploading handwriting to the Dates hub.
+- **E-ink-focused controls:** high-contrast controls, generous touch targets,
+  settings behind a gear, and no animation-dependent navigation.
+
+## Getting started
+
+Already have a qualified installation?
+
+1. Open a notebook.
+2. On **Paper Pro**, tap the **calendar icon above BetterTOC** in the sidebar.
+   On **Move**, open **⋮ → Dates**. Pro also has the menu fallback when the
+   toolbar has too little room for the direct icon.
+3. Choose **Modified** to browse existing saved page dates immediately.
+4. To record future creation dates, open **Dates → ⚙ → Enable for this notebook**.
+
+The **Created / Modified** control chooses what a date means. The two small
+**list / calendar icons** choose how to display it. The black icon is the
+current layout; tapping the other icon switches layouts.
+
+New installation? Start with [INSTALL.md](docs/INSTALL.md), not a script in
+`ops/`. Those scripts are guarded maintainer transactions for particular
+starting states, not an installer for arbitrary tablets.
+
+## What the dates mean
+
+| View | Source | Tracking required? | After editing a page |
 | --- | --- | --- | --- |
-| **Created** | Successful page-creation observations recorded by Dates | Yes, for future pages | Nothing: the recorded creation day stays put |
-| **Modified** | The notebook's own saved per-page last-modification metadata | No | The page moves to its latest saved modification day |
+| **Created** | Creation observed by Dates after a successful native page-creation action | Yes, to record future pages | Its recorded creation day stays fixed |
+| **Modified** | The notebook's built-in saved per-page modification metadata | No | It moves to the latest saved modification day |
 
-Days sit inside collapsible months. If a notebook spans multiple years, years
-become the outer level. Recent history is open first; older sections can be
-expanded when needed. **Tap a day** to open its first surviving page. Tap **+**
-to reveal all the pages for that day, then tap a page to go directly to it.
-Page links use stable IDs, so reordering does not break them. Deleted pages are
-hidden; undo can reveal their original dates again.
+**Old creation dates cannot be recovered reliably.** When enabling tracking,
+you may check **Include undated pages using last-modified dates (estimates)**.
+It starts unchecked. This takes a one-time snapshot for pages with no recorded
+creation date; entries remain labelled **estimated**, and existing recorded
+dates are never overwritten.
 
-### Or browse a calendar
+Modified is a latest-edit view, **not a full edit history**. An unsaved edit may
+not appear until reMarkable saves its metadata. Missing timestamps stay undated.
+Dates does not guess from file modification times.
 
-Tap the **calendar icon** in the header without changing your Created/Modified
-choice. One month is shown at a time; use **‹ / ›** to move between months.
-It starts at your latest dated month. A **black dot** marks each day with matching
-pages—including the lighter dates from adjacent months at the edges of the grid.
-Tap a marked day to choose a page. The back button returns to the same month.
-Empty intervening months are included, and weeks start on Sunday.
-Tap the **list icon** whenever a compact hierarchy is more useful. The selected
-icon has a black background; the other icon switches to that view.
-After selecting a day in **Modified → Calendar**, pages are ordered by their
-current page number, not by which page was edited most recently.
+## Finding pages
 
-![Single-month calendar with arrows and adjacent-month date links. Synthetic example.](docs/images/dates-calendar.png)
+### Calendar
 
-Both layouts show exactly the same available pages. Calendar browsing does not
-enable tracking, invent dates, or modify notebook content.
+One month is shown at a time. Use **‹ / ›** to move through months, including
+empty intervening months. A black dot means that day has matching pages.
 
-Modified is a *latest-edit view*, not a complete edit log. It refreshes when you
-open Dates or switch views. A still-unsaved edit may not appear until reMarkable
-has saved its metadata. Missing timestamps stay undated.
-Reopening Dates retains the matching notebook's loaded history while refreshing,
-without a loading-screen detour. If refresh fails, the panel explicitly says
-that it is showing saved dates. No cache is shared between different notebooks.
+Tap a marked day to choose a page. The lighter dates from the preceding or
+following month are tappable too. Back returns to the month you were browsing.
+Weeks start on Sunday. In **Modified → Calendar**, the selected day's pages are
+ordered by their current page number.
 
-## Turn on creation tracking
+### List
 
-1. Open **Dates → ⚙** in the notebook you want to track.
-2. Optionally select **Include undated pages using last-modified dates (estimates)**.
-3. Tap **Enable for this notebook**.
+Days are nested inside collapsible months; years become an outer level when
+needed. Recent history is expanded first.
 
-The optional checkbox starts **off**. It takes a one-time snapshot for pages
-without a saved creation date. These entries remain visibly **estimated**:
-last modified is useful historical information, but it is not proof of when a
-page was created. Existing creation dates are never overwritten, missing dates
-are not invented, and later editing does not move a saved estimate.
+Tap a day to open its first surviving page, or **+** to reveal individual page
+links. Deleted pages are hidden; undo can reveal their original dates again.
 
-Tracking is per notebook and per tablet. **Pause tracking** keeps existing
-history and stops dating new pages. Re-enabling offers the same optional
-baseline for still-undated pages. Notebook copies have different IDs and do not
-inherit tracking automatically. Imported/moved-in pages are not mistaken for
-newly created pages; you may explicitly include them in a later baseline.
+![Dates list with nested months, days and page links. Synthetic example.](docs/images/dates-panel.png)
 
-The Created view and the regular table of contents are independent. This app
-does not add native tags or TOC entries and does not alter PDF outlines.
+Reopening Dates keeps the matching notebook's loaded history visible while it
+refreshes. A failed refresh is labelled as showing saved dates. Cached history
+is never shared between different notebooks.
 
-## Settings stay out of the way
+## Tracking, settings and timezone
 
-The **gear inside Dates** contains tracking, the optional baseline, timezone,
-and date-history sync status. Settings scroll if the available height is small.
+Tracking is **per notebook and per device**, off by default. Pause keeps
+existing history but stops recording new pages. Copies have new notebook IDs
+and do not inherit tracking automatically. Imported or moved-in pages are not
+mistaken for new creations; you can explicitly include undated pages in a
+later estimated baseline.
 
-The default timezone is **Asia/Jerusalem**, including Israel daylight-saving
-rules. Changing it re-groups Modified view immediately and affects future
-creation observations/estimates. Previously stored creation days do not move.
-The tablet system clock is never changed.
+The gear contains tracking, estimated initialization, timezone, and sync
+status. The default timezone is **Asia/Jerusalem**, including daylight-saving
+rules, and is configurable. Changing it immediately regroups Modified view
+and affects future creation observations; previously stored creation days do
+not move. The tablet's system clock/timezone is never changed.
 
-For an IANA timezone not in the menu, use the private device-local settings file:
+See [settings and backup details](docs/INSTALL.md#settings-and-backups) for the
+private configuration path and custom IANA timezone names.
 
-```json
-{"schema":1,"timezone":"Europe/Paris"}
-```
+## Optional sync: your server, your devices
 
-Path: `/home/root/.local/share/notebook-date-index/settings.json`. Preserve its
-private permissions and replace it atomically. Settings take effect on the next
-request. Pro and Move settings are independent, even when history is shared.
+Without a private `sync.json`, Dates stays local-only. There is no built-in
+personal server endpoint or fallback account.
 
-## Optional sync—your server, your configuration
+The optional hub exchanges **creation-history metadata only**: notebook/page
+IDs, times, dates, timezones, estimate flags, and originating device names.
+It does not receive handwriting, notebook titles, document text, or PDF contents.
+Modified view is computed locally; an explicitly saved creation estimate can
+be synchronized as creation-history metadata.
 
-Dates works **offline and without a server**. There is no built-in personal
-server address and no fallback to someone else's account. Without `sync.json`,
-the tablet service stays local-only.
+Your normal reMarkable sync continues unchanged. **Dates does not sync notebooks
+or pages**: matching notebook/page IDs must already be present through your
+existing notebook-sync method. Offline date observations merge rather than
+replacing the other device's whole history. Tracking switches, timezones,
+Gestik, and unrelated preferences remain device-local.
 
-The optional self-hosted hub exchanges only creation-history metadata:
-notebook/page UUIDs, recorded times, calendar days, offsets, timezones, estimate
-flags and originating device names. It does **not** send handwriting, document
-text, titles or PDF contents. Modified view is read locally and is not uploaded;
-an explicitly saved creation estimate may be synced as creation-history metadata.
+Read the [self-hosting guide](docs/SELF-HOSTING.md) for server setup, independent
+device credentials, private configuration, and synchronization limits.
+No hosted service is included.
 
-Native reMarkable cloud sync continues unchanged. The hub does not sync notebook
-content: the same notebook/page IDs must already exist on both devices. Dates
-merges offline observations rather than replacing one device's whole index.
-Recorded creation wins over an estimate; remaining conflicts use earliest UTC
-and a deterministic tie-break while retaining every observation in the journal.
-Incorrect device clocks cannot be repaired automatically.
+## Compatibility and installation status
 
-### Self-host the hub
+| Device | Firmware tested here | Branch | Entry point |
+| --- | --- | --- | --- |
+| Paper Pro / Ferrari | `3.28.0.169` | `beta/pro/3.28.0.169` | Sidebar calendar; menu fallback |
+| Paper Pro Move / Chiappa | `3.28.0.169` | `beta/move/3.28.0.169` | Notebook ⋮ menu |
+| Other models or firmware | Not qualified | — | Do not use these deployment scripts |
 
-Use the **same current source revision** for hub and clients. Earlier hubs do
-not understand estimates; upgrade the hub before sending estimated records.
-One hub history namespace is for **one trusted owner/device group**, not an
-untrusted multi-user hosting service.
+Both devices have feature revision **6**. Matching firmware alone is not a
+complete installation check: the existing XOVI/QMLDiff setup and other patches
+also matter. The Pro sidebar integration currently assumes the qualified
+BetterTOC toolbar patch.
 
-Build for your server architecture (example: Linux x86-64):
+There is **no general ReManager/Vellum package or public one-command tablet
+installer yet**. The [installation guide](docs/INSTALL.md) explains the source
+build, required qualification, layout, backups, and recovery boundaries.
+The [compatibility matrix](compatibility.json) separates installed artifacts,
+automated evidence, and outstanding physical checks. Successful sampled
+Pro-to-Move history delivery does not prove every offline or reverse-direction case.
+
+## Development
+
+The portable source checks need Bash, **Go 1.24+**, **Node.js 18+**, and a C
+compiler for Go's race detector:
 
 ```sh
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o notebook-date-index .
+bash scripts/test-portable.sh
 ```
 
-On the server, create a private data directory and generate fresh credentials:
+They need no tablet, SSH credentials, Qt installation, private firmware cache,
+or sibling repository. They test storage, metadata, synchronization, creation
+wrappers and calendar logic, check recovery-policy fixtures, and cross-build
+the Go service for Linux ARM64.
 
-```sh
-./notebook-date-index \
-  --init-sync-credentials "$HOME/.local/share/notebook-date-sync/credentials" \
-  --sync-endpoint https://dates.example.com/dates/v1/exchange \
-  --devices my-pro,my-move,probe
-```
+This is **not tablet compatibility certification**. The full Qt/QMLDiff gates
+still need exact, privately extracted firmware resources and a reviewed
+co-resident patch set. See [CONTRIBUTING.md](CONTRIBUTING.md) for both levels,
+source layout, and reporting bugs without private notebook data.
 
-**Replace the example domain with yours.** The endpoint is required, must use
-HTTPS, and must end in `/dates/v1/exchange`. Device names are unique lowercase
-letters/digits/hyphens, beginning with a letter, up to 40 characters. `probe` is
-a reserved isolated test namespace. Credential generation refuses to overwrite
-existing files. It writes a hashed `devices.json` for the hub and a separate
-private `<device>-client.json` with a random token for each client; it does not
-print tokens.
+## Safety and recovery
 
-Run the hub behind a TLS reverse proxy:
+Dates is an unofficial modification, not supported by reMarkable. No hack is
+risk-free. App files stay under `/home/root`; the reviewed installation does
+not modify the bootloader, kernel, firmware, or stock executable. Runtime
+services are transient: reboot may require guarded reactivation, and a firmware
+update requires new qualification.
 
-```sh
-./notebook-date-index --sync-server \
-  --data "$HOME/.local/share/notebook-date-sync/history" \
-  --credentials "$HOME/.local/share/notebook-date-sync/credentials/devices.json"
-```
+Back up the entire private Dates data directory, not just your notebooks.
+Do not restart an old writer over newer schema-2 history or restore an old
+archive over dates recorded since that backup. For everyday use, **Pause
+tracking** is the reversible way to stop recording.
 
-It listens on **127.0.0.1:18743**, not a public interface. See the
-[portable user-service example](examples/notebook-date-sync.service) and
-[nginx location](ops/dates-sync-location.conf). Create the history directory and
-install the binary at the paths in the service before enabling it. Keep data
-directories mode 0700 and credential files mode 0600. Do not disable TLS
-verification, expose the loopback service directly, or enable request-body logs.
-Redirects are deliberately refused by clients.
-
-### Configure each qualified tablet
-
-Securely copy that device's generated `<device>-client.json` to:
-
-```text
-/home/root/.local/share/notebook-date-index/sync.json
-```
-
-The [example configuration](examples/sync.json) shows the shape, not usable
-credentials. Each tablet needs its own token/device name. Restart **only the
-Dates service** through your device's qualified recipe to load a changed sync
-configuration; this does not itself require a tablet UI restart. Existing
-configuration is not regenerated by app updates.
-
-The background worker starts promptly when a notebook is viewed or a creation
-record changes, and retries roughly every minute. Dates settings shows the
-status for the current notebook; reopen Dates to refresh it. Offline errors do
-not block writing or local navigation. A received
-record is visible only when its matching page is available locally. Tracking
-switches, timezone choices, and unrelated preferences are not synchronized.
-
-**Current deployment status:** Revision 5 is installed on both the maintainer's
-Pro and Move, on independently qualified .169 branches. A real 356-page shared
-notebook was checked on both tablets: the Move received all three Pro creation
-records with exact timestamps/provenance, reported **Up to date**, and neither
-native notebook file changed. Tracking remains device-local; the Move starts
-off even when it receives existing history. Physical new-page, reverse-direction
-and offline handwriting acceptance are still pending.
-
-## Installation, updates and recovery
-
-This is an unofficial XOVI/QMLDiff extension, not supported by reMarkable.
-The qualified Pro uses the standalone Dates service and an external QML panel.
-It coexists with BetterTOC and the separately maintained RMStream shortcut.
-
-Read [UPDATE-RECIPE.md](UPDATE-RECIPE.md) before changing a device. The current
-revision-5 upgrade is deliberately narrow: exact model/firmware/runtime/old-payload
-hashes, a private off-device backup, independent timed rollback, and a guarded UI
-restart. Pro changes only the panel, helper and Dates QMD, retaining its writer
-and all history. Move adds Dates beside its existing nine QMDs with its own
-qualified recovery runtime and private sync credential. Historical initial-install scripts are **not** suitable for
-the current ten-QMD inventory. Host-qualified scripts in `ops/` are maintainer
-runbooks, not a one-command installer for arbitrary tablets or servers.
-
-All app payload and data live below `/home/root`; no bootloader, firmware,
-kernel, stock executable or root-filesystem modification is required. Runtime
-services are transient. A reboot may require deliberate guarded reactivation;
-an OS update requires new exact-version qualification. No hack is risk-free.
-
-**Back up the whole directory** `/home/root/.local/share/notebook-date-index/`.
-It contains private tokens, device settings, per-notebook indexes, atomic
-`.previous` backups, and optional sync journals. Keep backups encrypted/private
-and out of Git. Normal notebook backups do not include this separate history.
-
-New index writes use **schema 2**, retaining schema-1 read compatibility.
-Do not run an old writer against schema-2 data. Emergency v3 rollback stops
-Dates and preserves current history; recover with a schema-2-aware binary rather
-than blindly restoring an old data archive. Pausing is the everyday way to
-stop tracking without deleting anything. Removal should disable the Dates QMD
-and service through a qualified guarded recipe, while retaining the data folder.
-
-## Develop and maintain
-
-Run `./test.sh` with Go, Node.js, Qt 6 tools, and the exact firmware resource
-cache described in the update recipe. Tests include Go race/security/storage
-tests, read-only metadata/backfill/provenance tests, real Qt HTTP transport,
-creation-callback isolation, hierarchical UI/navigation checks, QMLDiff
-composition, wrong-firmware rejection and a static ARM64 build. Rendered test
-images use synthetic data, never a user's notebook.
-
-This branch deliberately relies on a sibling exact-firmware cache and reviewed
-co-resident QMD manifest. It does not redistribute stock firmware resources or
-pretend an adjacent beta is compatible. Paper Pro Move requires its own branch,
-resources, controller and physical acceptance.
-
+- [Installation, backups, troubleshooting and removal](docs/INSTALL.md)
+- [Privacy and security reporting](SECURITY.md)
 - [Design and main functions](design.md)
-- [Product requirements and next steps](prd.org)
-- [Compatibility matrix](compatibility.json)
-- [Branch/upstream maintenance](MAINTENANCE.md)
-- [Private-hub deployment evidence and remaining rollout](SYNC-DEPLOYMENT.md)
+- [Requirements and next steps](prd.org)
+- [Branch and release maintenance](MAINTENANCE.md)
 
-Project: [guibor/notebook-date-index](https://github.com/guibor/notebook-date-index).
-Dates owns its own repository; RMStream customizations belong to their separate
-upstream-tracking fork.
+Repository: [guibor/notebook-date-index](https://github.com/guibor/notebook-date-index).
+
+**Publication status:** this repository is currently private and has no license
+grant yet. Public sharing and an open-source license are pending owner approval
+and the [publication checklist](docs/PUBLICATION.md). A public release is not
+implied by the installation evidence above.
