@@ -12,20 +12,33 @@ test('modified calendar days use numeric page order without changing list or cre
  assert.deepEqual(groups[0].pages.map(p=>p.number),[12,2,3]);
  assert.equal(ctx.pagesForDay(byDay,'2020-01-01','modified').length,0);
 });
-test('presentation has one compact action, not a second segmented bar',()=>{
+test('presentation uses a compact icon picker with explicit current selection',()=>{
  const popup=fs.readFileSync('qml/popup.qml.inc','utf8');
- assert.match(popup,/id: layoutButton/);
+ assert.match(popup,/id: layoutPicker/);
+ assert.match(popup,/id:listViewButton.*primary:ndiPopup.presentation==="list"/);
+ assert.match(popup,/id:calendarViewButton.*primary:ndiPopup.presentation==="calendar"/);
  assert.doesNotMatch(popup,/layoutTabs|calendarTab|listTab/);
 });
-test('calendar spans empty months lazily and handles year boundaries',()=>{
+test('calendar arrows traverse empty months and clamp at the available bounds',()=>{
  const groups=[group('2025-12-31'),group('2026-03-01')];
  const r=ctx.calendarRange(groups);
  assert.equal(r.count,4);
+ assert.equal(r.oldest,ctx.monthNumber('2025-12-01'));
  assert.equal(ctx.calendarMonth(r.latest,ctx.dayGroups(groups)).title,'March 2026');
  assert.equal(ctx.calendarMonth(r.latest-2,ctx.dayGroups(groups)).pages,0);
  assert.equal(ctx.calendarMonth(r.latest-3,ctx.dayGroups(groups)).title,'December 2025');
+ assert.equal(ctx.shiftMonth(r.latest,-1,r),ctx.monthNumber('2026-02-01'));
+ assert.equal(ctx.shiftMonth(r.latest,-2,r),ctx.monthNumber('2026-01-01'));
+ assert.equal(ctx.shiftMonth(r.latest,-3,r),r.oldest);
+ assert.equal(ctx.shiftMonth(r.oldest,-1,r),r.oldest);
+ assert.equal(ctx.shiftMonth(r.latest,1,r),r.latest);
  assert.equal(ctx.calendarRange([],'2026-09-19').count,1);
+ const empty=ctx.calendarRange([],'2026-09-19');
+ assert.equal(ctx.shiftMonth(empty.oldest,-1,empty),empty.oldest);
+ assert.equal(ctx.shiftMonth(empty.latest,1,empty),empty.latest);
  assert.equal(ctx.calendarRange([group('0001-01-01'),group('9999-12-31')]).count,119988);
+ assert.equal(ctx.shiftMonth(ctx.monthNumber('0001-01-01'),-1),12);
+ assert.equal(ctx.shiftMonth(ctx.monthNumber('9999-12-31'),1),119999);
 });
 test('calendar weekday alignment, leap years and dots use only the selected groups',()=>{
  const groups=[group('2024-02-29',true)];
@@ -35,13 +48,58 @@ test('calendar weekday alignment, leap years and dots use only the selected grou
  assert.equal(month.cells[32].day,'2024-02-29');
  assert.equal(month.cells[32].count,1);
  assert.equal(month.cells.filter(c=>c.count).length,1);
- assert.equal(ctx.calendarMonth(ctx.monthNumber('2023-02-01'),{}).cells.filter(c=>c.number).length,28);
- assert.equal(ctx.calendarMonth(ctx.monthNumber('2000-02-01'),{}).cells.filter(c=>c.number).length,29);
- assert.equal(ctx.calendarMonth(ctx.monthNumber('1900-02-01'),{}).cells.filter(c=>c.number).length,28);
+ assert.equal(ctx.calendarMonth(ctx.monthNumber('2023-02-01'),{}).cells.filter(c=>c.inMonth).length,28);
+ assert.equal(ctx.calendarMonth(ctx.monthNumber('2000-02-01'),{}).cells.filter(c=>c.inMonth).length,29);
+ assert.equal(ctx.calendarMonth(ctx.monthNumber('1900-02-01'),{}).cells.filter(c=>c.inMonth).length,28);
  assert.equal(ctx.calendarMonth(ctx.monthNumber('0001-01-01'),{}).cells[1].number,1);
  assert.equal(ctx.dayGroups(groups)['2024-02-29'].pages[0].estimated,true);
  assert.equal(ctx.dayTitle('2024-02-29'),'29 February 2024');
  assert.equal(ctx.calendarMonth(ctx.monthNumber('2024-02-01'),{}).pages,0,'other mode must not retain dots');
+});
+test('spillover dates retain their own records without inflating the month count',()=>{
+ const groups=[group('2026-08-31'),group('2026-09-01'),group('2026-10-01')];
+ const before=JSON.stringify(groups), byDay=ctx.dayGroups(groups);
+ const month=ctx.calendarMonth(ctx.monthNumber('2026-09-01'),byDay);
+ assert.equal(month.cells.length,42);
+ assert.equal(month.cells.filter(c=>c.day).length,42);
+ assert.equal(month.cells[0].day,'2026-08-30');
+ assert.equal(month.cells[41].day,'2026-10-10');
+ for(const day of ['2026-08-31','2026-10-01']) {
+  const cell=month.cells.find(c=>c.day===day);
+  assert.equal(cell.count,1);
+  assert.equal(cell.inMonth,false);
+  assert.equal(ctx.pagesForDay(byDay,cell.day,'created')[0].id,day);
+ }
+ assert.equal(month.cells.find(c=>c.day==='2026-09-01').inMonth,true);
+ assert.equal(month.pages,1);
+ assert.equal(JSON.stringify(groups),before,'calendar construction mutated the input');
+});
+test('spillover crosses December and January using full civil dates',()=>{
+ const dec=ctx.calendarMonth(ctx.monthNumber('2025-12-01'),ctx.dayGroups([group('2026-01-01')]));
+ const jan=ctx.calendarMonth(ctx.monthNumber('2026-01-01'),ctx.dayGroups([group('2025-12-31')]));
+ assert.equal(dec.cells.find(c=>c.day==='2026-01-01').count,1);
+ assert.equal(jan.cells.find(c=>c.day==='2025-12-31').count,1);
+ assert.equal(dec.pages,0);
+ assert.equal(jan.pages,0);
+ const common=ctx.calendarMonth(ctx.monthNumber('2023-02-01'),{});
+ assert.equal(common.cells.findIndex(c=>c.day==='2023-03-01'),31);
+ assert.equal(common.cells.some(c=>c.day==='2023-02-29'),false);
+});
+test('calendar bounds omit only spillover outside supported civil years',()=>{
+ const first=ctx.calendarMonth(ctx.monthNumber('0001-01-01'),{});
+ const last=ctx.calendarMonth(ctx.monthNumber('9999-12-01'),{});
+ assert.equal(first.cells.length,42);
+ assert.equal(first.cells[0].day,'');
+ assert.equal(first.cells[0].number,0);
+ assert.equal(first.cells[0].inMonth,false);
+ assert.equal(first.cells[1].day,'0001-01-01');
+ assert.equal(last.cells.length,42);
+ assert.equal(last.cells.find(c=>c.inMonth && c.number===31).day,'9999-12-31');
+ assert.ok(last.cells.some(c=>c.day===''));
+ for(const cell of first.cells.concat(last.cells)) {
+  assert.ok(cell.day==='' || /^\d{4}-\d{2}-\d{2}$/.test(cell.day));
+  if(!cell.day) assert.equal(cell.count,0);
+ }
 });
 test('minimal tablet Qt contract excludes unavailable accessibility attachment',()=>{
  assert.doesNotMatch(fs.readFileSync('qml/popup.qml.inc','utf8'),/Accessible\./);
@@ -71,9 +129,9 @@ test('late view/notebook responses never overwrite the active panel',()=>{
  const popup=fs.readFileSync('qml/popup.qml.inc','utf8');
  const refresh=popup.slice(popup.indexOf('function ndiRefresh()'),popup.indexOf('\nConnections {'));
  const pending=[];
- const state={mode:'created',requestGeneration:0};
+ const state={mode:'created',requestGeneration:0,focusedMonth:-1,calendarInfo:{oldest:12,latest:24320},prepareScope(){}};
  const root={document:{id:'notebook-a',fileType:1}};
- const context=vm.createContext({root,ndiPopup:state,Document:{Notebook:1},Values:{ndiIds:()=>[],ndiRequest:(action,body,done)=>pending.push(done)}});
+ const context=vm.createContext({root,ndiPopup:state,DateTree:ctx,Document:{Notebook:1},Values:{ndiIds:()=>[],ndiRequest:(action,body,done)=>pending.push(done)}});
  vm.runInContext(refresh,context);
  context.ndiRefresh(); state.mode='modified'; context.ndiRefresh();
  pending[1]({enabled:false,groups:[{day:'2026-09-19'}],timezone:'UTC'});

@@ -6,7 +6,8 @@ your handwriting.
 
 On **Paper Pro**, open a notebook and tap the **calendar icon above BetterTOC**
 in the sidebar. On **Move**, use **⋮ → Dates**. Browse by **Created** or **Modified**;
-the compact **Calendar / List** button in the header switches the layout.
+the compact **list/calendar icons** in the header switch the layout. The black
+icon is the view you are currently using.
 Pro also retains the menu entry when a short toolbar has no room for the icon.
 The interface is designed for e-ink: readable type, generous touch targets,
 quiet separators, and no animation-dependent controls.
@@ -33,15 +34,18 @@ hidden; undo can reveal their original dates again.
 
 ### Or browse a calendar
 
-Tap **Calendar** in the header without changing your Created/Modified choice. Scroll through
-months, newest first; a **black dot** marks each day with matching pages. Tap a
-marked day to choose a page. **Back to months** returns to the same scroll
-position. Empty intervening months remain visible, and weeks start on Sunday.
-Tap **List** in the same place whenever a compact hierarchy is more useful.
+Tap the **calendar icon** in the header without changing your Created/Modified
+choice. One month is shown at a time; use **‹ / ›** to move between months.
+It starts at your latest dated month. A **black dot** marks each day with matching
+pages—including the lighter dates from adjacent months at the edges of the grid.
+Tap a marked day to choose a page. The back button returns to the same month.
+Empty intervening months are included, and weeks start on Sunday.
+Tap the **list icon** whenever a compact hierarchy is more useful. The selected
+icon has a black background; the other icon switches to that view.
 After selecting a day in **Modified → Calendar**, pages are ordered by their
 current page number, not by which page was edited most recently.
 
-![Scrollable month calendar. Synthetic example.](docs/images/dates-calendar.png)
+![Single-month calendar with arrows and adjacent-month date links. Synthetic example.](docs/images/dates-calendar.png)
 
 Both layouts show exactly the same available pages. Calendar browsing does not
 enable tracking, invent dates, or modify notebook content.
@@ -49,6 +53,9 @@ enable tracking, invent dates, or modify notebook content.
 Modified is a *latest-edit view*, not a complete edit log. It refreshes when you
 open Dates or switch views. A still-unsaved edit may not appear until reMarkable
 has saved its metadata. Missing timestamps stay undated.
+Reopening Dates retains the matching notebook's loaded history while refreshing,
+without a loading-screen detour. If refresh fails, the panel explicitly says
+that it is showing saved dates. No cache is shared between different notebooks.
 
 ## Turn on creation tracking
 

@@ -2,6 +2,7 @@ component DatesButton: NdiControls.Button {
     id: button
     property bool primary: false
     property bool quiet: false
+    property color iconInk: primary && !down ? "white" : "black"
     implicitHeight: 64
     leftPadding: 20; rightPadding: 20
     font.pixelSize: 25
@@ -24,16 +25,23 @@ function ndiRefresh() {
     if (!root.document || root.document.fileType !== Document.Notebook) return;
     const notebook = String(root.document.id);
     const mode = ndiPopup.mode;
+    ndiPopup.prepareScope(notebook, mode);
     const generation = ++ndiPopup.requestGeneration;
     Values.ndiRequest("query", {notebook:notebook, current:Values.ndiIds(root.document), mode:mode}, function(result) {
         if (!root.document || String(root.document.id) !== notebook || generation !== ndiPopup.requestGeneration || mode !== ndiPopup.mode) return;
-        ndiPopup.ready = !!result;
         if (result) {
-            ndiPopup.tracking = result.enabled; ndiPopup.groups = result.groups;
+            ndiPopup.tracking = result.enabled;
+            // Preserve delegate identity when a background refresh is unchanged.
+            if (JSON.stringify(ndiPopup.groups) !== JSON.stringify(result.groups)) ndiPopup.groups = result.groups;
             ndiPopup.timezone = result.timezone || "Asia/Jerusalem";
             ndiPopup.undated = result.undated || 0; ndiPopup.estimates = result.estimated || 0;
             ndiPopup.warning = result.warning || "";
             ndiPopup.syncStatus = result.sync || "Local only · sync not configured";
+            ndiPopup.focusedMonth = ndiPopup.focusedMonth < 0 ? ndiPopup.calendarInfo.latest : DateTree.shiftMonth(ndiPopup.focusedMonth, 0, ndiPopup.calendarInfo);
+            ndiPopup.refreshError = "";
+            ndiPopup.ready = true;
+        } else {
+            ndiPopup.refreshError = Values.ndiError || "Could not refresh dates. Close and reopen to retry.";
         }
     });
 }
@@ -56,6 +64,9 @@ NdiControls.Popup {
     property bool tracking: false
     property bool showSettings: false
     property bool initializeOlder: false
+    property bool settingsBusy: false
+    property string scopeKey: ""
+    property string refreshError: ""
     property var groups: []
     property var expanded: ({})
     property var dateRows: DateTree.rows(groups, expanded)
@@ -64,6 +75,8 @@ NdiControls.Popup {
     property string selectedDay: ""
     property var byDay: DateTree.dayGroups(groups)
     property var calendarInfo: DateTree.calendarRange(groups)
+    property int focusedMonth: -1
+    property var monthData: DateTree.calendarMonth(focusedMonth < 0 ? calendarInfo.latest : focusedMonth, byDay)
     property var selectedPages: DateTree.pagesForDay(byDay, selectedDay, mode)
     property int requestGeneration: 0
     property int undated: 0
@@ -74,9 +87,16 @@ NdiControls.Popup {
     property var timezoneOptions: ["Asia/Jerusalem", "UTC", "Europe/London", "Europe/Paris", "America/New_York", "America/Los_Angeles", "Asia/Tokyo"].indexOf(timezone) >= 0
         ? ["Asia/Jerusalem", "UTC", "Europe/London", "Europe/Paris", "America/New_York", "America/Los_Angeles", "Asia/Tokyo"]
         : [timezone, "Asia/Jerusalem", "UTC", "Europe/London", "Europe/Paris", "America/New_York", "America/Los_Angeles", "Asia/Tokyo"]
+    function prepareScope(notebook, nextMode) {
+        const key = notebook + "|" + nextMode;
+        if (scopeKey === key) return;
+        ready = false; groups = []; expanded = ({}); selectedDay = ""; focusedMonth = -1;
+        tracking = false; undated = 0; estimates = 0; syncStatus = ""; settingsBusy = false;
+        warning = ""; refreshError = ""; scopeKey = key;
+    }
     function switchMode(next) {
         if (mode === next) return;
-        mode = next; groups = []; expanded = ({}); selectedDay = ""; warning = ""; ready = false;
+        mode = next;
         root.ndiRefresh();
     }
     function switchPresentation(next) {
@@ -84,6 +104,9 @@ NdiControls.Popup {
     }
     function selectDay(day) {
         if (byDay[day] && byDay[day].pages.length) selectedDay = day;
+    }
+    function moveMonth(delta) {
+        focusedMonth = DateTree.shiftMonth(focusedMonth, delta, calendarInfo);
     }
     function expandRow(row) {
         const next = Object.assign({}, expanded);
@@ -95,12 +118,15 @@ NdiControls.Popup {
         if (page >= 0) { close(); root.openPage(page); }
     }
     modal: true; focus: true
+    dim: false
+    enter: Transition {}
+    exit: Transition {}
     width: Math.min(root.width - 64, 900); height: Math.min(root.height - 100, 1200)
     x: (root.width - width) / 2; y: (root.height - height) / 2
     padding: 32
-    onOpened: {
-        ready = false; groups = []; expanded = ({}); selectedDay = ""; showSettings = false;
-        initializeOlder = false; warning = ""; root.ndiRefresh();
+    onAboutToShow: {
+        selectedDay = ""; showSettings = false; initializeOlder = false;
+        root.ndiRefresh();
     }
     background: Rectangle { color:"white"; border.color:"black"; border.width:2; radius:14 }
     contentItem: Item {
@@ -110,14 +136,40 @@ NdiControls.Popup {
             DatesButton { id: backButton; visible:ndiPopup.showSettings; width:64; text:"‹"; font.pixelSize:40; quiet:true; onClicked:ndiPopup.showSettings=false }
             Text {
                 x: ndiPopup.showSettings ? 72 : 0
-                width: parent.width - x - (ndiPopup.showSettings ? 72 : 332)
+                width: parent.width - x - (ndiPopup.showSettings ? 72 : 296)
                 height:64; text:ndiPopup.showSettings ? "Dates settings" : "Dates"
                 font.pixelSize:36; font.bold:true; color:"black"; verticalAlignment:Text.AlignVCenter; elide:Text.ElideRight
             }
-            DatesButton {
-                id: layoutButton; x:parent.width-324; width:178; visible:!ndiPopup.showSettings
-                text:ndiPopup.presentation==="list" ? "Calendar" : "List"
-                onClicked:ndiPopup.switchPresentation(ndiPopup.presentation==="list" ? "calendar" : "list")
+            Rectangle {
+                id: layoutPicker; x:parent.width-286; width:140; height:64; radius:8; color:"#eeeeee"; visible:!ndiPopup.showSettings
+                Row {
+                    anchors.fill:parent; spacing:4
+                    DatesButton {
+                        id:listViewButton; width:68; height:64; quiet:true; primary:ndiPopup.presentation==="list"
+                        onClicked:ndiPopup.switchPresentation("list")
+                        contentItem:Item {
+                            Column {
+                                anchors.centerIn:parent; spacing:6
+                                Repeater {
+                                    model:3
+                                    Row { spacing:5; Rectangle { width:4; height:4; color:listViewButton.iconInk } Rectangle { width:22; height:4; color:listViewButton.iconInk } }
+                                }
+                            }
+                        }
+                    }
+                    DatesButton {
+                        id:calendarViewButton; width:68; height:64; quiet:true; primary:ndiPopup.presentation==="calendar"
+                        onClicked:ndiPopup.switchPresentation("calendar")
+                        contentItem:Item {
+                            Rectangle {
+                                anchors.centerIn:parent; width:30; height:28; radius:3; color:"transparent"; border.width:2; border.color:calendarViewButton.iconInk
+                                Rectangle { x:1; y:7; width:28; height:2; color:parent.border.color }
+                                Repeater { model:2; Rectangle { required property int index; x:7+index*14; y:-4; width:2; height:8; color:parent.border.color } }
+                                Grid { x:7; y:14; columns:3; spacing:4; Repeater { model:6; Rectangle { width:3; height:3; color:calendarViewButton.iconInk } } }
+                            }
+                        }
+                    }
+                }
             }
             DatesButton {
                 id: settingsButton; x:parent.width-136; width:64; quiet:true; visible:!ndiPopup.showSettings
@@ -144,7 +196,7 @@ NdiControls.Popup {
             }
             ListView {
                 id: dateList
-                visible:ndiPopup.presentation==="list" || !ndiPopup.ready
+                visible:ndiPopup.presentation==="list" && ndiPopup.ready
                 anchors { top:viewCaption.bottom; topMargin:18; left:parent.left; right:parent.right; bottom:dateFooter.top; bottomMargin:14 }
                 clip:true; model:ndiPopup.dateRows
                 boundsBehavior:Flickable.StopAtBounds
@@ -171,17 +223,19 @@ NdiControls.Popup {
                         onClicked:ndiPopup.expandRow(modelData)
                     }
                 }
+            }
                 Column {
-                    anchors.centerIn:parent; width:parent.width-36; spacing:18
-                    visible:ndiPopup.groups.length===0
+                    id:emptyState
+                    anchors.centerIn:dateList; width:dateList.width-36; spacing:18
+                    visible:!ndiPopup.ready || (ndiPopup.presentation==="list" && ndiPopup.groups.length===0)
                     Text {
                         width:parent.width; horizontalAlignment:Text.AlignHCenter; wrapMode:Text.WordWrap
-                        text:!ndiPopup.ready ? (Values.ndiError ? "Dates unavailable" : "Loading dates…") : (ndiPopup.mode==="modified" ? "No saved modification dates" : "Your page history starts here")
+                        text:!ndiPopup.ready ? (ndiPopup.refreshError ? "Dates unavailable" : "Loading dates…") : (ndiPopup.mode==="modified" ? "No saved modification dates" : "Your page history starts here")
                         font.pixelSize:28; font.bold:true; color:"black"
                     }
                     Text {
                         width:parent.width; horizontalAlignment:Text.AlignHCenter; wrapMode:Text.WordWrap
-                        text:Values.ndiError || ndiPopup.warning || (ndiPopup.mode==="modified" ? "Dates appear here when the notebook saves a page’s last edit." : (ndiPopup.tracking ? "Add a page and its creation date will appear here." : "Turn on tracking in settings to remember new pages. You can also include older pages using estimated dates."))
+                        text:ndiPopup.refreshError || ndiPopup.warning || (!ndiPopup.ready ? "" : (ndiPopup.mode==="modified" ? "Dates appear here when the notebook saves a page’s last edit." : (ndiPopup.tracking ? "Add a page and its creation date will appear here." : "Turn on tracking in settings to remember new pages. You can also include older pages using estimated dates.")))
                         font.pixelSize:22; color:"#555555"
                     }
                     DatesButton {
@@ -190,22 +244,18 @@ NdiControls.Popup {
                         text:"Set up tracking"; primary:true; onClicked:ndiPopup.showSettings=true
                     }
                 }
-            }
-            ListView {
-                id:calendarList
+            Item {
+                id:calendarMonthView
                 visible:ndiPopup.ready && ndiPopup.presentation==="calendar" && ndiPopup.selectedDay===""
                 anchors { top:viewCaption.bottom; topMargin:18; left:parent.left; right:parent.right; bottom:dateFooter.top; bottomMargin:14 }
-                clip:true; boundsBehavior:Flickable.StopAtBounds
-                model:ndiPopup.calendarInfo.count
-                spacing:24
-                NdiControls.ScrollBar.vertical:NdiControls.ScrollBar { width:6; policy:NdiControls.ScrollBar.AsNeeded }
-                delegate:Item {
+                clip:true
+                Item {
                     id:monthCard
-                    required property int index
-                    property var monthData:DateTree.calendarMonth(ndiPopup.calendarInfo.latest-index,ndiPopup.byDay)
-                    width:ListView.view.width; height:526
-                    Text { id:monthHeading; width:parent.width; height:52; text:monthCard.monthData.title; font.pixelSize:29; font.bold:true; color:"black"; verticalAlignment:Text.AlignVCenter }
-                    Text { anchors { top:monthHeading.bottom; left:parent.left } text:monthCard.monthData.pages ? DateTree.pageCount(monthCard.monthData.pages) : "No dated pages"; font.pixelSize:20; color:"#555555" }
+                    width:parent.width; height:Math.min(parent.height,566)
+                    DatesButton { id:previousMonth; width:64; height:64; quiet:true; text:"‹"; font.pixelSize:40; enabled:ndiPopup.focusedMonth>ndiPopup.calendarInfo.oldest; onClicked:ndiPopup.moveMonth(-1) }
+                    DatesButton { id:nextMonth; anchors.right:parent.right; width:64; height:64; quiet:true; text:"›"; font.pixelSize:40; enabled:ndiPopup.focusedMonth<ndiPopup.calendarInfo.latest; onClicked:ndiPopup.moveMonth(1) }
+                    Text { id:monthHeading; x:72; width:parent.width-144; height:52; text:ndiPopup.monthData.title; font.pixelSize:29; font.bold:true; color:"black"; horizontalAlignment:Text.AlignHCenter; verticalAlignment:Text.AlignVCenter }
+                    Text { anchors { top:monthHeading.bottom; horizontalCenter:parent.horizontalCenter } text:ndiPopup.monthData.pages ? DateTree.pageCount(ndiPopup.monthData.pages) : "No dated pages"; font.pixelSize:20; color:"#555555" }
                     Row {
                         id:weekHeader; y:86; width:parent.width; height:32
                         Repeater {
@@ -216,12 +266,12 @@ NdiControls.Popup {
                     Grid {
                         id:monthGrid; y:124; width:parent.width; columns:7
                         Repeater {
-                            model:monthCard.monthData.cells
+                            model:ndiPopup.monthData.cells
                             Item {
                                 required property var modelData
-                                width:monthGrid.width/7; height:66
+                                width:monthGrid.width/7; height:Math.max(54,Math.min(72,(monthCard.height-124)/6))
                                 Rectangle { anchors { fill:parent; margins:3 } radius:8; color:dayTap.pressed ? "#dedede" : "white" }
-                                Text { anchors { top:parent.top; topMargin:7; horizontalCenter:parent.horizontalCenter } text:modelData.number || ""; font.pixelSize:25; font.bold:modelData.count>0; color:modelData.count ? "black" : "#777777" }
+                                Text { anchors { top:parent.top; topMargin:7; horizontalCenter:parent.horizontalCenter } text:modelData.number || ""; font.pixelSize:25; font.bold:modelData.count>0; color:modelData.inMonth ? (modelData.count ? "black" : "#555555") : "#888888" }
                                 Rectangle { anchors { bottom:parent.bottom; bottomMargin:9; horizontalCenter:parent.horizontalCenter } width:7; height:7; radius:4; color:"black"; visible:modelData.count>0 }
                                 MouseArea { id:dayTap; anchors.fill:parent; enabled:modelData.count>0; onClicked:ndiPopup.selectDay(modelData.day) }
                             }
@@ -234,7 +284,7 @@ NdiControls.Popup {
                 id:calendarDay
                 visible:ndiPopup.ready && ndiPopup.presentation==="calendar" && ndiPopup.selectedDay!==""
                 anchors { top:viewCaption.bottom; topMargin:18; left:parent.left; right:parent.right; bottom:dateFooter.top; bottomMargin:14 }
-                DatesButton { id:calendarBack; width:parent.width; height:64; text:"‹  Back to months"; quiet:true; onClicked:ndiPopup.selectedDay="" }
+                DatesButton { id:calendarBack; width:parent.width; height:64; text:"‹  "+ndiPopup.monthData.title; quiet:true; onClicked:ndiPopup.selectedDay="" }
                 Text { id:dayHeading; anchors { top:calendarBack.bottom; topMargin:12; left:parent.left; right:parent.right } text:ndiPopup.selectedDay ? DateTree.dayTitle(ndiPopup.selectedDay) : ""; font.pixelSize:29; font.bold:true; wrapMode:Text.WordWrap; color:"black" }
                 ListView {
                     id:dayPages
@@ -252,7 +302,7 @@ NdiControls.Popup {
             Text {
                 id:dateFooter; anchors { bottom:parent.bottom; left:parent.left; right:parent.right }
                 font.pixelSize:18; color:"#555555"; wrapMode:Text.WordWrap
-                text:(ndiPopup.presentation==="calendar" ? (ndiPopup.selectedDay ? "Choose a page to open it." : "Scroll through months. Tap a marked day to see its pages.") : (ndiPopup.groups.length ? "Tap a day to open its first page. + shows all pages." : ""))+(ndiPopup.undated ? "\n"+ndiPopup.undated+(ndiPopup.undated===1 ? " page has" : " pages have")+" no "+(ndiPopup.mode==="created" ? "creation" : "modification")+" date." : "")+(ndiPopup.estimates ? "\nEstimated dates came from last modified, not observed creation." : "")
+                text:(ndiPopup.refreshError && ndiPopup.ready ? "Showing saved dates. "+ndiPopup.refreshError+"\n" : "")+(ndiPopup.presentation==="calendar" ? (ndiPopup.selectedDay ? "Choose a page to open it." : "Use the arrows to change month. Tap a marked day.") : (ndiPopup.groups.length ? "Tap a day to open its first page. + shows all pages." : ""))+(ndiPopup.undated ? "\n"+ndiPopup.undated+(ndiPopup.undated===1 ? " page has" : " pages have")+" no "+(ndiPopup.mode==="created" ? "creation" : "modification")+" date." : "")+(ndiPopup.estimates ? "\nEstimated dates came from last modified, not observed creation." : "")
             }
         }
         Flickable {
@@ -267,7 +317,7 @@ NdiControls.Popup {
                 Text { width:parent.width; text:"New pages keep the day they were created. Pausing keeps your existing history. Modified view is always available."; font.pixelSize:22; color:"#555555"; wrapMode:Text.WordWrap }
                 NdiControls.CheckBox {
                     id:initializeCheck; width:parent.width; implicitHeight:86; visible:!ndiPopup.tracking
-                    checked:ndiPopup.initializeOlder; enabled:ndiPopup.ready
+                    checked:ndiPopup.initializeOlder; enabled:ndiPopup.ready && !ndiPopup.settingsBusy
                     onToggled:ndiPopup.initializeOlder=checked
                     indicator:Rectangle {
                         x:0; y:(parent.height-height)/2; width:32; height:32; radius:5; color:initializeCheck.checked ? "black" : "white"; border.color:"black"; border.width:2
@@ -282,16 +332,16 @@ NdiControls.Popup {
                 }
                 DatesButton {
                     id:trackingButton; width:parent.width; primary:!ndiPopup.tracking
-                    text:ndiPopup.tracking ? "Pause tracking" : "Enable for this notebook"; enabled:ndiPopup.ready
+                    text:ndiPopup.tracking ? "Pause tracking" : "Enable for this notebook"; enabled:ndiPopup.ready && !ndiPopup.settingsBusy
                     onClicked: {
                         if (!root.document) return;
-                        ndiPopup.ready=false;
+                        ndiPopup.settingsBusy=true;
                         const notebook=String(root.document.id);
                         const enabling=!ndiPopup.tracking;
                         Values.ndiRequest("toggle", {notebook:notebook,current:Values.ndiIds(root.document),enabled:enabling,initializeFromModified:enabling && ndiPopup.initializeOlder}, function(result) {
                             if (!root.document || String(root.document.id)!==notebook) return;
-                            if (result) { ndiPopup.initializeOlder=false; ndiPopup.showSettings=false; root.ndiRefresh(); }
-                            else ndiPopup.ready=true;
+                            ndiPopup.settingsBusy=false;
+                            if (result) { ndiPopup.tracking=result.enabled; ndiPopup.initializeOlder=false; ndiPopup.showSettings=false; root.ndiRefresh(); }
                         });
                     }
                 }
@@ -301,7 +351,7 @@ NdiControls.Popup {
                 Text { text:"Timezone"; font.pixelSize:27; font.bold:true; color:"black" }
                 NdiControls.ComboBox {
                     id:timezonePicker; width:parent.width; height:64; font.pixelSize:24; leftPadding:18; rightPadding:50
-                    model:ndiPopup.timezoneOptions; currentIndex:ndiPopup.timezoneOptions.indexOf(ndiPopup.timezone); enabled:ndiPopup.ready
+                    model:ndiPopup.timezoneOptions; currentIndex:ndiPopup.timezoneOptions.indexOf(ndiPopup.timezone); enabled:ndiPopup.ready && !ndiPopup.settingsBusy
                     background:Rectangle { color:"white"; border.color:"#777777"; border.width:1; radius:8 }
                     contentItem:Text { text:timezonePicker.displayText; font:timezonePicker.font; color:"black"; verticalAlignment:Text.AlignVCenter; elide:Text.ElideRight }
                     indicator:Text { text:"⌄"; font.pixelSize:28; color:"black"; x:parent.width-width-18; anchors.verticalCenter:parent.verticalCenter }
@@ -314,7 +364,7 @@ NdiControls.Popup {
                         highlighted:timezonePicker.highlightedIndex===index
                     }
                     popup.background:Rectangle { color:"white"; border.color:"black"; border.width:1 }
-                    onActivated: { ndiPopup.ready=false; Values.ndiRequest("settings", {timezone:currentText}, function(result) { root.ndiRefresh(); }); }
+                    onActivated: { ndiPopup.settingsBusy=true; Values.ndiRequest("settings", {timezone:currentText}, function(result) { ndiPopup.settingsBusy=false; if (result && result.timezone) ndiPopup.timezone=result.timezone; root.ndiRefresh(); }); }
                 }
                 Text { width:parent.width; text:"Applies to Modified view, new creation dates and new estimates. Previously saved creation dates do not move. Your tablet’s system clock is unchanged."; font.pixelSize:20; color:"#555555"; wrapMode:Text.WordWrap }
                 Rectangle { width:parent.width; height:1; color:"#cccccc" }

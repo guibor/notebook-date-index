@@ -1,9 +1,62 @@
 # Design
 
+## Calendar polish (revision 6)
+
+The header now contains a small two-icon `layoutPicker`: its black icon is the
+current List/Calendar presentation, so there is no current-state versus next-action
+ambiguity. Created/Modified remains the sole full-width control. Icons are drawn
+with ordinary QML primitives, with no new font/image or tablet-module dependency.
+
+`calendarMonth` returns 42 real civil-date cells, including adjacent-month cells
+with `inMonth: false`. Those cells keep their own date lookup/dot/page links but
+do not inflate the focused month's count. Only out-of-range years are blank.
+`calendarRange` supplies oldest/latest numeric bounds; `shiftMonth` clamps arrow
+steps while allowing intervening empty months. `moveMonth` updates `focusedMonth`;
+the single `calendarMonthView` has no scrolling month list. Back from a selected
+day preserves that focus, including when the selected day is a spillover date.
+
+`prepareScope` invalidates the cache only when notebook UUID or date basis changes.
+`ndiRefresh` retains matching visible data, rejects stale generations, applies
+metadata before `ready`, and avoids assigning identical group arrays. A failed
+warm refresh keeps the cache with an explicit error; a cold failure shows an error
+without another notebook's data. `onAboutToShow` prepares/refreshes before display
+instead of clearing in `onOpened`. Empty transitions and `dim: false` eliminate
+our own fade/whole-background repaint; firmware e-ink refresh is still external.
+`flash-harness.mjs` drives delayed callbacks and observes transient visibility and
+model signals, covering warm/cold failures, scope changes and stale responses.
+Settings use a separate `settingsBusy` flag rather than hiding cached results;
+confirmed toggle/timezone responses update the known setting before refreshing.
+The failure harness covers a successful settings write followed by a failed query.
+`ui-harness.mjs` exercises icons, arrows, spillovers, back navigation and page links.
+The writer, recording hooks, sync protocol and target-specific QMDs are unchanged.
+
+`deploy-move-polish` updates only the external panel/helper against exact r5
+preimages. It verifies the affected-state backup on the Mac, uses the existing
+Move watchdog to return to stock, and qualifies the newly captured stock PID
+with `qualify-move-polish-stock` (the same pinned dummy-service experiment with
+a transaction-specific evidence archive). `install-move-polish` publishes and
+activates in one device-controlled process group, protected by an independent
+timer. Its rollback terminates that group, restores only old presentation files,
+and requests Move-specific stock recovery; it never rewinds Dates data or stops
+the writer. The unchanged ten-QMD profile and runtime remain revision-5 assets.
+
+`deploy-polish` is the separate Pro equivalent: it pins the observed eleven-QMD
+preimage, including the independently qualified Dispatch partial-repaint patch.
+Its exact `pro-dates-r5-dispatch-preimage.sha256` does not weaken any older ten-QMD
+controller. After backup verification, a 180-second rollback timer and the pinned
+ReMagic watchdog protect the UI reload. Preservation checks include all installed
+AppLoad bundle files, every QMD, writer identity, private Dates config and Gestik.
+Both rollback paths verify that the exact installer service and its descendant
+process group are quiescent before restoration, then recheck the commit marker.
+The inspected tablets use the hybrid cgroup2 mount at `/sys/fs/cgroup/unified`;
+preflight and recovery pin that layout. A failed signal or a committed race must
+never permit simultaneous publication/restoration. Offline mocked cases exercise
+these fail-closed states; service liveness checks test each unit independently.
+
 ## Navigation refinement (revision 5)
 
-The header's `layoutButton` toggles List / Calendar; Created / Modified remains
-the sole segmented control. `pagesForDay` copies a day's page array and sorts it
+The original header text action is superseded by revision 6's icon picker.
+`pagesForDay` copies a day's page array and sorts it
 numerically only for Modified-calendar navigation. The original response/list
 order and all stored dates are unchanged. Stable page IDs are still resolved at
 tap time, including after notebook page reordering.
@@ -38,13 +91,13 @@ unchanged native metadata, but never claims a physical new-page round trip.
 
 Date basis (Created/Modified) and presentation (List/Calendar) are independent
 panel state. `dayGroups` indexes the existing response without changing it;
-`calendarRange` supplies a numeric, lazy month model spanning all dated pages;
+`calendarRange` supplies numeric month bounds spanning all dated pages;
 `calendarMonth` produces a Sunday-first 42-cell UTC-safe grid, including leap
-days and empty intervening months. It allocates only visible month delegates,
+days and empty intervening months. It allocates only one visible month,
 not a day model for the whole history. A dot represents one or more available
 pages, never the number of events or a guessed date. Empty history shows the
 current month without inventing records. `selectDay` opens an in-panel page
-picker; the calendar stays instantiated so Back preserves its scroll position.
+picker; the calendar stays instantiated so Back preserves its focused month.
 All page actions use the existing stable-ID resolver. Calendar browsing makes
 no writes, requires no new QMD hooks, and never changes the selected date basis.
 

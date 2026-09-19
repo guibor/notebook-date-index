@@ -5,9 +5,27 @@ Find notebook pages by creation day or their saved last-edit day, without
 cluttering or changing the user's existing table of contents.
 
 * Date-focused revision (2026-09-19)
+** Calendar polish (revision 6)
+- Show one focused month, with previous/next arrow controls, rather than a
+  scrollable month stack. Start at the latest dated month; traverse empty months
+  between the earliest and latest dates. Back from a day retains the focused month.
+- Every visible civil date is real, including previous/next-month spillovers.
+  Adjacent dates are subdued but retain dots and page navigation when relevant.
+- Use a compact two-icon List/Calendar picker in the header. The highlighted
+  icon means the current view; it does not name the next action. Created/Modified
+  remains the only full-width segmented control. No text-only layout button.
+- Remove avoidable opening flashes: prepare before showing, retain only matching
+  notebook/date-basis cache, refresh without clearing it, avoid identical model
+  replacement, and disable popup dimming/transitions locally. Never show another
+  notebook's cached dates. Failed refresh visibly identifies retained cached data.
+- Signal: no intermediate empty/list frame on a warm Calendar reopen; arrow,
+  spillover and page selection work at both screen sizes. Automated delayed-response
+  checks are a release gate, not proof of physical e-ink refresh behavior.
+- Preserve all recording, sync, native notebook, QMD, writer and device-setting
+  behavior. Only the external presentation panel/helper need replacement.
 ** Navigation refinement and physical Move rollout
-- Keep Created / Modified as the only segmented control. A compact header
-  action switches List / Calendar without changing the date basis.
+- Keep Created / Modified as the only full-width segmented control. The compact
+  header picker switches List / Calendar without changing the date basis.
 - Modified-calendar day selection orders pages by current numeric page number,
   not last-edit timestamp. Do not mutate the list view's existing order.
 - Pro: calendar-icon sidebar entry immediately above BetterTOC. Retain the
@@ -19,8 +37,8 @@ cluttering or changing the user's existing table of contents.
 ** Calendar and sync follow-through
 - Created / Modified and List / Calendar are independent choices. Switching
   presentation never changes tracking, stored dates, or the selected date basis.
-- Calendar scrolls through consecutive months, newest first, including empty
-  intervening months. Sunday-first weeks fit the Israel default. Mark only days
+- Calendar arrows navigate consecutive months, including empty intervening
+  months. Sunday-first weeks fit the Israel default. Mark only days
   with locally available pages in the selected date view, using a high-contrast dot.
 - Tapping a marked day opens its page choices inside Dates; Back returns to
   the same calendar position. Undated pages and estimated dates remain explicit.
@@ -116,6 +134,10 @@ cluttering or changing the user's existing table of contents.
   tablet's system timezone. Each device maintains its own choice.
 
 * Changed requirements
+- 2026-09-19 revision 6: replace scrolling months with a single-month arrow view;
+  replace the compact text action with explicit selected-state layout icons.
+  Visible adjacent-month dates now remain actionable. Warm opening must preserve
+  matching data instead of clearing it after display; no dim/fade animation.
 - 2026-09-19: the second List / Calendar segmented bar is superseded by a compact
   header button. Pro's primary entry moves from the notebook menu to the sidebar;
   Move retains the menu. Modified calendar pages now sort by page number.
@@ -153,6 +175,10 @@ cluttering or changing the user's existing table of contents.
   exclusion of cross-device index sync is superseded by the clarification above.
 
 * Immediate next steps
+- [X] Implement/test single-month arrows, spillover links and selected-state icons.
+- [X] Add delayed-response opening/cache/error regressions without recording changes.
+- [ ] Deploy revision 6 panel/helper on both independently qualified devices.
+- [ ] Physically check reduced opening flash, both arrows and adjacent-month dots.
 - [X] Deploy navigation refinement to Pro under rollback protection.
 - [X] Install the same revision on freshly qualified Move and verify real
   same-notebook synchronization, preserving each device's local configuration.
@@ -163,7 +189,7 @@ cluttering or changing the user's existing table of contents.
 - [X] Reach and freshly qualify the physical Move, create its exact .169 branch,
   install Dates and enable its matching private client. Three exact creation
   records reached the Move in a notebook with 356 matching page IDs.
-- [ ] Physically accept Calendar scrolling, marked-day selection and navigation.
+- [ ] Physically accept Calendar arrow navigation, marked-day selection and navigation.
 - [X] Implement and verify Created/Modified, optional estimated baseline, and
   date-focused hierarchical UI; deploy to exact-qualified Pro with rollback.
 - [X] Add portable server configuration and a user-oriented README.

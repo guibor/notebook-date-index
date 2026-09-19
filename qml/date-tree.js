@@ -18,28 +18,39 @@ function pagesForDay(byDay, day, mode) {
     return pages;
 }
 function monthNumber(day) { return Number(day.slice(0,4))*12 + Number(day.slice(5,7))-1; }
-// A numeric ListView model keeps even very long histories lazy. Empty months
-// between the first and last dated pages remain scrollable, not silently skipped.
+// Keep empty months between dated pages navigable without building an entire
+// history of calendar grids. Both bounds also keep arrow navigation predictable.
 function calendarRange(groups, fallback) {
     var numbers = groups.filter(function(g) { return g.pages.length > 0; }).map(function(g) { return monthNumber(g.day); });
     if (!numbers.length) numbers = [monthNumber(fallback || new Date().toISOString().slice(0,10))];
     var oldest = numbers[0], latest = numbers[0];
     numbers.forEach(function(n) { oldest = Math.min(oldest,n); latest = Math.max(latest,n); });
-    return {latest:latest, count:latest-oldest+1};
+    return {oldest:oldest, latest:latest, count:latest-oldest+1};
+}
+function shiftMonth(number, delta, range) {
+    var oldest = 12, latest = 9999*12+11;
+    if (range) {
+        oldest = Math.max(oldest,range.oldest);
+        latest = Math.min(latest,range.latest);
+    }
+    return Math.max(oldest,Math.min(latest,number+delta));
 }
 function calendarMonth(number, byDay) {
     var year = Math.floor(number/12), month = number%12;
     // setUTCFullYear also handles years 1–99 without Date.UTC's 1900 offset.
     var first = new Date(0); first.setUTCFullYear(year,month,1); first.setUTCHours(12,0,0,0);
-    var next = new Date(first); next.setUTCMonth(month+1); next.setUTCDate(0);
-    var prefix = String(year).padStart(4,"0")+"-"+String(month+1).padStart(2,"0")+"-";
     var cells = [], pages = 0;
     for (var i=0; i<42; i++) {
-        var n = i-first.getUTCDay()+1, valid = n>0 && n<=next.getUTCDate();
-        var day = valid ? prefix+String(n).padStart(2,"0") : "";
+        // Spillover dates are real navigation targets, not decorative padding.
+        // UTC civil arithmetic avoids DST changing a visible day or its dot.
+        var date = new Date(first); date.setUTCDate(i-first.getUTCDay()+1);
+        var cellYear = date.getUTCFullYear(), valid = cellYear>=1 && cellYear<=9999;
+        var inMonth = valid && cellYear===year && date.getUTCMonth()===month;
+        var day = valid ? String(cellYear).padStart(4,"0")+"-"+
+            String(date.getUTCMonth()+1).padStart(2,"0")+"-"+String(date.getUTCDate()).padStart(2,"0") : "";
         var count = day && byDay[day] ? byDay[day].pages.length : 0;
-        pages += count;
-        cells.push({number:valid ? n : 0, day:day, count:count});
+        if (inMonth) pages += count;
+        cells.push({number:valid ? date.getUTCDate() : 0, day:day, count:count, inMonth:inMonth});
     }
     return {title:months[month]+" "+year, cells:cells, pages:pages};
 }
