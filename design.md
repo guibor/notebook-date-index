@@ -26,6 +26,14 @@ uses that profile without changing any recovery semantics. An independent
 ten-minute outer rollback asks the Move watchdog to recover stock, disables
 only the new Dates QMD and preserves all Dates data if first installation fails.
 
+`qualify-move-stock.mjs` reuses the hash-pinned harmless systemd experiment from
+the firmware-maintenance checkout, changing only the freshly captured stock
+PID/start literals. It archives the prior proof, tests a dummy sleep service,
+and never signals or restarts xochitl. `verify-pair.mjs` reads one actual shared
+notebook on both devices, triggers the normal asynchronous Dates query/sync path,
+and compares exact creation records and retained event provenance. It verifies
+unchanged native metadata, but never claims a physical new-page round trip.
+
 ## Calendar presentation
 
 Date basis (Created/Modified) and presentation (List/Calendar) are independent
