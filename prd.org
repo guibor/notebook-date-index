@@ -5,6 +5,18 @@ Find notebook pages by creation day or their saved last-edit day, without
 cluttering or changing the user's existing table of contents.
 
 * Date-focused revision (2026-09-19)
+** Calendar and sync follow-through
+- Created / Modified and List / Calendar are independent choices. Switching
+  presentation never changes tracking, stored dates, or the selected date basis.
+- Calendar scrolls through consecutive months, newest first, including empty
+  intervening months. Sunday-first weeks fit the Israel default. Mark only days
+  with locally available pages in the selected date view, using a high-contrast dot.
+- Tapping a marked day opens its page choices inside Dates; Back returns to
+  the same calendar position. Undated pages and estimated dates remain explicit.
+- Calendar is a read-only projection of the same groups as List. Test leap years,
+  year boundaries, empty months, mode switches, stable IDs and compact layouts.
+- Then finish the authorized md-server sync rollout, preserving both devices'
+  local tracking/settings and recording machine versus physical acceptance separately.
 ** Worldview and hypothesis
 - Fact: on qualified Pro .169, native =cPages.pages[].modifed= contains saved
   page last-modification epoch milliseconds. There is no verified page creation
@@ -80,8 +92,8 @@ cluttering or changing the user's existing table of contents.
   QMD/Gestik bytes, and read-only root. No boot/firmware/kernel changes.
 - First install is a non-recording preview. Functional promotion follows
   physical UI acceptance, then a disposable-notebook acceptance exercise.
-- The deployed v1 index is currently local-only; shared date history is required
-  next, not yet implemented. Sync errors/offline use must not block stock page
+- The Pro now syncs creation history to the private hub; the physical Move
+  rollout remains pending. Sync errors/offline use must not block stock page
   creation or existing local date navigation.
 - Test the real Qt XMLHttpRequest queue against the actual HTTP service,
   including Qt's JSON Content-Type charset parameter. A mocked popup and a
@@ -92,6 +104,8 @@ cluttering or changing the user's existing table of contents.
   tablet's system timezone. Each device maintains its own choice.
 
 * Changed requirements
+- 2026-09-19: add Calendar as an independent presentation before completing
+  same-notebook synchronization; the previous list-only presentation is superseded.
 - 2026-09-19: creation-only navigation becomes Created/Modified. The earlier
   no-backfill rule is superseded only by explicit opt-in estimated initialization.
   Inline timezone/tracking controls move to settings. No preview requested for
@@ -124,6 +138,14 @@ cluttering or changing the user's existing table of contents.
   exclusion of cross-device index sync is superseded by the clarification above.
 
 * Immediate next steps
+- [X] Implement/test Calendar on the current branch, then safely deploy its
+  external panel/helper without replacing QMD hooks or touching notebook files.
+- [X] Upgrade the estimate-aware hub and enable Pro; verify three real creation
+  records arrive and are readable through the Move credential. Native files unchanged.
+- [ ] Reach and freshly qualify the physical Move, then create its exact branch,
+  install Dates and enable its matching private client. Cached .169 composition
+  passes, but credential-free LAN discovery currently finds no Move host key.
+- [ ] Physically accept Calendar scrolling, marked-day selection and navigation.
 - [X] Implement and verify Created/Modified, optional estimated baseline, and
   date-focused hierarchical UI; deploy to exact-qualified Pro with rollback.
 - [X] Add portable server configuration and a user-oriented README.
@@ -137,12 +159,12 @@ cluttering or changing the user's existing table of contents.
 - [X] Deploy and verify the HTTPS hub with isolated synthetic records; confirm
   both tablets can validate TLS and reach its protected endpoint.
 - [ ] Qualify/deploy sync clients and validate actual two-tablet date history.
-- [ ] Update the Dates panel's local-only wording and add per-notebook sync
+- [X] Update the Dates panel's local-only wording and add per-notebook sync
   status before enabling synchronization on either tablet.
 - [ ] Test offline bidirectional creation, retries, duplicate events, divergent
   page availability, deletion/undo, reorder, timezone changes and notebook copies.
 - [X] Publish this standalone private repository and verify its GitHub branch.
-- [ ] Qualify Move's exact firmware and port feature revision 1 independently.
+- [ ] Qualify Move's live exact firmware and port feature revision 4 independently.
 - [X] Reproduce the panel's HTTP 403 with real Qt, repair MIME parsing, and
   update only the background service without restarting the tablet UI.
 - [X] Deploy refreshed non-recording preview with the visible settings-menu

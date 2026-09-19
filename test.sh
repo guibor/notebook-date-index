@@ -12,7 +12,7 @@ test "$(shasum -a 256 "$qmldiff" | awk '{print $1}')" = 5d48704b2b55702bf553f65e
 test "$(find build/co-resident -name '*.qmd' | wc -l | tr -d ' ')" = 8
 go test -race -count=1 -v ./...
 go vet ./...
-CGO_ENABLED=0 go build -o build/notebook-date-index-host .
+CGO_ENABLED=0 go build -buildvcs=false -o build/notebook-date-index-host .
 node transport-test.mjs
 node --test qml-test.mjs date-tree-test.mjs
 node ui-harness.mjs
@@ -37,6 +37,6 @@ node creation-runtime-test.mjs
 QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software qml --disable-context-sharing build/creation-runtime.qml >build/creation-runtime.log 2>&1
 grep -q 'Creation runtime PASSED' build/creation-runtime.log
 if grep -Eq 'ReferenceError|TypeError|Cannot assign|is not a type|Error:' build/creation-runtime.log; then cat build/creation-runtime.log; exit 1; fi
-CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -ldflags='-s -w -buildid=' -o build/notebook-date-index .
+CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -buildvcs=false -trimpath -ldflags='-s -w -buildid=' -o build/notebook-date-index .
 shasum -a 256 build/notebook-date-index build/*.qmd
 echo 'notebook-date-index offline gates PASSED'

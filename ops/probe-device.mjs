@@ -37,4 +37,4 @@ for(const group of modified.groups) for(const page of group.pages) {
 const after=remote('cat '+native);
 const hash=s=>createHash('sha256').update(s).digest('hex');
 assert.equal(hash(before),hash(after),'native metadata changed during read-only probe; recheck if user was editing');
-console.log(JSON.stringify({result:'real-notebook-read-only-probe-passed',currentPages:current.length,modifiedPages:expected.length,modifiedDays:modified.groups.length,createdDays:created.groups.length,tracking:created.enabled,timezone:modified.timezone,nativeFileUnchanged:true}));
+console.log(JSON.stringify({result:'real-notebook-read-only-probe-passed',currentPages:current.length,modifiedPages:expected.length,modifiedDays:modified.groups.length,createdDays:created.groups.length,tracking:created.enabled,timezone:modified.timezone,sync:created.sync||'Local only',nativeFileUnchanged:true}));

@@ -35,9 +35,10 @@ The Move implementation is currently pending qualification. It must receive
 the same date grouping, per-notebook opt-in, pause/resume and timezone options.
 
 The user clarified that date-index records for the same notebook must sync
-between Pro and Move. This supersedes the earlier local-only data policy, but
-is not enabled in the current deployed tablet build. The md-server hub is live
-and the client merge code is tested; consult `SYNC-DEPLOYMENT.md` before rollout.
+between Pro and Move. This supersedes the earlier local-only data policy.
+The Pro client and estimate-aware md-server hub are enabled; real Pro history
+delivery is verified. The physical Move remains unreachable and uninstalled;
+consult `SYNC-DEPLOYMENT.md` before continuing its separate rollout.
 Merge individual page-date
 records by verified notebook/page identity; never overwrite an entire index.
 Native notebook content keeps its existing sync path and remains untouched by
@@ -62,7 +63,7 @@ publishing the source does not make these caches part of the repository.
 The transport and sampled notebook/page identities are validated. Shared history
 must still receive its own on-device offline/merge/rollback acceptance.
 
-1. Complete physical Pro creation/navigation acceptance.
+1. Complete physical Pro calendar/creation/navigation acceptance.
 2. Read-only qualify Move's current model/firmware/runtime and independent settings.
 3. Port and test the same feature revision on its exact Move branch, then use
    the preview/functional acceptance process before routine use.

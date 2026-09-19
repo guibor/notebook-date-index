@@ -4,7 +4,92 @@ Exact branch: `beta/pro/3.28.0.169`, model `reMarkable Ferrari`.
 This branch is not a Move build. Read the sibling
 `remarkable-beta-os/KNOWLEDGE-BASE.md` and its current dated log first.
 
-## Current upgrade: date-focused v3 (2026-09-19)
+## Current state: Calendar and Pro sync (2026-09-19)
+
+Feature revision 4 is on the same Pro branch. Dates now has independent
+Created/Modified and List/Calendar switches. The Pro sync client is enabled;
+Move is not yet installed or live-qualified. **Do not replay any historical
+installer against this new preimage.** Each controller below is a one-time,
+exact-starting-state transition, not an idempotent reinstall script.
+
+Current Pro payload SHA-256 values:
+
+| Payload | SHA-256 |
+| --- | --- |
+| `notebook-date-index` | `445f532f18a7bf26d429aff0a481ab02ea3b74bef9b73f956f9b5ad77a09f979` |
+| `DatesPanel.qml` | `8339b3c6b39363a88e2994f6604693890bf210cf7a0ecb3c2c38b53417cd090b` |
+| `DateTree.js` | `f37b64247f098c933f3dafe8978f0bc82ca7afda890b8b0f4c7fdcdeedd693e6` |
+| `notebook-date-index.qmd` (unchanged) | `f6cba3190f3f690c2729539f0ecc3b629dd0d18366dc22fc5a89174df73731e0` |
+
+Rebuild with Go 1.24.6, `CGO_ENABLED=0`, `GOOS=linux`, `GOARCH=arm64`,
+`-buildvcs=false -trimpath -ldflags='-s -w -buildid='`. Keep firmware guards,
+the current ten-QMD inventory, all runtime pins and each device's settings.
+Preserve the entire private data directory, now including **sync.json** and
+**sync-events/**. Do not regenerate tokens, discard journals, or replace
+device-local tracking/timezone preferences with another device's files.
+
+Completed sequence:
+
+1. `bash test.sh` passed 30 Go/race tests, real Qt transport and creation
+   callback tests, 16 JS tests, calendar navigation/compact geometry checks,
+   exact-Pro composition, syntax and wrong-version rejection.
+2. `ops/deploy-calendar.sh` changed only the external panel and JS helper,
+   retaining the writer PID. Transaction `dates-calendar-20260919T095303Z`
+   passed its independent recovery timer and ReMagic guard, leaving UI PID
+   306456, writer PID 303054, zero restarts. No Dates source-located warnings.
+3. `ops/deploy-hub-v3.sh` upgraded only the server binary in
+   `hub-estimates-20260919T095749Z`. Real HTTPS authentication, estimated-field
+   preservation, retry/read persistence and probe isolation passed. nginx,
+   credentials, Anki and OpenClaw were unchanged. See `SYNC-DEPLOYMENT.md`.
+4. Transfer only `pro-client.json` from the existing private server credentials
+   to a mode-0600 ignored local file; never print its token. Then
+   `ops/deploy-pro-sync.sh <verified-Pro-IP> <private-config>` backed up Dates,
+   replaced its writer and installed that file as private `sync.json`.
+   Transaction `dates-sync-pro-20260919T095839Z` preserved UI PID 306456 and
+   started writer PID 307144, zero restarts. No UI restart for this step.
+5. Read-only real-notebook queries verified 356 current pages, 282 native
+   modification dates grouped into 113 days, and three creation observations.
+   `ops/verify-pro-sync.mjs` verified all three exact Pro observations through
+   the HTTPS hub using the Move credential, without changing local history.
+   Pro status then read **Up to date**. This is not physical Move delivery.
+
+Private rollback archives are on-device below
+`/home/root/.codex-backups/<transaction>/` and copied to `.cache/<transaction>/`.
+Their SHA-256 values are:
+
+- Calendar: `02d219c34eb654e21c8578bf3126cc4125ccb6d7cb4b63f4cfe471bf6b5c22ae`
+- Pro sync: `baa388fc9feb7a195e9674ca50217f346cac135204c6c72f24f1c304920cf9e3`
+
+The calendar rollback restores only its panel/helper and returns to stock UI
+if activation was attempted. The sync rollback stops only Dates, disables only
+the newly installed matching config, restores the schema-2-aware v3 writer and
+recreates its transient unit. Neither rollback restores old history over newer
+records. Completed transaction markers prevent accidental replay of rollback.
+All temporary recovery timers ended inactive; root stayed read-only, all ten
+QMDs and Vellum state were identical, and the Pro's live/protected Gestik files
+retained their separate `17dbbdd7…` / `82621111…` fingerprints.
+
+### Move continuation
+
+Credential-free discovery on 2026-09-19 found the Pro and another nonmatching
+SSH host but no Move key anywhere on the current /24 network. Its last address
+`.96` did not answer. Do not send credentials to a guessed host or install the
+Pro controller on the Move. `ops/check-move-candidate.sh` passed composition
+and QML syntax using the previously captured exact .169 Move ELF, resource
+manifest, table and nine co-resident QMDs. The Dates QMD happens to hash to the
+same bytes, but the Move runtime/watchdog/extension inventory is different.
+This is offline preparation only; no Move branch was created before fresh
+live identity/firmware qualification, per `MAINTENANCE.md`.
+
+When it is reachable: match its known host key; qualify model/current firmware,
+stock/runtime/table/QMD hashes and its own settings; create its exact Dates
+branch; adapt the existing Move QRR-only session guard; then install and enable
+only its `move-client.json`. Test one shared disposable notebook physically in
+both directions, offline/reconnect, and ensure receiving history does not
+silently enable tracking. Calendar aesthetics/touch behavior on Pro and all
+physical two-tablet acceptance remain explicit user checks.
+
+## Historical upgrade: date-focused v3 (2026-09-19)
 
 For the already accepted v2 ten-QMD Pro inventory, use
 `bash ops/deploy-dates-v3.sh <verified-Pro-IP>` after the local gates pass.

@@ -4,6 +4,32 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 const ctx=vm.createContext({}); vm.runInContext(fs.readFileSync('qml/date-tree.js','utf8'),ctx);
 const group=(day,estimated=false)=>({day,pages:[{id:day,number:4,estimated}]});
+test('calendar spans empty months lazily and handles year boundaries',()=>{
+ const groups=[group('2025-12-31'),group('2026-03-01')];
+ const r=ctx.calendarRange(groups);
+ assert.equal(r.count,4);
+ assert.equal(ctx.calendarMonth(r.latest,ctx.dayGroups(groups)).title,'March 2026');
+ assert.equal(ctx.calendarMonth(r.latest-2,ctx.dayGroups(groups)).pages,0);
+ assert.equal(ctx.calendarMonth(r.latest-3,ctx.dayGroups(groups)).title,'December 2025');
+ assert.equal(ctx.calendarRange([],'2026-09-19').count,1);
+ assert.equal(ctx.calendarRange([group('0001-01-01'),group('9999-12-31')]).count,119988);
+});
+test('calendar weekday alignment, leap years and dots use only the selected groups',()=>{
+ const groups=[group('2024-02-29',true)];
+ const month=ctx.calendarMonth(ctx.monthNumber('2024-02-01'),ctx.dayGroups(groups));
+ assert.equal(month.cells.length,42);
+ assert.equal(month.cells[4].number,1,'February 1 2024 is Thursday');
+ assert.equal(month.cells[32].day,'2024-02-29');
+ assert.equal(month.cells[32].count,1);
+ assert.equal(month.cells.filter(c=>c.count).length,1);
+ assert.equal(ctx.calendarMonth(ctx.monthNumber('2023-02-01'),{}).cells.filter(c=>c.number).length,28);
+ assert.equal(ctx.calendarMonth(ctx.monthNumber('2000-02-01'),{}).cells.filter(c=>c.number).length,29);
+ assert.equal(ctx.calendarMonth(ctx.monthNumber('1900-02-01'),{}).cells.filter(c=>c.number).length,28);
+ assert.equal(ctx.calendarMonth(ctx.monthNumber('0001-01-01'),{}).cells[1].number,1);
+ assert.equal(ctx.dayGroups(groups)['2024-02-29'].pages[0].estimated,true);
+ assert.equal(ctx.dayTitle('2024-02-29'),'29 February 2024');
+ assert.equal(ctx.calendarMonth(ctx.monthNumber('2024-02-01'),{}).pages,0,'other mode must not retain dots');
+});
 test('minimal tablet Qt contract excludes unavailable accessibility attachment',()=>{
  assert.doesNotMatch(fs.readFileSync('qml/popup.qml.inc','utf8'),/Accessible\./);
 });

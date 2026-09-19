@@ -1,5 +1,40 @@
 # Design
 
+## Calendar presentation
+
+Date basis (Created/Modified) and presentation (List/Calendar) are independent
+panel state. `dayGroups` indexes the existing response without changing it;
+`calendarRange` supplies a numeric, lazy month model spanning all dated pages;
+`calendarMonth` produces a Sunday-first 42-cell UTC-safe grid, including leap
+days and empty intervening months. It allocates only visible month delegates,
+not a day model for the whole history. A dot represents one or more available
+pages, never the number of events or a guessed date. Empty history shows the
+current month without inventing records. `selectDay` opens an in-panel page
+picker; the calendar stays instantiated so Back preserves its scroll position.
+All page actions use the existing stable-ID resolver. Calendar browsing makes
+no writes, requires no new QMD hooks, and never changes the selected date basis.
+
+`ops/deploy-calendar.sh` installs just the Pro panel/helper against the exact
+v3 preimage, with verified off-device backup, an independent rollback timer and
+the pinned ReMagic UI watchdog. It preserves the writer PID, data and every QMD.
+
+`queueSyncLocked` signals a bounded background channel when a notebook is first
+viewed or its Dates index changes. `syncAttempt` keeps status per notebook and
+uses a local revision to avoid saying “Up to date” if a page was created while
+the request was in flight. A failure in one notebook cannot overwrite another
+notebook's sync status. Minute-based retries remain available while offline;
+no network operation runs under the native page-creation or local writer lock.
+Release builds disable Go's implicit VCS stamps, so the same source/toolchain
+produces identical payload bytes regardless of unrelated uncommitted docs.
+
+The service-only `ops/deploy-pro-sync.sh` controller backs up the schema-2
+payload/history, verifies the calendar preimage, installs only the matching
+private Pro config and new writer, and preserves the xochitl PID. Its independent
+rollback removes only that newly installed config, restores the schema-2-aware
+prior writer, and retains all current indexes/journals. The estimate-aware hub
+upgrade runs first through `ops/deploy-hub-v3.sh`, preserves nginx/credentials,
+and tests estimates in the isolated probe namespace before real clients start.
+
 ## Page-creation regression repair
 
 Device logs exposed a missing lexical import: Values does not import the native
@@ -28,9 +63,8 @@ shared Pro/Move feature development and target-specific release gates;
 `compatibility.json` records actual deployment/acceptance status without
 claiming an untested Move build. Shared logic remains in the backend and QML
 modules below, while each firmware branch owns its exact hooks and deployment
-pins. The deployed implementation has no data transport. The user now also
-requires shared Dates history for the same notebook; that is a pending feature,
-not permission to merge unrelated device-local settings.
+pins. The Pro now exchanges Dates history with the private hub; the physical
+Move rollout is pending. This is not permission to merge unrelated device-local settings.
 The existing source history was published privately on 2026-09-18, retaining
 `beta/pro/3.28.0.169` as the current branch rather than renaming a deployed target.
 
@@ -99,10 +133,10 @@ supplying a personal default. It is not the generic third-party install path.
 
 ## Modules
 
-### Cross-device Dates synchronization (hub deployed; tablets pending)
+### Cross-device Dates synchronization (hub and Pro deployed; Move pending)
 
-The local store remains the offline source for the UI. A future sync layer must
-exchange individual creation records keyed by verified notebook/page identity,
+The local store remains the offline source for the UI. The sync layer exchanges
+individual creation records keyed by verified notebook/page identity,
 preserving the originating timestamp, calendar day, timezone and offset.
 Receiving notebook content or metadata must never create a new date event.
 The existing local single-writer/atomic-save boundary must also serialize merges.
@@ -134,7 +168,7 @@ an incorrect device clock cannot be inferred or repaired automatically.
 `syncNotebook` merges journals before updating the schema-2 local
 index through its existing single-writer lock and atomic save. Corrupt journals
 fail closed and retain their bytes and prior backups. No inferred deletion sync.
-`syncLoop` checks watched/indexed notebooks once per minute; network calls never
+`syncLoop` checks watched/indexed notebooks after queued changes and once per minute; network calls never
 hold the UI writer lock. TLS verification is mandatory and redirects forbidden.
 Preview mode never starts the sync worker. Existing local-only deployments are
 unchanged until explicitly supplied a sync configuration and compatible writer.

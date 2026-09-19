@@ -3,17 +3,17 @@
 ## Current state (2026-09-19)
 
 The user explicitly authorized md-server as the private metadata sync point.
-The hub is deployed and live HTTPS synthetic tests pass. The optional tablet
-client is implemented and regression-tested. The Pro's v3 writer now includes
-the optional worker, **but no sync configuration is installed and it is not
-enabled on either tablet**. The Pro continues operating local-only;
-the Move still needs its separate Dates app port. Do not report end-to-end
-tablet synchronization as complete.
+The estimate-aware hub is deployed and live HTTPS tests pass. **The Pro sync
+client is enabled**, and three real page-creation observations reached the hub
+with their exact timestamps/provenance. A real HTTPS read using the Move's
+credential returned those records. The Pro then reported **Up to date**.
+The physical Move remains unreachable and still needs its separately guarded
+Dates app port/configuration. Do not report two-tablet delivery as complete.
 
 The v3 Created/Modified UI and metadata/backfill service were installed under
 separate guarded payload/panel transactions; see `UPDATE-RECIPE.md` for current
-hashes. The hub below was not changed in that release: it must be upgraded to
-the same estimate-aware source before enabling v3 clients. The new credential
+hashes. The later Calendar/sync rollout upgraded the hub before enabling Pro.
+The new credential
 generator requires an explicit `--sync-endpoint`; it never changes existing
 private credentials/configuration. For the initial-only host-qualified installer,
 pass endpoint and existing health URL as arguments 3 and 4. Generic self-hosting
@@ -38,7 +38,8 @@ validated TLS and received the expected unauthenticated HTTP 401 from the hub.
   secrets. The hub reads token hashes from `devices.json`; raw client credentials
   remain in mode-0600 files in the mode-0700 directory. Never print/commit them.
 - Probe records live under `history/probe/`, inaccessible with real device
-  tokens. No real notebook metadata has been uploaded during qualification.
+  tokens. Initial qualification used synthetic data only. The authorized Pro
+  rollout now also uploads real creation-history metadata to the owner namespace.
 - TLS routing: `/etc/nginx/snippets/dates-sync-location.conf`, included once
   in the existing TLS server in `/etc/nginx/sites-enabled/anki-mcp`.
   That active file is a regular file, NOT the similarly named sites-available
@@ -85,9 +86,14 @@ Retained transactions:
 - `hub-20260918-active-config`: successful initial deployment and smoke checks.
 - `hub-20260918-journal-guard`: binary-only upgrade adding fail-closed handling
   of a missing primary when a journal backup exists.
+- `hub-estimates-20260919T095749Z`: estimate-aware binary-only upgrade,
+  independent rollback, authenticated HTTPS estimate/retry/isolation test.
+  Server PID 2088822, zero restarts; rollback timer inactive.
+- `dates-sync-pro-20260919T095839Z`: guarded Pro service-only client enablement,
+  writer PID 307144, preserved UI PID 306456, zero restarts and read-only root.
 
 Final server binary SHA-256:
-`4628886cdbd5c604d348e596df295ccd96158a9a187507445d05f60c32a89eff`.
+`608c98281c8dc49074318abc1376c9fdc384a42791ebb316e27609e2b14db75e`.
 Route snippet SHA-256:
 `dc0ad5f8cde5ace027d320ae1b75f3392a532e13b988a1e6d8e873d5f84ff640`.
 The active nginx preimage and initial staging manifest are preserved privately
@@ -103,9 +109,11 @@ in local `.cache/hub-deploy/` as well as the server transaction directory.
 3. Transfer only that device's private `*-client.json` as its mode-0600
    `/home/root/.local/share/notebook-date-index/sync.json`. Do not activate it
    before the appropriate writer/panel/Move-port qualification is complete.
-4. The v3 settings page now shows worker status. Upgrade the hub first and
-   verify it remains accurate through real offline/reconnect cases before
-   claiming the user-facing sync rollout complete.
+4. The settings page now shows status for its own notebook. Pro's worker wakes
+   promptly after local changes/newly viewed notebooks, retries every minute,
+   and does not claim a concurrent new creation has already synced. Reopen Dates
+   to refresh the visible status. Hub/Pro upgrade passed; physical offline/reconnect
+   and Move acceptance remain before calling the two-tablet rollout complete.
 5. Validate one shared disposable notebook physically: create on Pro then Move,
    offline on both, reconnect/retry, and check the same dates without duplicates.
    Check delayed page content, reorder, delete/undo, copied notebook isolation,
@@ -115,13 +123,15 @@ in local `.cache/hub-deploy/` as well as the server transaction directory.
    remains configurable per device and old entries keep their recorded day/zone.
 
 The client uses an append-only event journal alongside the schema-2
-index, synchronizes watched/indexed notebooks once per minute, and keeps network
+index, synchronizes watched/indexed notebooks on queued changes and once per minute, and keeps network
 I/O outside the writer lock. Requests require verified HTTPS and never follow
 redirects. Reopening Dates refreshes its local view. Conflict resolution chooses
 observed creation over estimates, then earliest UTC with a deterministic tie-break while retaining all source
 observations; it cannot know which device clock was truly correct.
 
-Twenty-one Go tests (race detector), static analysis, six JS event tests, real
-Qt transport/popup tests, firmware composition/syntax and wrong-version gates
-passed during implementation. These are not substitutes for the two-tablet
-physical test above.
+Thirty Go tests (race detector), static analysis, sixteen JS tests, real
+Qt transport/popup/creation tests, firmware composition/syntax and wrong-version
+gates passed. A real Pro notebook's native file remained byte-identical during
+the read-only integration probe. These are not substitutes for the physical
+two-tablet test above. `ops/verify-pro-sync.mjs` explicitly reports
+`physicalMoveVerified:false` even when the Move credential can read hub history.

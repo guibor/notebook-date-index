@@ -1,29 +1,29 @@
 {
   "schema": 1,
   "application": "notebook-date-index",
-  "feature_revision": 3,
+  "feature_revision": 4,
   "metadata_sync": {
-    "hub": "deployed-and-https-tested-on-md-server",
-    "tablet_client_code": "pro-v3-installed-but-sync-not-configured-move-pending",
-    "estimate_aware_hub_upgrade": "required-before-enabling-v3-sync",
-    "end_to_end_acceptance": "pending",
+    "hub": "estimate-aware-hub-deployed-and-https-tested-on-md-server",
+    "tablet_client_code": "pro-enabled-real-history-delivered-move-unreachable-and-not-installed",
+    "estimate_aware_hub_upgrade": "completed-2026-09-19",
+    "end_to_end_acceptance": "pro-to-hub-and-move-credential-read-passed-physical-move-pending",
     "deployment_recipe": "SYNC-DEPLOYMENT.md"
   },
-  "features": ["per-notebook-opt-in", "created-and-native-modified-views", "optional-estimated-baseline", "year-month-day-hierarchy", "in-panel-settings", "pause-resume", "configurable-iana-timezone", "configurable-sync-endpoint", "isolated-native-controller-hook", "eink-touch-controls"],
+  "features": ["per-notebook-opt-in", "created-and-native-modified-views", "independent-list-and-calendar", "scrollable-marked-months", "optional-estimated-baseline", "year-month-day-hierarchy", "in-panel-settings", "pause-resume", "configurable-iana-timezone", "configurable-sync-endpoint", "per-notebook-sync-status", "isolated-native-controller-hook", "eink-touch-controls"],
   "devices": {
     "pro": {
       "model": "reMarkable Ferrari",
       "firmware": "3.28.0.169",
       "branch": "beta/pro/3.28.0.169",
-      "status": "v3-guarded-deployed-real-metadata-verified-new-ui-physical-acceptance-pending",
-      "deployment": "dates-v3-panel-20260919T090351Z",
-      "service_deployment": "dates-v3-20260919T085936Z"
+      "status": "calendar-guarded-deployed-sync-enabled-real-history-verified-calendar-physical-acceptance-pending",
+      "deployment": "dates-calendar-20260919T095303Z",
+      "service_deployment": "dates-sync-pro-20260919T095839Z"
     },
     "move": {
       "model": "reMarkable Chiappa",
       "firmware": null,
       "branch": null,
-      "status": "qualification-and-port-pending",
+      "status": "unreachable-live-qualification-pending-historical-169-composition-passed",
       "deployment": null
     }
   }

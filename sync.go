@@ -466,6 +466,47 @@ func (s *Store) syncNotebook(c *SyncConfig, client *http.Client, notebook string
 	// Enabled and device timezone are intentionally untouched.
 	return s.save(notebook, v)
 }
+
+// Called only under the store lock; never performs network I/O or blocks a
+// page-creation callback. Revisions prevent a late success hiding unsent edits.
+func (s *Store) queueSyncLocked(notebook string) {
+	if s.syncWake == nil {
+		return
+	}
+	if s.syncStates == nil {
+		s.syncStates = map[string]string{}
+	}
+	if s.syncRevisions == nil {
+		s.syncRevisions = map[string]uint64{}
+	}
+	s.syncRevisions[notebook]++
+	s.syncStates[notebook] = "Waiting to sync"
+	select {
+	case s.syncWake <- struct{}{}:
+	default:
+	}
+}
+
+func (s *Store) syncAttempt(c *SyncConfig, client *http.Client, notebook string) error {
+	s.mu.Lock()
+	revision := s.syncRevisions[notebook]
+	s.mu.Unlock()
+	err := s.syncNotebook(c, client, notebook)
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.syncStates == nil {
+		s.syncStates = map[string]string{}
+	}
+	if err != nil {
+		s.syncStates[notebook] = "Offline or unavailable — dates kept on this tablet"
+	} else if s.syncRevisions[notebook] != revision {
+		s.syncStates[notebook] = "Waiting to sync"
+	} else {
+		s.syncStates[notebook] = "Up to date"
+	}
+	return err
+}
+
 func (s *Store) syncLoop(c *SyncConfig) {
 	client := syncHTTPClient()
 	ticker := time.NewTicker(time.Minute)
@@ -485,15 +526,11 @@ func (s *Store) syncLoop(c *SyncConfig) {
 			}
 		}
 		for id := range wanted {
-			err := s.syncNotebook(c, client, id)
-			s.mu.Lock()
-			if err == nil {
-				s.syncStatus = "Up to date"
-			} else {
-				s.syncStatus = "Offline or unavailable — dates kept on this tablet"
-			}
-			s.mu.Unlock()
+			s.syncAttempt(c, client, id)
 		}
-		<-ticker.C
+		select {
+		case <-ticker.C:
+		case <-s.syncWake:
+		}
 	}
 }

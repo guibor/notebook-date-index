@@ -73,12 +73,15 @@ type View struct {
 	Warning   string  `json:"warning,omitempty"`
 }
 type Store struct {
-	dir        string
-	notebooks  string
-	mu         sync.Mutex
-	preview    bool
-	watched    map[string]bool
-	syncStatus string
+	dir           string
+	notebooks     string
+	mu            sync.Mutex
+	preview       bool
+	watched       map[string]bool
+	syncStatus    string
+	syncStates    map[string]string
+	syncRevisions map[string]uint64
+	syncWake      chan struct{}
 }
 
 type Settings struct {
@@ -283,6 +286,9 @@ func (s *Store) apply(action string, r Request) (View, error) {
 		}
 		out.Timezone = config.Timezone
 		out.Sync = s.syncStatus
+		if status := s.syncStates[r.Notebook]; status != "" {
+			out.Sync = status
+		}
 		return out
 	}
 	if !uuid.MatchString(r.Notebook) {
@@ -291,7 +297,6 @@ func (s *Store) apply(action string, r Request) (View, error) {
 	if s.watched == nil {
 		s.watched = map[string]bool{}
 	}
-	s.watched[r.Notebook] = true
 	current, err := ids(r.Current)
 	if err != nil {
 		return View{}, err
@@ -299,6 +304,10 @@ func (s *Store) apply(action string, r Request) (View, error) {
 	v, err := s.load(r.Notebook)
 	if err != nil {
 		return View{}, err
+	}
+	if !s.watched[r.Notebook] {
+		s.watched[r.Notebook] = true
+		s.queueSyncLocked(r.Notebook)
 	}
 	dirty := false
 	switch action {
@@ -378,6 +387,7 @@ func (s *Store) apply(action string, r Request) (View, error) {
 		if err = s.save(r.Notebook, v); err != nil {
 			return View{}, err
 		}
+		s.queueSyncLocked(r.Notebook)
 	}
 	return response(v), nil
 }
@@ -489,6 +499,7 @@ func main() {
 			log.Println("Dates sync disabled: invalid configuration")
 		} else if c != nil {
 			s.syncStatus = "Waiting to sync"
+			s.syncWake = make(chan struct{}, 1)
 			go s.syncLoop(c)
 		}
 	}

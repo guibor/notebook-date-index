@@ -67,6 +67,63 @@ func TestSyncOfflineBidirectionalAndRetry(t *testing.T) {
 		}
 	}
 }
+
+func TestSyncStatusIsPerNotebookAndWakeIsNonblocking(t *testing.T) {
+	_, srv, c := testHub(t)
+	s, r := setup(t)
+	s.syncStatus = "Waiting to sync"
+	s.syncWake = make(chan struct{}, 1)
+	for i := 0; i < 100; i++ {
+		s.mu.Lock()
+		s.queueSyncLocked(r.Notebook)
+		s.mu.Unlock()
+	}
+	if len(s.syncWake) != 1 {
+		t.Fatal("wake queue must be bounded")
+	}
+	if err := s.syncAttempt(c["pro"], srv.Client(), r.Notebook); err != nil {
+		t.Fatal(err)
+	}
+	bad := *c["pro"]
+	bad.Token = "invalid"
+	other := id(98)
+	if s.syncAttempt(&bad, srv.Client(), other) == nil {
+		t.Fatal("expected failed authentication")
+	}
+	v, err := s.apply("query", r)
+	if err != nil || v.Sync != "Up to date" {
+		t.Fatal("another notebook changed this status", v, err)
+	}
+	r.Notebook = other
+	// First query queues a new read; then a failed attempt is specific to it.
+	s.apply("query", r)
+	s.syncAttempt(&bad, srv.Client(), other)
+	v, err = s.apply("query", r)
+	if err != nil || !strings.HasPrefix(v.Sync, "Offline") {
+		t.Fatal(v, err)
+	}
+}
+
+func TestSyncStatusDoesNotHideConcurrentCreation(t *testing.T) {
+	h, _, c := testHub(t)
+	s, r := setup(t)
+	s.syncWake = make(chan struct{}, 1)
+	add(t, s, &r, 3, "2026-09-18T08:00:00Z", 180)
+	srv := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		add(t, s, &r, 4, "2026-09-18T09:00:00Z", 180)
+		h.ServeHTTP(w, req)
+	}))
+	defer srv.Close()
+	cfg := *c["pro"]
+	cfg.Endpoint = srv.URL + "/dates/v1/exchange"
+	if err := s.syncAttempt(&cfg, srv.Client(), r.Notebook); err != nil {
+		t.Fatal(err)
+	}
+	v, err := s.apply("query", r)
+	if err != nil || v.Sync != "Waiting to sync" || len(s.syncWake) != 1 {
+		t.Fatal("claimed unsent creation was synced", v, err)
+	}
+}
 func TestSyncHiddenUntilPageArrivesPreservesDateAndPause(t *testing.T) {
 	_, srv, c := testHub(t)
 	a, ra := setup(t)

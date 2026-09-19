@@ -3,6 +3,40 @@ var months = ["January", "February", "March", "April", "May", "June", "July", "A
 var weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 function pageCount(n) { return n + (n === 1 ? " page" : " pages"); }
 function isExpanded(state, key, fallback) { return state[key] === undefined ? fallback : state[key]; }
+function dayGroups(groups) {
+    var out = {};
+    groups.forEach(function(g) { if (g.pages.length) out[g.day] = g; });
+    return out;
+}
+function monthNumber(day) { return Number(day.slice(0,4))*12 + Number(day.slice(5,7))-1; }
+// A numeric ListView model keeps even very long histories lazy. Empty months
+// between the first and last dated pages remain scrollable, not silently skipped.
+function calendarRange(groups, fallback) {
+    var numbers = groups.filter(function(g) { return g.pages.length > 0; }).map(function(g) { return monthNumber(g.day); });
+    if (!numbers.length) numbers = [monthNumber(fallback || new Date().toISOString().slice(0,10))];
+    var oldest = numbers[0], latest = numbers[0];
+    numbers.forEach(function(n) { oldest = Math.min(oldest,n); latest = Math.max(latest,n); });
+    return {latest:latest, count:latest-oldest+1};
+}
+function calendarMonth(number, byDay) {
+    var year = Math.floor(number/12), month = number%12;
+    // setUTCFullYear also handles years 1–99 without Date.UTC's 1900 offset.
+    var first = new Date(0); first.setUTCFullYear(year,month,1); first.setUTCHours(12,0,0,0);
+    var next = new Date(first); next.setUTCMonth(month+1); next.setUTCDate(0);
+    var prefix = String(year).padStart(4,"0")+"-"+String(month+1).padStart(2,"0")+"-";
+    var cells = [], pages = 0;
+    for (var i=0; i<42; i++) {
+        var n = i-first.getUTCDay()+1, valid = n>0 && n<=next.getUTCDate();
+        var day = valid ? prefix+String(n).padStart(2,"0") : "";
+        var count = day && byDay[day] ? byDay[day].pages.length : 0;
+        pages += count;
+        cells.push({number:valid ? n : 0, day:day, count:count});
+    }
+    return {title:months[month]+" "+year, cells:cells, pages:pages};
+}
+function dayTitle(day) {
+    return Number(day.slice(8))+" "+months[Number(day.slice(5,7))-1]+" "+Number(day.slice(0,4));
+}
 function rows(groups, state) {
     var ordered = groups.slice().sort(function(a,b) { return b.day.localeCompare(a.day); });
     var years = [], buckets = {}, monthKeys = [];

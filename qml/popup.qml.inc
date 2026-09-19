@@ -60,6 +60,11 @@ NdiControls.Popup {
     property var expanded: ({})
     property var dateRows: DateTree.rows(groups, expanded)
     property string mode: "created"
+    property string presentation: "list"
+    property string selectedDay: ""
+    property var byDay: DateTree.dayGroups(groups)
+    property var calendarInfo: DateTree.calendarRange(groups)
+    property var selectedPages: byDay[selectedDay] ? byDay[selectedDay].pages : []
     property int requestGeneration: 0
     property int undated: 0
     property int estimates: 0
@@ -71,8 +76,14 @@ NdiControls.Popup {
         : [timezone, "Asia/Jerusalem", "UTC", "Europe/London", "Europe/Paris", "America/New_York", "America/Los_Angeles", "Asia/Tokyo"]
     function switchMode(next) {
         if (mode === next) return;
-        mode = next; groups = []; expanded = ({}); warning = ""; ready = false;
+        mode = next; groups = []; expanded = ({}); selectedDay = ""; warning = ""; ready = false;
         root.ndiRefresh();
+    }
+    function switchPresentation(next) {
+        presentation = next; selectedDay = "";
+    }
+    function selectDay(day) {
+        if (byDay[day] && byDay[day].pages.length) selectedDay = day;
     }
     function expandRow(row) {
         const next = Object.assign({}, expanded);
@@ -88,7 +99,7 @@ NdiControls.Popup {
     x: (root.width - width) / 2; y: (root.height - height) / 2
     padding: 32
     onOpened: {
-        ready = false; groups = []; expanded = ({}); showSettings = false;
+        ready = false; groups = []; expanded = ({}); selectedDay = ""; showSettings = false;
         initializeOlder = false; warning = ""; root.ndiRefresh();
     }
     background: Rectangle { color:"white"; border.color:"black"; border.width:2; radius:14 }
@@ -126,9 +137,17 @@ NdiControls.Popup {
                 text:ndiPopup.mode === "modified" ? "Last edited · from notebook metadata" : "Creation dates · tracking " + (ndiPopup.tracking ? "on" : "paused")
                 font.pixelSize:21; color:"#555555"; wrapMode:Text.WordWrap
             }
+            Row {
+                id: layoutTabs
+                anchors { top:viewCaption.bottom; topMargin:16; left:parent.left; right:parent.right }
+                height:64; spacing:8
+                DatesButton { id:listTab; width:(parent.width-8)/2; height:64; text:"List"; primary:ndiPopup.presentation==="list"; onClicked:ndiPopup.switchPresentation("list") }
+                DatesButton { id:calendarTab; width:(parent.width-8)/2; height:64; text:"Calendar"; primary:ndiPopup.presentation==="calendar"; onClicked:ndiPopup.switchPresentation("calendar") }
+            }
             ListView {
                 id: dateList
-                anchors { top:viewCaption.bottom; topMargin:18; left:parent.left; right:parent.right; bottom:dateFooter.top; bottomMargin:14 }
+                visible:ndiPopup.presentation==="list" || !ndiPopup.ready
+                anchors { top:layoutTabs.bottom; topMargin:18; left:parent.left; right:parent.right; bottom:dateFooter.top; bottomMargin:14 }
                 clip:true; model:ndiPopup.dateRows
                 boundsBehavior:Flickable.StopAtBounds
                 NdiControls.ScrollBar.vertical: NdiControls.ScrollBar { width:6; policy:NdiControls.ScrollBar.AsNeeded }
@@ -174,10 +193,68 @@ NdiControls.Popup {
                     }
                 }
             }
+            ListView {
+                id:calendarList
+                visible:ndiPopup.ready && ndiPopup.presentation==="calendar" && ndiPopup.selectedDay===""
+                anchors { top:layoutTabs.bottom; topMargin:18; left:parent.left; right:parent.right; bottom:dateFooter.top; bottomMargin:14 }
+                clip:true; boundsBehavior:Flickable.StopAtBounds
+                model:ndiPopup.calendarInfo.count
+                spacing:24
+                NdiControls.ScrollBar.vertical:NdiControls.ScrollBar { width:6; policy:NdiControls.ScrollBar.AsNeeded }
+                delegate:Item {
+                    id:monthCard
+                    required property int index
+                    property var monthData:DateTree.calendarMonth(ndiPopup.calendarInfo.latest-index,ndiPopup.byDay)
+                    width:ListView.view.width; height:526
+                    Text { id:monthHeading; width:parent.width; height:52; text:monthCard.monthData.title; font.pixelSize:29; font.bold:true; color:"black"; verticalAlignment:Text.AlignVCenter }
+                    Text { anchors { top:monthHeading.bottom; left:parent.left } text:monthCard.monthData.pages ? DateTree.pageCount(monthCard.monthData.pages) : "No dated pages"; font.pixelSize:20; color:"#555555" }
+                    Row {
+                        id:weekHeader; y:86; width:parent.width; height:32
+                        Repeater {
+                            model:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+                            Text { required property string modelData; width:weekHeader.width/7; height:32; text:modelData; font.pixelSize:19; color:"#555555"; horizontalAlignment:Text.AlignHCenter; verticalAlignment:Text.AlignVCenter }
+                        }
+                    }
+                    Grid {
+                        id:monthGrid; y:124; width:parent.width; columns:7
+                        Repeater {
+                            model:monthCard.monthData.cells
+                            Item {
+                                required property var modelData
+                                width:monthGrid.width/7; height:66
+                                Rectangle { anchors { fill:parent; margins:3 } radius:8; color:dayTap.pressed ? "#dedede" : "white" }
+                                Text { anchors { top:parent.top; topMargin:7; horizontalCenter:parent.horizontalCenter } text:modelData.number || ""; font.pixelSize:25; font.bold:modelData.count>0; color:modelData.count ? "black" : "#777777" }
+                                Rectangle { anchors { bottom:parent.bottom; bottomMargin:9; horizontalCenter:parent.horizontalCenter } width:7; height:7; radius:4; color:"black"; visible:modelData.count>0 }
+                                MouseArea { id:dayTap; anchors.fill:parent; enabled:modelData.count>0; onClicked:ndiPopup.selectDay(modelData.day) }
+                            }
+                        }
+                    }
+                    Rectangle { anchors { bottom:parent.bottom; left:parent.left; right:parent.right } height:1; color:"#dddddd" }
+                }
+            }
+            Item {
+                id:calendarDay
+                visible:ndiPopup.ready && ndiPopup.presentation==="calendar" && ndiPopup.selectedDay!==""
+                anchors { top:layoutTabs.bottom; topMargin:18; left:parent.left; right:parent.right; bottom:dateFooter.top; bottomMargin:14 }
+                DatesButton { id:calendarBack; width:parent.width; height:64; text:"‹  Back to months"; quiet:true; onClicked:ndiPopup.selectedDay="" }
+                Text { id:dayHeading; anchors { top:calendarBack.bottom; topMargin:12; left:parent.left; right:parent.right } text:ndiPopup.selectedDay ? DateTree.dayTitle(ndiPopup.selectedDay) : ""; font.pixelSize:29; font.bold:true; wrapMode:Text.WordWrap; color:"black" }
+                ListView {
+                    id:dayPages
+                    anchors { top:dayHeading.bottom; topMargin:12; left:parent.left; right:parent.right; bottom:parent.bottom }
+                    model:ndiPopup.selectedPages; clip:true; boundsBehavior:Flickable.StopAtBounds
+                    NdiControls.ScrollBar.vertical:NdiControls.ScrollBar { width:6; policy:NdiControls.ScrollBar.AsNeeded }
+                    delegate:DatesButton {
+                        required property var modelData
+                        width:ListView.view.width; height:82; quiet:true
+                        text:"Page "+modelData.number+(modelData.estimated ? " · estimated" : "")
+                        onClicked:ndiPopup.jump(modelData.id)
+                    }
+                }
+            }
             Text {
                 id:dateFooter; anchors { bottom:parent.bottom; left:parent.left; right:parent.right }
                 font.pixelSize:18; color:"#555555"; wrapMode:Text.WordWrap
-                text:ndiPopup.groups.length ? "Tap a day to open its first page. + shows all pages."+(ndiPopup.undated ? "\n"+ndiPopup.undated+(ndiPopup.undated===1 ? " page has" : " pages have")+" no "+(ndiPopup.mode==="created" ? "creation" : "modification")+" date." : "")+(ndiPopup.estimates ? "\nEstimated dates came from last modified, not observed creation." : "") : ""
+                text:(ndiPopup.presentation==="calendar" ? (ndiPopup.selectedDay ? "Choose a page to open it." : "Scroll through months. Tap a marked day to see its pages.") : (ndiPopup.groups.length ? "Tap a day to open its first page. + shows all pages." : ""))+(ndiPopup.undated ? "\n"+ndiPopup.undated+(ndiPopup.undated===1 ? " page has" : " pages have")+" no "+(ndiPopup.mode==="created" ? "creation" : "modification")+" date." : "")+(ndiPopup.estimates ? "\nEstimated dates came from last modified, not observed creation." : "")
             }
         }
         Flickable {
