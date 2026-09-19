@@ -97,8 +97,8 @@ shared Pro/Move feature development and target-specific release gates;
 `compatibility.json` records actual deployment/acceptance status without
 claiming an untested Move build. Shared logic remains in the backend and QML
 modules below, while each firmware branch owns its exact hooks and deployment
-pins. The Pro now exchanges Dates history with the private hub; the physical
-Move rollout is pending. This is not permission to merge unrelated device-local settings.
+pins. Both physical tablets now exchange Dates history with the private hub;
+actual Pro-to-Move delivery is verified. This is not permission to merge unrelated device-local settings.
 The existing source history was published privately on 2026-09-18, retaining
 `beta/pro/3.28.0.169` as the current branch rather than renaming a deployed target.
 
@@ -167,7 +167,7 @@ supplying a personal default. It is not the generic third-party install path.
 
 ## Modules
 
-### Cross-device Dates synchronization (hub and Pro deployed; Move pending)
+### Cross-device Dates synchronization (hub, Pro and Move deployed)
 
 The local store remains the offline source for the UI. The sync layer exchanges
 individual creation records keyed by verified notebook/page identity,

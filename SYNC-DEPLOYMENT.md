@@ -7,8 +7,15 @@ The estimate-aware hub is deployed and live HTTPS tests pass. **The Pro sync
 client is enabled**, and three real page-creation observations reached the hub
 with their exact timestamps/provenance. A real HTTPS read using the Move's
 credential returned those records. The Pro then reported **Up to date**.
-The physical Move remains unreachable and still needs its separately guarded
-Dates app port/configuration. Do not report two-tablet delivery as complete.
+The physical Move is now independently qualified and installed on its own
+`beta/move/3.28.0.169` branch, transaction `dates-move-20260919-r5`.
+An actual shared notebook contained 356 matching current page IDs on each tablet.
+The Move received all three Pro observations and canonical creation records
+byte-for-byte, including their original timestamps and provenance, and reported
+**Up to date**. Both native .content files were unchanged during this check.
+Pro tracking remained on; Move tracking remained off. Receiving history does not
+enable recording. This proves actual tablet-to-hub-to-tablet delivery, not yet
+a physical new-page, reverse-direction or offline handwriting round trip.
 
 The v3 Created/Modified UI and metadata/backfill service were installed under
 separate guarded payload/panel transactions; see `UPDATE-RECIPE.md` for current

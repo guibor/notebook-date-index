@@ -1,6 +1,7 @@
 # Paper Pro notebook Dates update recipe
 
 Exact branch: `beta/pro/3.28.0.169`, model `reMarkable Ferrari`.
+Move revision 5 is separately installed; see [its recipe](MOVE-UPDATE-RECIPE.md).
 This branch is not a Move build. Read the sibling
 `remarkable-beta-os/KNOWLEDGE-BASE.md` and its current dated log first.
 

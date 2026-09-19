@@ -7,6 +7,11 @@ DEVICE=${1:-}
 MODE=${2:-status}
 ssh_opts=(-o BatchMode=yes -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no -o StrictHostKeyChecking=yes -o ConnectTimeout=5 -i "$HOME/.ssh/id_ed25519_remarkable_new")
 case "$DEVICE" in ""|-*|*[!A-Za-z0-9_.@-]*) echo "Pass a safe SSH host" >&2; exit 2 ;; esac
+host=${DEVICE#root@}
+test "$DEVICE" = "root@$host"
+[[ "$host" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]
+keys=$(ssh-keyscan -T 3 -t ed25519 "$host" 2>/dev/null)
+test "$(printf '%s\n' "$keys" | ssh-keygen -lf - | awk '{print $2}')" = SHA256:osLWO+xA0s/qhzWV2jtGWAF6NlD/KEi/d6CEkt8MZMk
 case "$MODE" in activate|deactivate|status) ;; *) echo "Invalid mode" >&2; exit 2 ;; esac
 repo=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 profile="$repo/profiles/move-dates-r5.env"
