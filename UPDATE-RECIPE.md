@@ -12,6 +12,14 @@ Its header has a compact layout button, Modified-calendar day pages are numeric
 page order, and its sidebar has a calendar icon immediately above BetterTOC.
 Short toolbars retain a notebook-menu fallback. Move retains the menu only.
 
+Final read-only check: a separate `dispatch-appload-latency` installation and
+rollback performed later managed Pro UI restarts at 11:26–11:28 UTC. Those were
+not this Dates transaction. UI PID was then 315000, active, `NRestarts=0`, with
+all four XOVI extensions still mapped and root read-only. Dates QMD remained
+the revision-5 hash below, writer PID 307144 and both Gestik hashes were unchanged,
+and the real paired delivery probe passed again. No attempt was made here to
+modify or override that separate deployment.
+
 Guarded Pro activation passed at UI PID 310895, `NRestarts=0`. Writer PID 307144
 was preserved, as were all other QMDs, native notebook bytes, RMStream, private
 sync/settings/token files and each independent Gestik file. Root stayed read-only.
