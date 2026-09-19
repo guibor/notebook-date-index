@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "application": "notebook-date-index",
-  "feature_revision": 5,
+  "feature_revision": 6,
   "metadata_sync": {
     "hub": "estimate-aware-hub-deployed-and-https-tested-on-md-server",
     "tablet_client_code": "pro-and-move-enabled-independent-device-credentials",
@@ -9,22 +9,22 @@
     "end_to_end_acceptance": "actual-pro-hub-move-delivery-passed-three-records-356-shared-pages-physical-new-page-round-trip-pending",
     "deployment_recipe": "SYNC-DEPLOYMENT.md"
   },
-  "features": ["per-notebook-opt-in", "created-and-native-modified-views", "independent-list-and-calendar", "scrollable-marked-months", "optional-estimated-baseline", "year-month-day-hierarchy", "in-panel-settings", "pause-resume", "configurable-iana-timezone", "configurable-sync-endpoint", "per-notebook-sync-status", "isolated-native-controller-hook", "eink-touch-controls"],
+  "features": ["per-notebook-opt-in", "created-and-native-modified-views", "independent-list-and-calendar", "single-month-arrows", "spillover-date-links", "selected-layout-icons", "cache-preserving-open", "optional-estimated-baseline", "year-month-day-hierarchy", "in-panel-settings", "pause-resume", "configurable-iana-timezone", "configurable-sync-endpoint", "per-notebook-sync-status", "isolated-native-controller-hook", "eink-touch-controls"],
   "devices": {
     "pro": {
       "model": "reMarkable Ferrari",
       "firmware": "3.28.0.169",
       "branch": "beta/pro/3.28.0.169",
-      "status": "navigation-refinement-guarded-deployed-sync-enabled-real-history-verified-sidebar-physical-acceptance-pending",
-      "deployment": "dates-navigation-20260919T111620Z",
+      "status": "calendar-polish-r6-guarded-installed-sync-preserved-physical-flash-and-taps-pending",
+      "deployment": "dates-polish-20260919T142350Z",
       "service_deployment": "dates-sync-pro-20260919T095839Z"
     },
     "move": {
       "model": "reMarkable Chiappa",
       "firmware": "3.28.0.169",
       "branch": "beta/move/3.28.0.169",
-      "status": "guarded-r5-installed-sync-enabled-real-pro-history-received-physical-ui-acceptance-pending",
-      "deployment": "dates-move-20260919-r5"
+      "status": "calendar-polish-r6-guarded-installed-sync-preserved-real-pro-history-verified-physical-flash-and-taps-pending",
+      "deployment": "dates-move-polish-20260919T142554Z-6164"
     }
   }
 }

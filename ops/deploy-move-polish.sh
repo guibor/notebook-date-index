@@ -15,6 +15,7 @@ bash ops/run-move-session.sh "root@$host" status
 id=dates-move-polish-$(date -u +%Y%m%dT%H%M%SZ)-$$
 stage=/home/root/.codex-staging/$id; rec=/home/root/.codex-backups/$id
 localdir=.cache/$id
+mkdir -p .cache
 mkdir -m 700 "$localdir"
 cp build/{DatesPanel.qml,DateTree.js} "$localdir/"
 cp ops/{install-move-polish,rollback-move-polish}.sh "$localdir/"
