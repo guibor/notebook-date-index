@@ -1,5 +1,9 @@
 #+title: Notebook Dates
 
+* Branch target
+This checkout is =beta/move/3.28.0.169=. It keeps the notebook-menu entry and
+uses the exact Chiappa resource/runtime profile; never use the Pro installer.
+
 * Objective
 Find notebook pages by creation day or their saved last-edit day, without
 cluttering or changing the user's existing table of contents.

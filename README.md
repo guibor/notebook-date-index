@@ -13,9 +13,10 @@ quiet separators, and no animation-dependent controls.
 
 ![Dates, with collapsible years, months, days and pages. Synthetic example.](docs/images/dates-panel.png)
 
-> **Beta software, exact firmware only.** This branch targets **Paper Pro / Ferrari
-> 3.28.0.169**. It is not a general reMarkable installer and is not yet qualified
-> for Paper Pro Move. Do not bypass compatibility checks to install it elsewhere.
+> **Beta software, exact firmware only.** This branch targets **Paper Pro Move /
+> Chiappa 3.28.0.169**. Its source is shared with Pro but its resource table,
+> plugin inventory and guarded activation are qualified independently.
+> Do not bypass compatibility checks to install it elsewhere.
 
 ## Two useful ways to find a page
 

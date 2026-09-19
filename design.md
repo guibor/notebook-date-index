@@ -1,5 +1,9 @@
 # Design
 
+This branch selects =move= in `target.json`. Its generated QMD uses the exact
+Chiappa .169 resource table and omits the Pro-only sidebar button. The shared
+panel, DateTree and writer are byte-identical to Pro revision 5.
+
 ## Navigation refinement (revision 5)
 
 The header's `layoutButton` toggles List / Calendar; Created / Modified remains
