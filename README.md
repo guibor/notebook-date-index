@@ -191,7 +191,7 @@ tracking** is the reversible way to stop recording.
 
 Repository: [guibor/notebook-date-index](https://github.com/guibor/notebook-date-index).
 
-**Publication status:** this repository is currently private and has no license
-grant yet. Public sharing and an open-source license are pending owner approval
-and the [publication checklist](docs/PUBLICATION.md). A public release is not
-implied by the installation evidence above.
+**Publication status:** this repository is public as of 2026-09-20. No license
+grant has been selected yet; public visibility alone is not an open-source
+license. See the [publication checklist](docs/PUBLICATION.md) for the remaining
+licensing and community-installation work.

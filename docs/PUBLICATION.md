@@ -1,8 +1,11 @@
 # Public-sharing checklist
 
-Status: **preparation, not a public release**. Checked 2026-09-20.
-The existing GitHub repository is private. No visibility change, history rewrite,
-public release, Reddit submission, or moderator message was made by this task.
+Status: **public source, not a general installable release**. Checked 2026-09-20.
+The owner explicitly authorized making the existing GitHub repository public,
+including its history, after disclosure of historical operational metadata.
+Public visibility and signed-out access were verified. The approved Reddit post
+was submitted and its content/permalink verified. No history rewrite, release
+tag, license grant, moderator message or tablet/server changes were made.
 
 ## Completed preparation
 
@@ -12,34 +15,35 @@ public release, Reddit submission, or moderator message was made by this task.
 - [x] Portable source-test entry point, tested in clean exports without the
   maintainer's sibling repositories or private firmware caches.
 - [x] Contributing/security guidance and dependency/vendored-file provenance.
-- [x] Draft Reddit post and moderator-permission message, not submitted.
+- [x] Prepare Reddit text; publish the user-approved revised post. The separate
+  moderator-permission draft was not sent, and no moderator approval is claimed.
 - [x] Targeted review of all 22 pre-preparation reachable commits (225 blobs,
   301 objects, including 10 historical synthetic screenshot PNGs).
   No candidate raw credentials, private notebook files or stock firmware
   resource dumps were found. This is a scoped audit, not a universal guarantee.
 
-## Decisions before public access
+## Publication decisions and remaining work
 
 - [ ] Owner chooses a license for original Dates code and reviews vendored scope.
-- [ ] Owner authorizes the publication destination and visibility change.
-- [ ] Resolve historical personal infrastructure/author metadata exposure.
-- [ ] Verify the final public URL as a signed-out reader.
+- [x] Owner authorizes the existing repository's public visibility.
+- [x] Owner chooses existing-history publication after metadata disclosure.
+- [x] Verify the final public URL as a signed-out reader.
 - [ ] Configure/verify private security reporting before claiming it is available.
 
 The operational history includes personal server topology/account paths, device
 identity pins, LAN addresses and Git author metadata. These are not raw secrets,
 but changing only today's README does not remove them from earlier commits.
 
-**Recommended publication route:** preserve this private operations/recovery
+**Earlier recommendation (not chosen):** preserve the private operations/recovery
 repository and prepare a separate clean public source repository from reviewed
 files. Exclude owner deployment evidence, exact-device profiles, private
 runbooks and historical metadata. Include the selected license, public docs,
 source, tests and synthetic screenshots. Adapt the portable tests if private
 recovery fixtures are omitted; do not silently weaken the private device guards.
-Creating that repository and choosing its name need owner approval.
+No separate clean public repository was created.
 
-Alternative: publish this existing history only after the owner explicitly
-accepts those disclosures. Do not rewrite accepted device-release history or
+**Chosen route:** publish this existing history after the owner's explicit
+authorization. Do not rewrite accepted device-release history or
 remove live safety pins just to make a repository look generic.
 
 ## Separate community-installation gate
@@ -63,7 +67,8 @@ community distribution is developed.
 
 ## Reddit
 
-r/Remarkable's visible rules prohibit self-promotion, including promoting one's
-own project. Ask moderators whether a free, non-commercial technical write-up
-is permitted; do not disguise authorship. The drafted message and post are in
-[REDDIT-DRAFT.md](REDDIT-DRAFT.md). Recheck rules immediately before posting.
+r/Remarkable's visible rules prohibit self-promotion. The user was informed and
+explicitly requested publication; the post discloses authorship and technical
+installation limits. It was submitted as u/Patient_Chance_3795 with Tips & Tricks
+flair. No removal/pending-moderation notice was visible when verified; this is not
+a claim of moderator approval. [Published post](https://www.reddit.com/r/Remarkable/comments/1wkzszw/i_made_an_automatic_datebased_table_of_contents/).

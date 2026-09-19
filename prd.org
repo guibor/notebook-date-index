@@ -89,8 +89,8 @@ cluttering or changing the user's existing table of contents.
   developer tests, privacy guidance and dependency/license provenance.
 - Distinguish source availability from general tablet installability. Preserve
   exact-device guards; do not describe owner-pinned scripts as a public installer.
-- Prepare an unpublished r/Remarkable post with honest firmware/install limits;
-  request moderator permission because the current rules prohibit self-promotion.
+- Publish the approved r/Remarkable post with honest firmware/install limits and
+  disclosed authorship, as explicitly requested after the rules warning.
 - Keep repository visibility and license selection explicit owner decisions;
   historical personal operational metadata must be reviewed before publication.
 - Stock page creation must succeed even if Dates observation, storage or sync
@@ -98,7 +98,7 @@ cluttering or changing the user's existing table of contents.
   singleton imports are visible inside the shared Values module.
 - Use flat high-contrast e-ink controls, readable labels and 64-pixel touch
   targets in Dates, including the timezone selector and date/page rows.
-- Own a standalone private GitHub repository, =guibor/notebook-date-index=.
+- Own a standalone public GitHub repository, =guibor/notebook-date-index=.
 - Keep the Dates feature set aligned across Pro and Move using separately
   qualified exact-firmware branches, release evidence and a compatibility matrix.
 - Synchronize date-history metadata for the same notebook between Pro and Move.
@@ -143,6 +143,10 @@ cluttering or changing the user's existing table of contents.
   tablet's system timezone. Each device maintains its own choice.
 
 * Changed requirements
+- 2026-09-20 publication: user explicitly chose public visibility for the existing
+  repository/history and submission of the revised Reddit post. This supersedes
+  the private-only/draft-only requirements below. License selection remains open;
+  no device changes, history rewrite or general installation release is implied.
 - 2026-09-20: user reports Dates is excellent and requests repository/share
   preparation and a Reddit draft. Add portable source checks and public-facing
   docs without modifying working tablets. General positive feedback is not a
@@ -196,8 +200,10 @@ cluttering or changing the user's existing table of contents.
 - [X] Add a portable source gate and validate clean Pro/Move exports without
   sibling repositories or firmware caches; add source-only CI workflow.
 - [X] Prepare Reddit post and moderator-permission message without publishing.
-- [ ] Obtain publication destination/visibility and license decisions, then
-  complete the privacy boundary and verify a public reader can access the source.
+- [X] Make the existing repository public by explicit owner choice, verify
+  signed-out access and publish the approved Reddit post (id =1wkzszw=).
+- [ ] Obtain the license decision and review vendored scope before claiming
+  an open-source license; public source visibility is already complete.
 - [ ] Develop and independently validate a portable first-install/release path
   before advertising a general package or one-click installation.
 - [X] Implement/test single-month arrows, spillover links and selected-state icons.
