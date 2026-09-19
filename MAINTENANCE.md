@@ -23,22 +23,23 @@ each device's actual qualification state; a pending target is not a release.
 - Each firmware upgrade gets its own resource extraction, composition/tests,
   device backup, guarded deployment and physical acceptance. Pro success
   cannot qualify Move. Update the matrix and recipe with evidence afterward.
-- Keep current Pro development on `beta/pro/3.28.0.169`. Create a Move target
-  branch only after establishing its live exact firmware; do not invent a
-  version or copy the Pro installer with only the model name changed.
+- Keep current Pro development on `beta/pro/3.28.0.169`. Move is maintained
+  separately on `beta/move/3.28.0.169`, with `target.json` selecting its menu-only
+  entry. The same panel/helper/writer bytes are deployed on both. Do not copy
+  the Pro installer with only the model name changed.
 
 ## What sync means
 
 Both feature/release parity and shared Dates history are maintenance goals,
 not automatic deployment.
-The Move implementation is currently pending qualification. It must receive
-the same date grouping, per-notebook opt-in, pause/resume and timezone options.
+The Move revision-5 implementation is installed and independently runtime-qualified,
+with the same grouping, per-notebook opt-in, pause/resume and timezone options.
 
 The user clarified that date-index records for the same notebook must sync
 between Pro and Move. This supersedes the earlier local-only data policy.
 The Pro client and estimate-aware md-server hub are enabled; real Pro history
-delivery is verified. The physical Move remains unreachable and uninstalled;
-consult `SYNC-DEPLOYMENT.md` before continuing its separate rollout.
+delivery is verified all the way to the physical Move's service and saved index;
+consult `SYNC-DEPLOYMENT.md` for the remaining physical interaction acceptance.
 Merge individual page-date
 records by verified notebook/page identity; never overwrite an entire index.
 Native notebook content keeps its existing sync path and remains untouched by
@@ -63,7 +64,7 @@ publishing the source does not make these caches part of the repository.
 The transport and sampled notebook/page identities are validated. Shared history
 must still receive its own on-device offline/merge/rollback acceptance.
 
-1. Complete physical Pro calendar/creation/navigation acceptance.
-2. Read-only qualify Move's current model/firmware/runtime and independent settings.
-3. Port and test the same feature revision on its exact Move branch, then use
-   the preview/functional acceptance process before routine use.
+1. Confirm the Pro sidebar icon and Move notebook-menu entry physically.
+2. Enable tracking in a shared test notebook on each tablet independently.
+3. Add a page on Move, allow native notebook sync, reopen Dates on Pro and
+   confirm its creation day. Repeat in reverse, then exercise offline merging.

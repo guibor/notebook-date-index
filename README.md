@@ -178,12 +178,13 @@ not block writing or local navigation. A received
 record is visible only when its matching page is available locally. Tracking
 switches, timezone choices, and unrelated preferences are not synchronized.
 
-**Current deployment status:** Calendar is installed on the maintainer's Pro,
-and its Dates history now syncs to the upgraded private hub. A real notebook's
-three creation records were verified through HTTPS using the Move's credentials.
-The physical Move is currently unreachable and has not received the Dates app;
-two-tablet delivery and physical acceptance are still pending. Its saved .169
-firmware composition passes offline, but that is not a live-device qualification.
+**Current deployment status:** Revision 5 is installed on both the maintainer's
+Pro and Move, on independently qualified .169 branches. A real 356-page shared
+notebook was checked on both tablets: the Move received all three Pro creation
+records with exact timestamps/provenance, reported **Up to date**, and neither
+native notebook file changed. Tracking remains device-local; the Move starts
+off even when it receives existing history. Physical new-page, reverse-direction
+and offline handwriting acceptance are still pending.
 
 ## Installation, updates and recovery
 
@@ -192,11 +193,11 @@ The qualified Pro uses the standalone Dates service and an external QML panel.
 It coexists with BetterTOC and the separately maintained RMStream shortcut.
 
 Read [UPDATE-RECIPE.md](UPDATE-RECIPE.md) before changing a device. The current
-v3 → Calendar/sync upgrade is deliberately narrow: exact model/firmware/runtime/old-payload
+revision-5 upgrade is deliberately narrow: exact model/firmware/runtime/old-payload
 hashes, a private off-device backup, independent timed rollback, and a guarded UI
-restart for the calendar panel/helper. Sync then updates only the Dates service
-and its private config, preserving the UI process. All ten installed QMDs stay
-unchanged. Historical initial-install scripts are **not** suitable for
+restart. Pro changes only the panel, helper and Dates QMD, retaining its writer
+and all history. Move adds Dates beside its existing nine QMDs with its own
+qualified recovery runtime and private sync credential. Historical initial-install scripts are **not** suitable for
 the current ten-QMD inventory. Host-qualified scripts in `ops/` are maintainer
 runbooks, not a one-command installer for arbitrary tablets or servers.
 

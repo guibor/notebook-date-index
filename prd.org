@@ -105,10 +105,11 @@ cluttering or changing the user's existing table of contents.
   replacement and recoverable prior version. Never write native notebook/TOC.
 - Preserve Pro/Move independence, exact firmware/runtime gates, all existing
   QMD/Gestik bytes, and read-only root. No boot/firmware/kernel changes.
-- First install is a non-recording preview. Functional promotion follows
-  physical UI acceptance, then a disposable-notebook acceptance exercise.
-- The Pro now syncs creation history to the private hub; the physical Move
-  rollout remains pending. Sync errors/offline use must not block stock page
+- Initial Pro installation used a non-recording preview. The user subsequently
+  requested direct guarded upgrades and Move installation; recording still
+  defaults off per notebook/device, with physical acceptance recorded separately.
+- Both tablets now sync creation history to the private hub; actual Pro-to-Move
+  delivery is verified. Sync errors/offline use must not block stock page
   creation or existing local date navigation.
 - Test the real Qt XMLHttpRequest queue against the actual HTTP service,
   including Qt's JSON Content-Type charset parameter. A mocked popup and a
@@ -157,15 +158,15 @@ cluttering or changing the user's existing table of contents.
 
 * Immediate next steps
 - [X] Deploy navigation refinement to Pro under rollback protection.
-- [ ] Install the same revision on freshly qualified Move and verify real
+- [X] Install the same revision on freshly qualified Move and verify real
   same-notebook synchronization, preserving each device's local configuration.
 - [X] Implement/test Calendar on the current branch, then safely deploy its
   external panel/helper without replacing QMD hooks or touching notebook files.
 - [X] Upgrade the estimate-aware hub and enable Pro; verify three real creation
   records arrive and are readable through the Move credential. Native files unchanged.
-- [ ] Reach and freshly qualify the physical Move, then create its exact branch,
-  install Dates and enable its matching private client. Cached .169 composition
-  passes, but credential-free LAN discovery currently finds no Move host key.
+- [X] Reach and freshly qualify the physical Move, create its exact .169 branch,
+  install Dates and enable its matching private client. Three exact creation
+  records reached the Move in a notebook with 356 matching page IDs.
 - [ ] Physically accept Calendar scrolling, marked-day selection and navigation.
 - [X] Implement and verify Created/Modified, optional estimated baseline, and
   date-focused hierarchical UI; deploy to exact-qualified Pro with rollback.
@@ -179,13 +180,13 @@ cluttering or changing the user's existing table of contents.
 - [X] Implement/test authenticated hub and offline event-set merging locally.
 - [X] Deploy and verify the HTTPS hub with isolated synthetic records; confirm
   both tablets can validate TLS and reach its protected endpoint.
-- [ ] Qualify/deploy sync clients and validate actual two-tablet date history.
+- [X] Qualify/deploy sync clients and validate actual two-tablet date history.
 - [X] Update the Dates panel's local-only wording and add per-notebook sync
   status before enabling synchronization on either tablet.
 - [ ] Test offline bidirectional creation, retries, duplicate events, divergent
   page availability, deletion/undo, reorder, timezone changes and notebook copies.
 - [X] Publish this standalone private repository and verify its GitHub branch.
-- [ ] Qualify Move's live exact firmware and port feature revision 4 independently.
+- [X] Qualify Move's live exact firmware and port feature revision 5 independently.
 - [X] Reproduce the panel's HTTP 403 with real Qt, repair MIME parsing, and
   update only the background service without restarting the tablet UI.
 - [X] Deploy refreshed non-recording preview with the visible settings-menu
