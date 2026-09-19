@@ -53,6 +53,18 @@ metadata migration or automatically enable recording on the other device.
 
 ## Publication boundary
 
+Public-sharing preparation is documented in [docs/PUBLICATION.md](docs/PUBLICATION.md).
+The repository remains private and unlicensed pending owner decisions. Historical
+operational identifiers exist in Git history; removing them only from HEAD is
+not sanitization. Prefer a reviewed clean public source repository while keeping
+these private deployment receipts/profiles intact. Do not rewrite accepted history
+or loosen device guards to create a superficially portable installer.
+
+Use `scripts/test-portable.sh` for source-only contributor/CI validation. The
+full Qt/firmware/device gates remain separate and required for device releases.
+The new guides and draft do not authorize a GitHub visibility change, release
+tag, server/tablet reinstall, or Reddit/moderator submission.
+
 Commit source, tests, requirements, recipes and non-secret hash manifests.
 Never publish `.cache/`, `build/`, notebook files, index JSON, access tokens,
 credentials or device backup archives. The full on-device test still needs

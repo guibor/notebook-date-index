@@ -1,5 +1,10 @@
 # Paper Pro Move notebook Dates update recipe
 
+> **Maintainer transaction history, not a public installer.** New readers should
+> start with [the installation guide](docs/INSTALL.md). The exact Move runtime
+> remains separate from Pro; these identity/inventory pins are not defaults
+> to substitute for another owner's tablet.
+
 Exact branch: `beta/move/3.28.0.169`, model `reMarkable Chiappa`.
 Read the Move firmware-maintenance knowledge base and dated log first.
 Never use the Pro ReMagic wrapper, Pro profile or a copied Gestik configuration.

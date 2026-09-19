@@ -88,6 +88,15 @@ cluttering or changing the user's existing table of contents.
   and visual QA but no user preview gate for this accepted app's revision.
 
 * Requirements
+- Prepare a shareable, user-oriented repository with a feature tour, screenshots,
+  exact compatibility, installation/recovery instructions, optional self-hosting,
+  developer tests, privacy guidance and dependency/license provenance.
+- Distinguish source availability from general tablet installability. Preserve
+  exact-device guards; do not describe owner-pinned scripts as a public installer.
+- Prepare an unpublished r/Remarkable post with honest firmware/install limits;
+  request moderator permission because the current rules prohibit self-promotion.
+- Keep repository visibility and license selection explicit owner decisions;
+  historical personal operational metadata must be reviewed before publication.
 - Stock page creation must succeed even if Dates observation, storage or sync
   fails. Pass the caller's native controller explicitly; do not assume native
   singleton imports are visible inside the shared Values module.
@@ -138,6 +147,13 @@ cluttering or changing the user's existing table of contents.
   tablet's system timezone. Each device maintains its own choice.
 
 * Changed requirements
+- 2026-09-20: user reports Dates is excellent and requests repository/share
+  preparation and a Reddit draft. Add portable source checks and public-facing
+  docs without modifying working tablets. General positive feedback is not a
+  claim that every named physical creation/offline/recovery scenario was tested.
+- 2026-09-20: prior private-only ownership now has a public-sharing preparation
+  goal. Actual visibility/license changes remain pending owner choice; preserve
+  private operations history rather than publishing or rewriting it implicitly.
 - 2026-09-19 revision 6: replace scrolling months with a single-month arrow view;
   replace the compact text action with explicit selected-state layout icons.
   Visible adjacent-month dates now remain actionable. Warm opening must preserve
@@ -179,6 +195,15 @@ cluttering or changing the user's existing table of contents.
   exclusion of cross-device index sync is superseded by the clarification above.
 
 * Immediate next steps
+- [X] Rewrite README and add installation/recovery, self-hosting, contributing,
+  privacy/provenance and publication guidance with honest compatibility limits.
+- [X] Add a portable source gate and validate clean Pro/Move exports without
+  sibling repositories or firmware caches; add source-only CI workflow.
+- [X] Prepare Reddit post and moderator-permission message without publishing.
+- [ ] Obtain publication destination/visibility and license decisions, then
+  complete the privacy boundary and verify a public reader can access the source.
+- [ ] Develop and independently validate a portable first-install/release path
+  before advertising a general package or one-click installation.
 - [X] Implement/test single-month arrows, spillover links and selected-state icons.
 - [X] Add delayed-response opening/cache/error regressions without recording changes.
 - [X] Deploy revision 6 panel/helper on both independently qualified devices.
