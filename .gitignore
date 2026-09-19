@@ -1,2 +1,6 @@
 /build/
 /.cache/
+/private/
+/sync.json
+/*-client.json
+/devices.json

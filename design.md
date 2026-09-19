@@ -34,6 +34,69 @@ not permission to merge unrelated device-local settings.
 The existing source history was published privately on 2026-09-18, retaining
 `beta/pro/3.28.0.169` as the current branch rather than renaming a deployed target.
 
+## Date-focused revision (2026-09-19)
+
+`metadata.go` adds a bounded, no-symlink, read-only `.content` reader. It uses
+only `cPages.pages[].modifed` (the firmware's spelling), a string of epoch
+milliseconds, filters by the current notebook's stable page IDs and ignores
+missing/invalid/duplicate page records. It never falls back to filesystem times,
+scroll time, notebook timestamps or CRDT counters, and never writes native files.
+
+`modifiedPages` returns transient page/date records in the selected IANA zone.
+`Store.apply` exposes a `mode` query (created by default, modified independently
+of tracking). An explicit off-to-on `initializeFromModified` request adds only
+undated pages as `estimated:true`, once. A metadata read failure aborts this
+toggle before any save. Later edits, re-enabling and timezone changes cannot
+overwrite a saved creation date. View results include undated and estimated
+counts; page links carry estimate provenance.
+
+New saves use index schema 2; both schema 1 and 2 can be read. Deployment must
+not start a legacy writer over schema 2 during rollback (its old backup recovery
+would discard newer state). Emergency rollback stops Dates, preserves all its
+data, restores payload preimages, and returns the UI to stock; explicit recovery
+uses a schema-2-aware service. The ordinary old schema-1 data remains intact
+until the first real tracking write; a query does not migrate it.
+
+`qml/date-tree.js` is pure presentation logic: latest-first month groups, a year
+level for multi-year histories, stable expansion keys, and page estimate labels.
+The builder installs it as `DateTree.js` next to the external `DatesPanel.qml`.
+`qml/popup.qml.inc` has a Created/Modified switch, a list-first view and an
+in-panel settings page (not another modal). Its request generation guard rejects
+stale responses after a view/notebook switch. All navigation resolves page IDs
+again when tapped. Scrolling settings accommodates smaller/landscape viewports.
+
+`canonicalPages` now prefers recorded creation over an estimated baseline,
+then earliest UTC and stable event hash. Journals retain both observations.
+An older hub rejects the unknown estimate field rather than accepting it without
+provenance; upgrade hub/clients together before enabling this path. New credential
+generation requires `--sync-endpoint` and supports custom `--devices` names.
+No personal endpoint is compiled into the service. Existing private `sync.json`
+files are preserved; no file means local-only. Modified view is never uploaded.
+
+`ops/deploy-dates-v3.sh` owns the exact existing Pro upgrade: host-key validation,
+manifest-bound staging and off-device backup verification precede a transient
+device controller. `upgrade-dates-v3.sh` pins the accepted ten-QMD inventory and
+old Dates payload, backs up all private Dates data, replaces only the binary,
+panel and new JS helper, and uses both an independent 180-second rollback and
+the pinned ReMagic watchdog. All QMDs, RMStream, package state, timezone/token,
+Gestik and firmware remain byte-identical. `rollback-dates-v3.sh` stops Dates
+before restoring old payloads and never overwrites newly recorded history.
+The guarded upgrade is deliberately not a general installer or a Move port.
+The writer is a collected transient unit: a stop removes its registration.
+Activation must recreate it with `systemd-run`, and rollback must safely accept
+an already-absent service while still refusing to proceed if a writer PID exists.
+The tablet Qt build omits `Accessible` attached properties; do not add them based
+on desktop Qt support. Gate every source-located DatesPanel/DateTree diagnostic,
+including `Non-existent attached object`, not only ReferenceError/TypeError.
+`ops/deploy-v3-panel.sh` applies that one-file correction against the exact first
+v3 payload, preserving the writer PID and all history. Its independently guarded
+controller/rollback never replaces the service or touches schema-2 data.
+
+`examples/` provides owner-neutral sync/settings JSON and a hardened user-service
+template. `ops/install-hub.sh` remains an exact, host-qualified historical
+operator controller; it now requires explicit endpoint/health URLs rather than
+supplying a personal default. It is not the generic third-party install path.
+
 ## Modules
 
 ### Cross-device Dates synchronization (hub deployed; tablets pending)
@@ -65,10 +128,10 @@ remain per-device; receiving history never enables tracking automatically.
 before network I/O and again afterward, so concurrent creation cannot be lost.
 `mergeEvents` forms a sorted, deduplicated append-only set keyed by event hash;
 received observations are not reattributed to the receiving device.
-`canonicalPages` selects the earliest recorded UTC for each page with a stable
-hash tie-break. All conflicting observations/provenance remain in the journal;
+`canonicalPages` selects observed creation over an estimated baseline, then
+the earliest UTC for each page with a stable hash tie-break. All conflicting observations/provenance remain in the journal;
 an incorrect device clock cannot be inferred or repaired automatically.
-`syncNotebook` merges journals before updating the existing schema-1 local
+`syncNotebook` merges journals before updating the schema-2 local
 index through its existing single-writer lock and atomic save. Corrupt journals
 fail closed and retain their bytes and prior backups. No inferred deletion sync.
 `syncLoop` checks watched/indexed notebooks once per minute; network calls never
@@ -96,7 +159,7 @@ acceptance or Move compatibility of the current Pro QMD.
 ### Current implementation
 
 - `main.go`: static Go loopback service on `127.0.0.1:18742`. A private random
-  token authorizes JSON POSTs; no CORS, no external bind, no notebook file access.
+  token authorizes JSON POSTs; no CORS, no external bind, no native notebook writes.
   It owns a process lock and serializes read/validate/atomic-save transactions.
 - `qml/values.qml.inc`: shared async request queue and isolated page-creation
   wrappers in the existing `Values` singleton. Recorder failures cannot block
@@ -129,7 +192,8 @@ acceptance or Move compatibility of the current Pro QMD.
 
 `Store.apply` validates IDs and event provenance, serializes state changes,
 and returns current surviving date groups. `toggle` establishes an undated
-baseline. `record` is idempotent by notebook/page UUID and only commits for an
+baseline unless the optional estimated initialization was explicitly selected.
+`record` is idempotent by notebook/page UUID and only commits for an
 enabled notebook. `query` never dates pages or writes a healthy index.
 
 `load` validates schema and stored entries. A corrupt primary can recover a

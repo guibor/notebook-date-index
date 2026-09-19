@@ -61,7 +61,7 @@ func TestReorderDeleteUndo(t *testing.T) {
 	add(t, s, &r, 4, "2026-09-18T09:00:00Z", 0)
 	r.Current = []string{id(4), id(2), id(3)}
 	v, _ := s.apply("query", r)
-	if v.Groups[0].Pages[0] != (Link{id(3), 3}) {
+	if v.Groups[0].Pages[0] != (Link{ID: id(3), Number: 3}) {
 		t.Fatal(v)
 	}
 	r.Current = []string{id(4), id(2)}

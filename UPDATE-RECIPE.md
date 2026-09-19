@@ -4,7 +4,54 @@ Exact branch: `beta/pro/3.28.0.169`, model `reMarkable Ferrari`.
 This branch is not a Move build. Read the sibling
 `remarkable-beta-os/KNOWLEDGE-BASE.md` and its current dated log first.
 
-## Build and preserve
+## Current upgrade: date-focused v3 (2026-09-19)
+
+For the already accepted v2 ten-QMD Pro inventory, use
+`bash ops/deploy-dates-v3.sh <verified-Pro-IP>` after the local gates pass.
+This is not a reusable fresh installer: it deliberately pins the exact v2
+payload and refuses any other starting state. It replaces only the Dates
+service binary and external panel, and adds `DateTree.js` alongside the panel.
+The repaired Dates QMD stays at `f6cba319…`; all ten QMD bytes remain unchanged.
+RMStream, firmware, native notebooks, timezone/token and each of the two Pro
+Gestik files stay untouched. The Move is out of scope for this controller.
+
+The new service reads native `.content` metadata only for Modified view and
+explicit optional initialization. There is no native-file write path. Native
+`cPages.pages[].modifed` is a string of epoch milliseconds; missing/bad values
+remain undated. Created estimates are saved only after the user selects the
+unchecked setting when enabling tracking. Never automatically backfill users'
+notebooks during install or convert modification timestamps into observed creation.
+
+The launcher verifies the SSH host key, stages a bound manifest, captures a
+private rollback archive and verifies an off-device copy before activation.
+Activation runs in a transient 150-second controller with a separate 180-second
+rollback timer and the existing ReMagic stock watchdog. It recreates the writer
+with `systemd-run --collect` after replacing the executable: stopping the old
+collected transient writer removes its service registration, so `systemctl start`
+alone is insufficient. Verify new writer/UI PIDs, zero restarts, unchanged
+co-resident files, a real read-only notebook Modified query, and root still ro.
+
+New writes use index schema 2. **Do not restart an old writer over new history.**
+Rollback stops Dates (including safely handling an already-absent unit), retains
+all data, restores payload preimages and returns to stock UI if activation was
+attempted. Recovery should install a schema-2-aware writer. Only if it is proven
+the candidate writer never ran and all indexes are still schema 1 may the old
+writer safely be recreated. Never restore an old data archive over new records.
+
+`ops/probe-device.mjs <verified-IP> <notebook-UUID>` compares the real service's
+Modified groups, timezone dates and page links against native metadata without
+printing notebook contents or tokens. It asserts the native file's hash stayed
+unchanged. The node/QML test harness also exercises baseline save/load through
+the actual HTTP service using synthetic metadata, not a user's notebook.
+
+Sync remains opt-in through private `sync.json`. The current preimage has none;
+the v3 controller asserts that remains true, rather than unexpectedly activating
+the newer optional worker. Upgrade the private hub to the same source before
+enabling estimate-aware clients; use its separate guarded service-only recipe.
+Credential generation now requires explicit `--sync-endpoint`; existing
+credential files and personal endpoints are never regenerated on upgrade.
+
+## Historical build and preserve
 
 For the 2026-09-18 Add page regression, use the paired four-file repair in
 `../appload-rmstream-beta/ops/deploy-notebook-ui-repair.sh`, not an old preview or
@@ -250,3 +297,69 @@ Recovery/evidence belongs to `../appload-rmstream-beta/.cache/` under that ID;
 its recipe/controller pins all four old/new files and restores only UI bytes.
 The original bad hook must not be promoted on Move. Physical creation/index
 navigation tests remain pending. Shared metadata client rollout remains pending.
+
+## Dates v3 execution: 2026-09-19 UTC
+
+User authorized the current branch and direct implementation (no preview).
+The Pro was freshly identified by the pinned Ed25519 key, Ferrari model,
+3.28.0.169/build 20260806095513, exact stock hash and ten-QMD/four-extension
+inventory. Its two Gestik files had different valid hashes and were preserved
+independently. No Move connection, configuration, firmware or payload was changed.
+
+**Final payloads:**
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `notebook-date-index` | `3fb46a9ca713baf80e581ddd423b660fc45aefe97b7cc1ea9e21a22a95f959e0` |
+| `DatesPanel.qml` | `dc1460092f72db8bc3e10295ca0467bce94cbfc18cd66d0746be84290b9e1e00` |
+| `DateTree.js` | `340239c6fadf7ba761e30a7b77a02de2dd2aa4d21658a57e6575b8a30e93e2d3` |
+| Dates QMD (unchanged) | `f6cba3190f3f690c2729539f0ecc3b629dd0d18366dc22fc5a89174df73731e0` |
+
+The final local suite passed 28 Go tests (race detector), vet, 14 JavaScript
+tests, real Qt-to-service Created/Modified/optional-baseline requests, rendered
+QML interaction/navigation, native creation-callback isolation, both exact-QMD
+compositions and wrong-firmware rejection. Compact/landscape panel fixtures
+also passed before the final unsupported-attachment removal/header refinement.
+These rendered fixtures are not a Move qualification or physical pen test.
+
+1. `dates-v3-20260919T085736Z` stopped before a UI restart: stopping the collected
+   transient writer removed its unit, so `systemctl start` failed. The first
+   rollback also assumed a unit existed. Corrected recovery restored both old
+   payloads, preserved all data, and confirmed the candidate writer had never
+   run/all indexes remained schema 1 before recreating the old writer. UI PID
+   300139 and `NRestarts=0` stayed unchanged throughout. Failed evidence remains
+   in the transaction; the updater now recreates the service explicitly and
+   rollback tolerates an absent unit but refuses a surviving writer PID.
+2. `dates-v3-20260919T085936Z` installed the new writer, panel and JS helper.
+   Its machine guard passed at UI PID 303169, writer PID 303054, zero restarts.
+   Later detailed log review found `Accessible.name` was unsupported by the
+   tablet Qt build, so this was **not accepted as a working panel**. The initial
+   narrow error matcher missed `Non-existent attached object`; the gate now
+   rejects every source-located DatesPanel/DateTree diagnostic.
+   Backup SHA: `28955080c1d5b53e549247dafe62e6903a47f38870729c4acdbad0dd7d93cbbb`.
+3. `dates-v3-panel-20260919T090351Z` changed only the external QML panel,
+   removing the unsupported attachments and explicitly positioning header
+   controls. Its independent rollback and pinned ReMagic checks passed at UI
+   PID **304002**, zero restarts; writer PID **303054** remained unchanged.
+   No DatesPanel/DateTree diagnostics remained. Known pre-existing Toolbar,
+   Experimental and StatusIndicator startup warnings were unchanged.
+   Backup SHA: `8dbd731c2726ca88ae7335e906fe4a3f513c64e66786805dbb9f0492b7133b46`.
+
+All ten QMDs, runtime libraries, RMStream payloads, Vellum files, saved timezone,
+token, and independent live/protected Gestik files matched their preimages.
+Root stayed read-only and all temporary rollback timers were inactive afterward.
+Private backups/manifests/runtime logs are retained under `.cache/<transaction>`
+on the Mac and `/home/root/.codex-backups/<transaction>` on the Pro.
+
+A real-notebook read-only service probe verified **356 current pages**, of which
+**282** have native modification dates grouped into **113 days**. Their dates
+matched `Asia/Jerusalem`, page links matched stable IDs, the existing Created
+view retained its one recorded day and tracking-on state, and the native file's
+hash was unchanged. No initialization was performed on the user's notebook.
+Backfill save/load and provenance were tested only with synthetic fixtures.
+
+Remaining: user physical acceptance of the redesigned panel, date navigation,
+and optional baseline on a disposable notebook. The user accepted single-device
+functionality before this visual revision, not these new controls. Sync is
+still unconfigured on Pro; the hub and Move were untouched and must receive
+their own qualification/upgrade before two-device acceptance can be claimed.

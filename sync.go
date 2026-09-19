@@ -18,6 +18,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -51,7 +52,9 @@ type SyncHub struct {
 	mu          sync.Mutex
 }
 
-func validDevice(s string) bool { return s == "pro" || s == "move" || s == "probe" }
+var deviceName = regexp.MustCompile(`^[a-z][a-z0-9-]{0,39}$`)
+
+func validDevice(s string) bool { return deviceName.MatchString(s) }
 func eventKey(e DateEvent) string {
 	b, _ := json.Marshal(e)
 	h := sha256.Sum256(b)
@@ -113,7 +116,8 @@ func mergeEvents(a, b []DateEvent) ([]DateEvent, error) {
 	return out, nil
 }
 
-// Earliest recorded UTC wins, then event hash. All conflicting observations
+// Recorded creation outranks an estimated baseline, then earliest UTC and hash.
+// All conflicting observations
 // remain in the journal: clock disagreements are not silently discarded.
 func canonicalPages(events []DateEvent) []Page {
 	m := map[string]DateEvent{}
@@ -121,7 +125,9 @@ func canonicalPages(events []DateEvent) []Page {
 		old, ok := m[e.Page.ID]
 		t, _ := time.Parse(time.RFC3339Nano, e.Page.UTC)
 		ot, _ := time.Parse(time.RFC3339Nano, old.Page.UTC)
-		if !ok || t.Before(ot) || (t.Equal(ot) && eventKey(e) < eventKey(old)) {
+		betterSource := !e.Page.Estimated && old.Page.Estimated
+		sameSource := e.Page.Estimated == old.Page.Estimated
+		if !ok || betterSource || (sameSource && (t.Before(ot) || (t.Equal(ot) && eventKey(e) < eventKey(old)))) {
 			m[e.Page.ID] = e
 		}
 	}
@@ -249,7 +255,20 @@ func (h *SyncHub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(EventSet{Schema: 1, Events: events})
 }
-func initSyncCredentials(dir string) error {
+func initSyncCredentials(dir, endpoint string, devices []string) error {
+	if !validEndpoint(endpoint) {
+		return errors.New("provide --sync-endpoint with your HTTPS /dates/v1/exchange URL")
+	}
+	seen := map[string]bool{}
+	for _, d := range devices {
+		if !validDevice(d) || seen[d] {
+			return errors.New("invalid or duplicate device names")
+		}
+		seen[d] = true
+	}
+	if len(devices) < 1 || len(devices) > 32 {
+		return errors.New("use 1 to 32 devices")
+	}
 	if err := os.MkdirAll(dir, 0700); err != nil {
 		return err
 	}
@@ -257,7 +276,12 @@ func initSyncCredentials(dir string) error {
 		return errors.New("credentials already exist or cannot be inspected")
 	}
 	creds := map[string]string{}
-	for _, device := range []string{"pro", "move", "probe"} {
+	for _, device := range devices {
+		if _, err := os.Stat(filepath.Join(dir, device+"-client.json")); !os.IsNotExist(err) {
+			return errors.New("client credentials already exist or cannot be inspected")
+		}
+	}
+	for _, device := range devices {
 		b := make([]byte, 32)
 		if _, err := rand.Read(b); err != nil {
 			return err
@@ -265,7 +289,7 @@ func initSyncCredentials(dir string) error {
 		token := hex.EncodeToString(b)
 		h := sha256.Sum256([]byte(token))
 		creds[device] = hex.EncodeToString(h[:])
-		c := SyncConfig{Endpoint: "https://anki-mdf.duckdns.org/dates/v1/exchange", Device: device, Token: token}
+		c := SyncConfig{Endpoint: endpoint, Device: device, Token: token}
 		encoded, _ := json.Marshal(c)
 		if err := atomicWrite(filepath.Join(dir, device+"-client.json"), encoded); err != nil {
 			return err
@@ -307,6 +331,10 @@ func runSyncHub(dir, credentials string) error {
 	return srv.ListenAndServe()
 }
 
+func validEndpoint(endpoint string) bool {
+	u, err := url.Parse(endpoint)
+	return err == nil && u.Scheme == "https" && u.Host != "" && u.User == nil && u.RawQuery == "" && u.Fragment == "" && u.Path == "/dates/v1/exchange"
+}
 func loadSyncConfig(path string) (*SyncConfig, error) {
 	b, err := os.ReadFile(path)
 	if os.IsNotExist(err) {
@@ -319,8 +347,7 @@ func loadSyncConfig(path string) (*SyncConfig, error) {
 	if err = json.Unmarshal(b, &c); err != nil {
 		return nil, err
 	}
-	u, err := url.Parse(c.Endpoint)
-	if err != nil || u.Scheme != "https" || u.Host == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" || u.Path != "/dates/v1/exchange" || !validDevice(c.Device) || len(c.Token) != 64 {
+	if !validEndpoint(c.Endpoint) || !validDevice(c.Device) || len(c.Token) != 64 {
 		return nil, errors.New("invalid HTTPS sync configuration")
 	}
 	return &c, nil

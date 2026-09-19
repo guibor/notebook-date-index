@@ -1,0 +1,19 @@
+[Unit]
+Description=Notebook Dates metadata sync
+After=network-online.target
+
+[Service]
+ExecStart=%h/.local/lib/notebook-date-sync/notebook-date-index --sync-server --data %h/.local/share/notebook-date-sync/history --credentials %h/.local/share/notebook-date-sync/credentials/devices.json
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.local/share/notebook-date-sync/history
+MemoryMax=192M
+CPUQuota=30%
+
+[Install]
+WantedBy=default.target

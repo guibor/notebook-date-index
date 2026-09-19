@@ -1,0 +1,5 @@
+{
+  "endpoint": "https://dates.example.com/dates/v1/exchange",
+  "device": "my-pro",
+  "token": "REPLACE_WITH_THE_GENERATED_64_CHARACTER_TOKEN"
+}

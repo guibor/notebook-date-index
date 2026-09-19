@@ -27,11 +27,12 @@ import (
 var uuid = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
 
 type Page struct {
-	ID       string `json:"id"`
-	UTC      string `json:"utc"`
-	Day      string `json:"day"`
-	Offset   int    `json:"offset"` // minutes east of UTC
-	Timezone string `json:"timezone,omitempty"`
+	ID        string `json:"id"`
+	UTC       string `json:"utc"`
+	Day       string `json:"day"`
+	Offset    int    `json:"offset"` // minutes east of UTC
+	Timezone  string `json:"timezone,omitempty"`
+	Estimated bool   `json:"estimated,omitempty"` // one-time baseline from native last modification
 }
 type Index struct {
 	Schema  int             `json:"schema"`
@@ -40,32 +41,40 @@ type Index struct {
 	Pages   []Page          `json:"pages"`
 }
 type Request struct {
-	Notebook string   `json:"notebook"`
-	Current  []string `json:"current"`
-	Before   []string `json:"before,omitempty"`
-	Created  []string `json:"created,omitempty"`
-	Enabled  bool     `json:"enabled"`
-	UTC      string   `json:"utc,omitempty"`
-	Offset   int      `json:"offset,omitempty"`
-	Source   string   `json:"source,omitempty"`
-	Timezone string   `json:"timezone,omitempty"`
+	Notebook               string   `json:"notebook"`
+	Current                []string `json:"current"`
+	Before                 []string `json:"before,omitempty"`
+	Created                []string `json:"created,omitempty"`
+	Enabled                bool     `json:"enabled"`
+	UTC                    string   `json:"utc,omitempty"`
+	Offset                 int      `json:"offset,omitempty"`
+	Source                 string   `json:"source,omitempty"`
+	Timezone               string   `json:"timezone,omitempty"`
+	Mode                   string   `json:"mode,omitempty"`
+	InitializeFromModified bool     `json:"initializeFromModified,omitempty"`
 }
 type Link struct {
-	ID     string `json:"id"`
-	Number int    `json:"number"`
+	ID        string `json:"id"`
+	Number    int    `json:"number"`
+	Estimated bool   `json:"estimated,omitempty"`
 }
 type Group struct {
 	Day   string `json:"day"`
 	Pages []Link `json:"pages"`
 }
 type View struct {
-	Enabled  bool    `json:"enabled"`
-	Groups   []Group `json:"groups"`
-	Timezone string  `json:"timezone"`
-	Sync     string  `json:"sync,omitempty"`
+	Enabled   bool    `json:"enabled"`
+	Groups    []Group `json:"groups"`
+	Timezone  string  `json:"timezone"`
+	Sync      string  `json:"sync,omitempty"`
+	Mode      string  `json:"mode"`
+	Undated   int     `json:"undated"`
+	Estimated int     `json:"estimated"`
+	Warning   string  `json:"warning,omitempty"`
 }
 type Store struct {
 	dir        string
+	notebooks  string
 	mu         sync.Mutex
 	preview    bool
 	watched    map[string]bool
@@ -133,7 +142,7 @@ func decodeIndex(b []byte) (*Index, error) {
 	if err := json.Unmarshal(b, &v); err != nil {
 		return nil, err
 	}
-	if v.Schema != 1 || v.Known == nil || v.Pages == nil {
+	if (v.Schema != 1 && v.Schema != 2) || v.Known == nil || v.Pages == nil {
 		return nil, errors.New("invalid index schema")
 	}
 	for k := range v.Known {
@@ -157,6 +166,12 @@ func (s *Store) load(id string) (*Index, error) {
 	p := filepath.Join(s.dir, id+".json")
 	b, err := os.ReadFile(p)
 	if err == nil {
+		var header struct {
+			Schema int `json:"schema"`
+		}
+		if json.Unmarshal(b, &header) == nil && header.Schema > 2 {
+			return nil, errors.New("newer index schema; upgrade the writer, do not restore an older backup")
+		}
 		if v, e := decodeIndex(b); e == nil {
 			return v, nil
 		}
@@ -213,6 +228,9 @@ func atomicWrite(path string, b []byte) error {
 }
 
 func (s *Store) save(id string, v *Index) error {
+	// Version 2 records estimate provenance. Downgrades require the documented
+	// stopped-writer recovery, never launching a legacy writer over this data.
+	v.Schema = 2
 	p := filepath.Join(s.dir, id+".json")
 	b, err := json.Marshal(v)
 	if err != nil {
@@ -232,8 +250,8 @@ func (s *Store) save(id string, v *Index) error {
 	return atomicWrite(p, b)
 }
 
-// apply serializes the entire read/validate/replace transaction. Only explicit
-// creation events can add dates; query/reorder/import never invent timestamps.
+// apply serializes read/validate/replace. Creation events and explicit estimated
+// baselines add dates; query/reorder/import never invent creation timestamps.
 func (s *Store) apply(action string, r Request) (View, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -250,8 +268,19 @@ func (s *Store) apply(action string, r Request) (View, error) {
 	if err != nil {
 		return View{}, err
 	}
+	if r.Mode != "" && r.Mode != "created" && r.Mode != "modified" {
+		return View{}, errors.New("unknown date view")
+	}
 	response := func(v *Index) View {
 		out := view(v, r.Current)
+		if r.Mode == "modified" {
+			pages, e := s.modifiedPages(r.Notebook, r.Current, location)
+			out = view(&Index{Enabled: v.Enabled, Pages: pages}, r.Current)
+			out.Mode = "modified"
+			if e != nil {
+				out.Warning = "Page modification dates are not available yet. Close and reopen the notebook to retry."
+			}
+		}
 		out.Timezone = config.Timezone
 		out.Sync = s.syncStatus
 		return out
@@ -275,6 +304,22 @@ func (s *Store) apply(action string, r Request) (View, error) {
 	switch action {
 	case "query":
 	case "toggle":
+		if r.Enabled && !v.Enabled && r.InitializeFromModified {
+			pages, e := s.modifiedPages(r.Notebook, r.Current, location)
+			if e != nil {
+				return View{}, errors.New("cannot read page dates; tracking was not changed")
+			}
+			existing := map[string]bool{}
+			for _, p := range v.Pages {
+				existing[p.ID] = true
+			}
+			for _, p := range pages {
+				if !existing[p.ID] {
+					p.Estimated = true
+					v.Pages = append(v.Pages, p)
+				}
+			}
+		}
 		v.Enabled = r.Enabled
 		for id := range current {
 			v.Known[id] = true
@@ -352,7 +397,7 @@ func view(v *Index, current []string) View {
 	})
 	for _, p := range pages {
 		if n := numbers[p.ID]; n > 0 {
-			groups[p.Day] = append(groups[p.Day], Link{p.ID, n})
+			groups[p.Day] = append(groups[p.Day], Link{ID: p.ID, Number: n, Estimated: p.Estimated})
 		}
 	}
 	days := []string{}
@@ -360,9 +405,15 @@ func view(v *Index, current []string) View {
 		days = append(days, d)
 	}
 	sort.Sort(sort.Reverse(sort.StringSlice(days)))
-	out := View{Enabled: v.Enabled, Groups: []Group{}}
+	out := View{Enabled: v.Enabled, Groups: []Group{}, Mode: "created", Undated: len(current)}
 	for _, d := range days {
 		out.Groups = append(out.Groups, Group{d, groups[d]})
+		out.Undated -= len(groups[d])
+		for _, p := range groups[d] {
+			if p.Estimated {
+				out.Estimated++
+			}
+		}
 	}
 	return out
 }
@@ -401,13 +452,16 @@ func handler(s *Store, token string) http.Handler {
 
 func main() {
 	dir := flag.String("data", "/home/root/.local/share/notebook-date-index", "private data directory")
+	notebooks := flag.String("notebooks", "/home/root/.local/share/remarkable/xochitl", "native notebook directory (read only)")
 	preview := flag.Bool("preview", false, "forbid all tracking changes")
 	hub := flag.Bool("sync-server", false, "run the metadata hub on loopback port 18743")
 	credentials := flag.String("credentials", "", "hub credential hashes JSON")
 	initCredentials := flag.String("init-sync-credentials", "", "initialize private hub/client credentials in this directory")
+	endpoint := flag.String("sync-endpoint", "", "your HTTPS /dates/v1/exchange URL (required when creating credentials)")
+	devices := flag.String("devices", "pro,move,probe", "comma-separated unique device names for new credentials; probe is isolated")
 	flag.Parse()
 	if *initCredentials != "" {
-		if err := initSyncCredentials(*initCredentials); err != nil {
+		if err := initSyncCredentials(*initCredentials, *endpoint, strings.Split(*devices, ",")); err != nil {
 			log.Fatal(err)
 		}
 		return
@@ -427,7 +481,7 @@ func main() {
 	if err = syscall.Flock(int(lock.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
 		log.Fatal("another writer is active")
 	}
-	s := &Store{dir: *dir, preview: *preview}
+	s := &Store{dir: *dir, notebooks: *notebooks, preview: *preview}
 	if !*preview {
 		c, e := loadSyncConfig(filepath.Join(*dir, "sync.json"))
 		if e != nil {

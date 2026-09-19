@@ -1,8 +1,46 @@
 #+title: Notebook Dates
 
 * Objective
-Find newly created notebook pages by their original date without cluttering or
-changing the user's existing table of contents.
+Find notebook pages by creation day or their saved last-edit day, without
+cluttering or changing the user's existing table of contents.
+
+* Date-focused revision (2026-09-19)
+** Worldview and hypothesis
+- Fact: on qualified Pro .169, native =cPages.pages[].modifed= contains saved
+  page last-modification epoch milliseconds. There is no verified page creation
+  timestamp; CRDT =timestamp= and =scrollTime= are not substitutes.
+- Fact: the user reports single-device functionality works; two-device physical
+  acceptance remains unperformed. The visible settings-heavy UI is unsatisfactory.
+- Hypothesis: a browsable date hierarchy and a Created/Modified switch make
+  finding pages easier, while separating settings keeps attention on history.
+- Objective: navigate by either date meaning without confusing estimated older
+  dates with observed creation or interrupting normal page creation.
+- Signal: correct date/page navigation and preserved writing flow. There is no
+  measured usability baseline; physical aesthetic/usability acceptance is pending.
+- Engineering release gates: all metadata/backfill/provenance tests pass; real
+  Qt transport and page-creation regression pass; stock/runtime/settings hashes
+  stay unchanged; guarded Pro runtime has no new Dates errors/restarts.
+- Pass: gates pass and user accepts navigation/readability. Fail: stock page
+  creation blocks, native files change, or estimated dates masquerade as creation.
+  Inconclusive: offline tests pass but physical navigation has not been checked.
+** New behavior
+- Main panel shows Created / Modified, a compact settings gear, and date rows.
+  Group days into collapsible months, and years above months for multi-year data.
+  Day taps jump to the first surviving page; expand shows individual pages.
+- Modified reads only built-in page modification metadata and works with
+  tracking off. Missing/invalid dates remain undated. No file-mtime inference.
+- When enabling tracking, offer an unchecked option to initialize undated
+  pages from their saved modification dates. Store this one-time estimate with
+  provenance; never overwrite recorded dates or continuously move estimates.
+- Real creation observations win over estimated baselines during sync. Preserve
+  both in the event journal. Upgrade the hub before syncing new estimate fields.
+- Move tracking, timezone, backfill and sync status behind in-panel settings.
+  Israel time remains the default. Changed timezone re-groups Modified now but
+  affects Created only for future observations/estimates.
+- Make the hub endpoint/device names explicit deployment configuration. No
+  personal server default in distributed code. Preserve existing private config.
+- Stay on the current Pro branch and implement directly, with internal automated
+  and visual QA but no user preview gate for this accepted app's revision.
 
 * Requirements
 - Stock page creation must succeed even if Dates observation, storage or sync
@@ -29,11 +67,13 @@ changing the user's existing table of contents.
   created surviving page; expand individual page links.
 - Record stable page IDs after explicit successful creation. Cover ordinary
   toolbar/swipe add, Page Overview add/duplicate, conversion and Quick Sheets.
-- Enable/re-enable baselines all current pages without invented old dates.
+- Enable/re-enable baselines current pages; explicit optional last-modified
+  initialization is the only permitted estimated backfill.
 - Pause preserves history. Reorder resolves IDs to current page positions.
   Delete hides missing pages; undo reuses their original dates.
 - Do not infer creation from file mtime or a generic page-count change.
-- Imported/moved-in pages remain undated. Ambiguous events fail closed.
+- Imported/moved-in pages remain undated unless explicitly included in the
+  optional baseline. Ambiguous creation events fail closed.
 - Serialize durable writes to an independent private folder, with atomic
   replacement and recoverable prior version. Never write native notebook/TOC.
 - Preserve Pro/Move independence, exact firmware/runtime gates, all existing
@@ -52,6 +92,10 @@ changing the user's existing table of contents.
   tablet's system timezone. Each device maintains its own choice.
 
 * Changed requirements
+- 2026-09-19: creation-only navigation becomes Created/Modified. The earlier
+  no-backfill rule is superseded only by explicit opt-in estimated initialization.
+  Inline timezone/tracking controls move to settings. No preview requested for
+  this revision; independent rollback and compatibility gates remain mandatory.
 - The functional build blocked Add page with =DocumentController is not defined=
   in Values. This invalidates its creation acceptance: repair native scope and
   add regression coverage before further sync rollout or Move promotion.
@@ -74,11 +118,17 @@ changing the user's existing table of contents.
   source of the date boundary; the saved IANA timezone computes it instead.
 - Originally considered automatic daily headings in the normal ToC or native
   date tags. User accepted the recommended separate index instead.
-- No requirement to backfill dates for pages created before opt-in; their true
-  dates are unknown. No firmware-survival service is required. The former
+- Originally no backfill was requested; true old creation dates remain unknown.
+  Optional estimated initialization now supersedes that exclusion. No
+  firmware-survival service is required. The former
   exclusion of cross-device index sync is superseded by the clarification above.
 
 * Immediate next steps
+- [X] Implement and verify Created/Modified, optional estimated baseline, and
+  date-focused hierarchical UI; deploy to exact-qualified Pro with rollback.
+- [X] Add portable server configuration and a user-oriented README.
+- [ ] Physically accept the v3 hierarchy, view switch, settings, and optional
+  baseline on a disposable notebook. Automated/live metadata checks passed.
 - [X] Repair the stock Add page blocker and deploy the redesigned Dates panel.
 - [ ] Physically accept adding a page with tracking on, off, and service down.
 - [X] User authorized md-server metadata transport/storage; verified matching

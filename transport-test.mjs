@@ -5,7 +5,12 @@ import path from 'node:path';
 import {spawn} from 'node:child_process';
 import {setTimeout as delay} from 'node:timers/promises';
 const data=fs.mkdtempSync(path.resolve('build/transport-test-'));
-const server=spawn(path.resolve('build/notebook-date-index-host'),['--preview','--data',data],{stdio:['ignore','pipe','pipe']});
+const notebook='00000000-0000-0000-0000-000000000001';
+const page='00000000-0000-0000-0000-000000000002';
+const native=path.join(data,notebook+'.content');
+const nativeBytes=JSON.stringify({cPages:{pages:[{id:page,modifed:String(Date.parse('2026-09-18T21:30:00Z'))}]}});
+fs.writeFileSync(native,nativeBytes);
+const server=spawn(path.resolve('build/notebook-date-index-host'),['--data',data,'--notebooks',data],{stdio:['ignore','pipe','pipe']});
 let serverOutput='';
 server.stdout.on('data',b=>serverOutput+=b);
 server.stderr.on('data',b=>serverOutput+=b);
@@ -22,7 +27,13 @@ Item {
  ${values}
  Component.onCompleted: ndiRequest("query", {notebook:"00000000-0000-0000-0000-000000000001",current:["00000000-0000-0000-0000-000000000002"]}, function(result) {
    if (!result || result.timezone !== "Asia/Jerusalem" || result.enabled !== false || result.groups.length !== 0) { console.error("Dates transport FAILED: " + ndiError); Qt.exit(1); }
-   else { console.log("Dates transport PASSED"); Qt.quit(); }
+   else ndiRequest("query", {notebook:"${notebook}",current:["${page}"],mode:"modified"},function(modified) {
+     if(!modified || modified.mode!=="modified" || modified.groups[0].day!=="2026-09-19") { console.error("Modified transport FAILED"); Qt.exit(1); return; }
+     ndiRequest("toggle",{notebook:"${notebook}",current:["${page}"],enabled:true,initializeFromModified:true},function(created) {
+       if(!created || !created.enabled || created.estimated!==1 || !created.groups[0].pages[0].estimated) { console.error("Backfill transport FAILED"); Qt.exit(1); return; }
+       console.log("Dates transport PASSED"); Qt.quit();
+     });
+   });
  })
  Timer { interval: 8000; running: true; onTriggered: { console.error("Dates transport timed out"); Qt.exit(2); } }
 }`;
@@ -32,6 +43,7 @@ Item {
   const code=await new Promise((resolve,reject)=>{qml.on('exit',resolve);qml.on('error',reject)});
   process.stdout.write(output);
   if(code!==0 || !output.includes('Dates transport PASSED')) process.exitCode=1;
+  if(fs.readFileSync(native,'utf8')!==nativeBytes) throw Error('Native notebook changed');
 } finally {
   server.kill('SIGTERM');
   await new Promise(resolve=>{if(server.exitCode!==null)resolve();else server.on('exit',resolve)});

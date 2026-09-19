@@ -1,13 +1,24 @@
 # Dates metadata sync: server deployment and tablet rollout
 
-## Current state (2026-09-18)
+## Current state (2026-09-19)
 
 The user explicitly authorized md-server as the private metadata sync point.
 The hub is deployed and live HTTPS synthetic tests pass. The optional tablet
-client is implemented and regression-tested, **but is not installed or enabled
-on either tablet**. The Pro continues running its accepted local-only writer;
+client is implemented and regression-tested. The Pro's v3 writer now includes
+the optional worker, **but no sync configuration is installed and it is not
+enabled on either tablet**. The Pro continues operating local-only;
 the Move still needs its separate Dates app port. Do not report end-to-end
 tablet synchronization as complete.
+
+The v3 Created/Modified UI and metadata/backfill service were installed under
+separate guarded payload/panel transactions; see `UPDATE-RECIPE.md` for current
+hashes. The hub below was not changed in that release: it must be upgraded to
+the same estimate-aware source before enabling v3 clients. The new credential
+generator requires an explicit `--sync-endpoint`; it never changes existing
+private credentials/configuration. For the initial-only host-qualified installer,
+pass endpoint and existing health URL as arguments 3 and 4. Generic self-hosting
+instructions/examples are in README; do not run the maintainer's pinned installer
+on an arbitrary server.
 
 Read-only checks matched both device host keys and models, exact firmware
 3.28.0.169, and their different stock xochitl hashes. There were 1,331 shared
@@ -92,8 +103,9 @@ in local `.cache/hub-deploy/` as well as the server transaction directory.
 3. Transfer only that device's private `*-client.json` as its mode-0600
    `/home/root/.local/share/notebook-date-index/sync.json`. Do not activate it
    before the appropriate writer/panel/Move-port qualification is complete.
-4. Update the panel's current local-only text and display per-notebook sync
-   progress/errors before claiming the user-facing sync rollout complete.
+4. The v3 settings page now shows worker status. Upgrade the hub first and
+   verify it remains accurate through real offline/reconnect cases before
+   claiming the user-facing sync rollout complete.
 5. Validate one shared disposable notebook physically: create on Pro then Move,
    offline on both, reconnect/retry, and check the same dates without duplicates.
    Check delayed page content, reorder, delete/undo, copied notebook isolation,
@@ -102,11 +114,11 @@ in local `.cache/hub-deploy/` as well as the server transaction directory.
    receiving history must not enable recording silently. Default Israel time
    remains configurable per device and old entries keep their recorded day/zone.
 
-The client uses an append-only event journal alongside the unchanged schema-1
+The client uses an append-only event journal alongside the schema-2
 index, synchronizes watched/indexed notebooks once per minute, and keeps network
 I/O outside the writer lock. Requests require verified HTTPS and never follow
 redirects. Reopening Dates refreshes its local view. Conflict resolution chooses
-earliest recorded UTC with a deterministic tie-break while retaining all source
+observed creation over estimates, then earliest UTC with a deterministic tie-break while retaining all source
 observations; it cannot know which device clock was truly correct.
 
 Twenty-one Go tests (race detector), static analysis, six JS event tests, real

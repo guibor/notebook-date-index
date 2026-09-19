@@ -70,7 +70,8 @@ fs.mkdirSync('build',{recursive:true});
 const popup = inc('popup').replaceAll('root.', 'documentView.')
     .replaceAll('documentView.ndiRefresh()', 'ndiHost.ndiRefresh()')
     .replaceAll('toolbar.closeFoldout()', 'documentView.ndiCloseFoldout()');
-const panel = `import QtQuick\nimport QtQuick.Controls 2.15 as NdiControls\nimport com.remarkable\nimport common 1.0\nItem { id: ndiHost; required property var documentView;\n${popup}\n}\n`;
+const panel = `import QtQuick\nimport QtQuick.Controls 2.15 as NdiControls\nimport "DateTree.js" as DateTree\nimport com.remarkable\nimport common 1.0\nItem { id: ndiHost; required property var documentView;\n${popup}\n}\n`;
+fs.copyFileSync('qml/date-tree.js','build/DateTree.js');
 fs.writeFileSync('build/DatesPanel.qml',panel);
 fs.writeFileSync('build/DatesPanel-preview.qml',panel.replace('enabled: ndiPopup.ready','enabled: false').replace('Enable for this notebook','Preview — tracking disabled'));
 fs.writeFileSync('build/notebook-date-index.source.qmd',q);

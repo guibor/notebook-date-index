@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 stage=${1:?stage}; reviewed=${2:?manifest hash}
+endpoint=${3:?explicit HTTPS /dates/v1/exchange URL}; health=${4:?existing service HTTPS health URL}
+case "$endpoint" in https://*/dates/v1/exchange) ;; *) exit 2;; esac
+case "$health" in https://*) ;; *) exit 2;; esac
 case "$stage" in /home/mdf/.local/share/notebook-date-sync-staging/hub-*) ;; *) exit 2;; esac
 [[ "$reviewed" =~ ^[a-f0-9]{64}$ ]]
 test "$(readlink -f "$stage")" = "$stage"
@@ -18,7 +21,7 @@ test ! -e /home/mdf/.local/lib/notebook-date-sync
 test ! -e /home/mdf/.local/share/notebook-date-sync
 test "$(loginctl show-user mdf -p Linger --value)" = yes
 if ss -ltn | grep -q ':18743 '; then exit 2; fi
-test "$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 https://anki-mdf.duckdns.org/health)" = 401
+test "$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$health")" = 401
 systemctl is-active --quiet nginx anki-http anki-mcp-sse
 touch "$stage/prepared"
 systemd-run --user --unit=notebook-date-sync-rollback --on-active=180 --timer-property=AccuracySec=1 bash "$stage/rollback-hub.sh" "$stage"
@@ -28,7 +31,7 @@ trap fail EXIT HUP INT TERM
 mkdir -m 700 /home/mdf/.local/lib/notebook-date-sync /home/mdf/.local/share/notebook-date-sync
 mkdir -m 700 /home/mdf/.local/share/notebook-date-sync/history
 install -m 700 "$stage/notebook-date-index" /home/mdf/.local/lib/notebook-date-sync/notebook-date-index
-/home/mdf/.local/lib/notebook-date-sync/notebook-date-index --init-sync-credentials /home/mdf/.local/share/notebook-date-sync/credentials
+/home/mdf/.local/lib/notebook-date-sync/notebook-date-index --init-sync-credentials /home/mdf/.local/share/notebook-date-sync/credentials --sync-endpoint "$endpoint"
 install -m 600 "$stage/notebook-date-sync.service" /home/mdf/.config/systemd/user/notebook-date-sync.service
 systemctl --user daemon-reload
 systemctl --user enable --now notebook-date-sync.service
@@ -44,8 +47,8 @@ cmp "$stage/nginx.before" /etc/nginx/sites-enabled/anki-mcp
 sudo -n install -m 644 "$stage/nginx.after" /etc/nginx/sites-enabled/anki-mcp
 sudo -n nginx -t
 sudo -n systemctl reload nginx
-test "$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 -X POST https://anki-mdf.duckdns.org/dates/v1/exchange)" = 401
-test "$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 https://anki-mdf.duckdns.org/health)" = 401
+test "$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 -X POST "$endpoint")" = 401
+test "$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$health")" = 401
 systemctl is-active --quiet nginx anki-http anki-mcp-sse
 systemctl --user is-active --quiet notebook-date-sync.service
 test "$(systemctl --user show notebook-date-sync.service -p NRestarts --value)" = 0
