@@ -15,10 +15,16 @@ go vet ./...
 CGO_ENABLED=0 go build -buildvcs=false -o build/notebook-date-index-host .
 node transport-test.mjs
 node --test qml-test.mjs date-tree-test.mjs move-policy-test.mjs
+node ops/move-polish-test.mjs
+node ops/polish-rollback-test.mjs
 node ui-harness.mjs
 QT_QUICK_CONTROLS_STYLE=Basic QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software qml --disable-context-sharing build/ui-harness.qml >build/ui-harness.log 2>&1
 grep -q 'Dates UI runtime PASSED' build/ui-harness.log
 if grep -Eq 'ReferenceError|TypeError|Cannot assign|is not a type|Error:' build/ui-harness.log; then cat build/ui-harness.log; exit 1; fi
+node flash-harness.mjs
+QT_QUICK_CONTROLS_STYLE=Basic QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software qml --disable-context-sharing build/flash-harness.qml >build/flash-harness.log 2>&1
+grep -q 'Dates flash runtime PASSED' build/flash-harness.log
+if grep -Eq '(flash-harness.qml|DatesPanel.qml|DateTree.js):[0-9]+|ReferenceError|TypeError|Error:' build/flash-harness.log; then cat build/flash-harness.log; exit 1; fi
 for script in ops/*.sh; do bash -n "$script"; done
 node build-qmd.mjs
 qmlformat build/DatesPanel.qml >/dev/null
