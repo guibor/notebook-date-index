@@ -18,7 +18,7 @@ manifest=$(cd "$move/profiles" && pwd)/move-3.28.0.169-qmd-sha256.txt
 test "$(find "$qmds" -name '*.qmd' | wc -l | tr -d ' ')" = 9
 mkdir -p build/move-candidate
 # Read the current source hooks, then hash them against Move's own resource table.
-node build-qmd.mjs
+NDI_TARGET=move node build-qmd.mjs
 cp build/notebook-date-index.source.qmd build/move-candidate/notebook-date-index.qmd
 candidate=build/move-candidate/notebook-date-index.qmd
 "$tool" hash-diffs "$fw/hashtab-captures/hashtab.1" "$candidate"

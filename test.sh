@@ -14,7 +14,7 @@ go test -race -count=1 -v ./...
 go vet ./...
 CGO_ENABLED=0 go build -buildvcs=false -o build/notebook-date-index-host .
 node transport-test.mjs
-node --test qml-test.mjs date-tree-test.mjs
+node --test qml-test.mjs date-tree-test.mjs move-policy-test.mjs
 node ui-harness.mjs
 QT_QUICK_CONTROLS_STYLE=Basic QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software qml --disable-context-sharing build/ui-harness.qml >build/ui-harness.log 2>&1
 grep -q 'Dates UI runtime PASSED' build/ui-harness.log

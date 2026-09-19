@@ -1,5 +1,10 @@
 import fs from 'node:fs';
 const fw = '3.28.0.169';
+const target = process.env.NDI_TARGET || JSON.parse(fs.readFileSync('target.json','utf8')).device;
+if (!['pro','move'].includes(target)) throw new Error('Unknown device target');
+const resources = target === 'pro'
+    ? '../remarkable-beta-os/.cache/firmware/'+fw+'/resources'
+    : '../.worktrees/remarkable-beta-os-move-3280169/.cache/firmware/move/'+fw+'/resources';
 const source = fs.readFileSync;
 const inc = name => source(`qml/${name}.qml.inc`, 'utf8');
 const affect = (path, root, body) => `AFFECT /${path}\n TRAVERSE ${root}\n LOCATE BEFORE ALL\n${body}\n END TRAVERSE\nEND AFFECT\n`;
@@ -27,7 +32,7 @@ q += affect('qml/device/view/documentview/PagesActions.qml','Item#pageActions',
 q += affect('qml/device/view/documentview/HwcDialog.qml','Item#root',
     rebuild('createConvertedDocument','DocumentController.addPageWithTemplateAndPageSize(document.id,','Values.ndiAddPage(DocumentController, document,'));
 // Quick Sheets uses the same successful-creation callback as other notebook pages.
-const library = source('../remarkable-beta-os/.cache/firmware/'+fw+'/resources/qt/qml/xofm/modules/library/ui/qml/LibraryActions.qml','utf8');
+const library = source(resources+'/qt/qml/xofm/modules/library/ui/qml/LibraryActions.qml','utf8');
 const before = library.slice(0,library.indexOf('DocumentController.addPageWithTemplateAndPageSize'));
 const func = [...before.matchAll(/function (\w+)\(/g)].at(-1)[1];
 q += affect('qt/qml/xofm/modules/library/ui/qml/LibraryActions.qml','Action#root',
@@ -43,8 +48,37 @@ q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/AdditionalEditingToolsMenu.qml\n IMPO
    onPressed: Values.ndiOpenRequested()
  }
  }\n END TRAVERSE\n END TRAVERSE\nEND AFFECT\n`;
-// More tools is deliberately absent on tall toolbar layouts. The notebook
-// settings menu (three vertical dots) is the primary, always-addressable route.
+// Pro gets a direct calendar icon immediately above BetterTOC. The existing
+// extension-button accounting reserves space without hiding native tools.
+// Move retains the compact notebook menu; Pro uses it only as a short-toolbar fallback.
+if (target === 'pro') q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/Toolbar.qml
+ IMPORT common 1.0
+ TRAVERSE FocusScope#root > Item#toolbar > GridLayout#toolLayout
+ LOCATE BEFORE ToolbarTool#tocButton
+ INSERT {
+   ToolbarTool {
+     id: ndiDatesButton
+     toolbar: root
+     type: ToolbarTool.Type.ToolbarButton
+     property bool _isExtensionButton: true
+     label: "Dates"
+     iconSource: "qrc:/ark/icons/calendar"
+     visible: root.documentType === "note" && root.expanded && root.showableToolsCount > 7
+     shouldShow: root.documentType === "note" && root.showableToolsCount > 7
+     onShouldShowChanged: {
+       var adjust = 0;
+       for (var i = 0; i < toolLayout.children.length; i++) {
+         var child = toolLayout.children[i];
+         if (child._isExtensionButton && child.shouldShow) adjust++;
+       }
+       toolbarProvider.updateToolbarTools(root.showableToolsCount - adjust);
+     }
+     onPressed: { root.closeFoldout(); Values.ndiOpenRequested(); }
+   }
+ }
+ END TRAVERSE
+END AFFECT
+`;
 q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml
  IMPORT common 1.0
  TRAVERSE ToolbarTool#root
@@ -56,8 +90,8 @@ q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml
      type: ToolbarTool.Type.FoldoutButton
      Layout.fillWidth: true
      label: "Dates"
-     visible: root.documentType === "note"
-     shouldShow: root.documentType === "note"
+     visible: root.documentType === "note"${target === 'pro' ? ' && root.toolbar.showableToolsCount <= 7' : ''}
+     shouldShow: root.documentType === "note"${target === 'pro' ? ' && root.toolbar.showableToolsCount <= 7' : ''}
      iconSource: "qrc:/ark/icons/calendar"
      onPressed: Values.ndiOpenRequested()
    }

@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "application": "notebook-date-index",
-  "feature_revision": 4,
+  "feature_revision": 5,
   "metadata_sync": {
     "hub": "estimate-aware-hub-deployed-and-https-tested-on-md-server",
     "tablet_client_code": "pro-enabled-real-history-delivered-move-unreachable-and-not-installed",
@@ -15,15 +15,15 @@
       "model": "reMarkable Ferrari",
       "firmware": "3.28.0.169",
       "branch": "beta/pro/3.28.0.169",
-      "status": "calendar-guarded-deployed-sync-enabled-real-history-verified-calendar-physical-acceptance-pending",
-      "deployment": "dates-calendar-20260919T095303Z",
+      "status": "navigation-refinement-guarded-deployed-sync-enabled-real-history-verified-sidebar-physical-acceptance-pending",
+      "deployment": "dates-navigation-20260919T111620Z",
       "service_deployment": "dates-sync-pro-20260919T095839Z"
     },
     "move": {
       "model": "reMarkable Chiappa",
-      "firmware": null,
-      "branch": null,
-      "status": "unreachable-live-qualification-pending-historical-169-composition-passed",
+      "firmware": "3.28.0.169",
+      "branch": "beta/move/3.28.0.169",
+      "status": "live-identity-verified-r5-composition-passed-installation-pending",
       "deployment": null
     }
   }

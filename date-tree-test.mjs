@@ -4,6 +4,19 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 const ctx=vm.createContext({}); vm.runInContext(fs.readFileSync('qml/date-tree.js','utf8'),ctx);
 const group=(day,estimated=false)=>({day,pages:[{id:day,number:4,estimated}]});
+test('modified calendar days use numeric page order without changing list or created order',()=>{
+ const groups=[{day:'2026-09-19',pages:[{id:'b',number:12},{id:'a',number:2},{id:'c',number:3}]}];
+ const byDay=ctx.dayGroups(groups);
+ assert.deepEqual(Array.from(ctx.pagesForDay(byDay,'2026-09-19','modified'),p=>p.number),[2,3,12]);
+ assert.deepEqual(Array.from(ctx.pagesForDay(byDay,'2026-09-19','created'),p=>p.number),[12,2,3]);
+ assert.deepEqual(groups[0].pages.map(p=>p.number),[12,2,3]);
+ assert.equal(ctx.pagesForDay(byDay,'2020-01-01','modified').length,0);
+});
+test('presentation has one compact action, not a second segmented bar',()=>{
+ const popup=fs.readFileSync('qml/popup.qml.inc','utf8');
+ assert.match(popup,/id: layoutButton/);
+ assert.doesNotMatch(popup,/layoutTabs|calendarTab|listTab/);
+});
 test('calendar spans empty months lazily and handles year boundaries',()=>{
  const groups=[group('2025-12-31'),group('2026-03-01')];
  const r=ctx.calendarRange(groups);

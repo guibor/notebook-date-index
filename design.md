@@ -1,5 +1,31 @@
 # Design
 
+## Navigation refinement (revision 5)
+
+The header's `layoutButton` toggles List / Calendar; Created / Modified remains
+the sole segmented control. `pagesForDay` copies a day's page array and sorts it
+numerically only for Modified-calendar navigation. The original response/list
+order and all stored dates are unchanged. Stable page IDs are still resolved at
+tap time, including after notebook page reordering.
+
+`build-qmd.mjs` accepts the exact `NDI_TARGET=pro|move` target. Pro adds a calendar
+tool immediately before BetterTOC, participates in its existing extension-slot
+accounting, and retains a notebook-menu fallback on short toolbars. Move adds no
+sidebar tool and keeps the notebook-menu entry. Both targets use identical panel,
+helper and backend bytes; only their independently qualified QMD hooks differ.
+
+The Pro `deploy-navigation` transaction replaces only its panel, helper and
+Dates QMD. It preserves the running writer, token, sync config, tracking history,
+all other QMDs, RMStream and both Gestik files, using independent rollback.
+Move's first install uses `install-move-dates` for Dates-only payloads and its own
+credential, after a complete off-device preimage and verified stock recovery.
+`ops/move-runtime` vendors the accepted Move watchdog/controller/shadow writer
+byte-for-byte. `move-profile-lib` changes only its exact inventory count to ten;
+the Dates-specific profile binds the new complete manifest. `run-move-session`
+uses that profile without changing any recovery semantics. An independent
+ten-minute outer rollback asks the Move watchdog to recover stock, disables
+only the new Dates QMD and preserves all Dates data if first installation fails.
+
 ## Calendar presentation
 
 Date basis (Created/Modified) and presentation (List/Calendar) are independent

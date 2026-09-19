@@ -5,6 +5,17 @@ Find notebook pages by creation day or their saved last-edit day, without
 cluttering or changing the user's existing table of contents.
 
 * Date-focused revision (2026-09-19)
+** Navigation refinement and physical Move rollout
+- Keep Created / Modified as the only segmented control. A compact header
+  action switches List / Calendar without changing the date basis.
+- Modified-calendar day selection orders pages by current numeric page number,
+  not last-edit timestamp. Do not mutate the list view's existing order.
+- Pro: calendar-icon sidebar entry immediately above BetterTOC. Retain the
+  notebook menu fallback only when the toolbar is too short for direct tools.
+  Move: keep Dates in the three-dot notebook menu, with no extra sidebar tool.
+- Install on independently qualified Move .169 and verify real shared-notebook
+  history using its own sync credential. Keep gesture/tracking/timezone settings
+  device-local; do not equate machine checks with physical pen acceptance.
 ** Calendar and sync follow-through
 - Created / Modified and List / Calendar are independent choices. Switching
   presentation never changes tracking, stored dates, or the selected date basis.
@@ -104,6 +115,9 @@ cluttering or changing the user's existing table of contents.
   tablet's system timezone. Each device maintains its own choice.
 
 * Changed requirements
+- 2026-09-19: the second List / Calendar segmented bar is superseded by a compact
+  header button. Pro's primary entry moves from the notebook menu to the sidebar;
+  Move retains the menu. Modified calendar pages now sort by page number.
 - 2026-09-19: add Calendar as an independent presentation before completing
   same-notebook synchronization; the previous list-only presentation is superseded.
 - 2026-09-19: creation-only navigation becomes Created/Modified. The earlier
@@ -138,6 +152,9 @@ cluttering or changing the user's existing table of contents.
   exclusion of cross-device index sync is superseded by the clarification above.
 
 * Immediate next steps
+- [X] Deploy navigation refinement to Pro under rollback protection.
+- [ ] Install the same revision on freshly qualified Move and verify real
+  same-notebook synchronization, preserving each device's local configuration.
 - [X] Implement/test Calendar on the current branch, then safely deploy its
   external panel/helper without replacing QMD hooks or touching notebook files.
 - [X] Upgrade the estimate-aware hub and enable Pro; verify three real creation

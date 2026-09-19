@@ -64,7 +64,7 @@ NdiControls.Popup {
     property string selectedDay: ""
     property var byDay: DateTree.dayGroups(groups)
     property var calendarInfo: DateTree.calendarRange(groups)
-    property var selectedPages: byDay[selectedDay] ? byDay[selectedDay].pages : []
+    property var selectedPages: DateTree.pagesForDay(byDay, selectedDay, mode)
     property int requestGeneration: 0
     property int undated: 0
     property int estimates: 0
@@ -110,9 +110,14 @@ NdiControls.Popup {
             DatesButton { id: backButton; visible:ndiPopup.showSettings; width:64; text:"‹"; font.pixelSize:40; quiet:true; onClicked:ndiPopup.showSettings=false }
             Text {
                 x: ndiPopup.showSettings ? 72 : 0
-                width: parent.width - x - (ndiPopup.showSettings ? 72 : 144)
+                width: parent.width - x - (ndiPopup.showSettings ? 72 : 332)
                 height:64; text:ndiPopup.showSettings ? "Dates settings" : "Dates"
                 font.pixelSize:36; font.bold:true; color:"black"; verticalAlignment:Text.AlignVCenter; elide:Text.ElideRight
+            }
+            DatesButton {
+                id: layoutButton; x:parent.width-324; width:178; visible:!ndiPopup.showSettings
+                text:ndiPopup.presentation==="list" ? "Calendar" : "List"
+                onClicked:ndiPopup.switchPresentation(ndiPopup.presentation==="list" ? "calendar" : "list")
             }
             DatesButton {
                 id: settingsButton; x:parent.width-136; width:64; quiet:true; visible:!ndiPopup.showSettings
@@ -137,17 +142,10 @@ NdiControls.Popup {
                 text:ndiPopup.mode === "modified" ? "Last edited · from notebook metadata" : "Creation dates · tracking " + (ndiPopup.tracking ? "on" : "paused")
                 font.pixelSize:21; color:"#555555"; wrapMode:Text.WordWrap
             }
-            Row {
-                id: layoutTabs
-                anchors { top:viewCaption.bottom; topMargin:16; left:parent.left; right:parent.right }
-                height:64; spacing:8
-                DatesButton { id:listTab; width:(parent.width-8)/2; height:64; text:"List"; primary:ndiPopup.presentation==="list"; onClicked:ndiPopup.switchPresentation("list") }
-                DatesButton { id:calendarTab; width:(parent.width-8)/2; height:64; text:"Calendar"; primary:ndiPopup.presentation==="calendar"; onClicked:ndiPopup.switchPresentation("calendar") }
-            }
             ListView {
                 id: dateList
                 visible:ndiPopup.presentation==="list" || !ndiPopup.ready
-                anchors { top:layoutTabs.bottom; topMargin:18; left:parent.left; right:parent.right; bottom:dateFooter.top; bottomMargin:14 }
+                anchors { top:viewCaption.bottom; topMargin:18; left:parent.left; right:parent.right; bottom:dateFooter.top; bottomMargin:14 }
                 clip:true; model:ndiPopup.dateRows
                 boundsBehavior:Flickable.StopAtBounds
                 NdiControls.ScrollBar.vertical: NdiControls.ScrollBar { width:6; policy:NdiControls.ScrollBar.AsNeeded }
@@ -196,7 +194,7 @@ NdiControls.Popup {
             ListView {
                 id:calendarList
                 visible:ndiPopup.ready && ndiPopup.presentation==="calendar" && ndiPopup.selectedDay===""
-                anchors { top:layoutTabs.bottom; topMargin:18; left:parent.left; right:parent.right; bottom:dateFooter.top; bottomMargin:14 }
+                anchors { top:viewCaption.bottom; topMargin:18; left:parent.left; right:parent.right; bottom:dateFooter.top; bottomMargin:14 }
                 clip:true; boundsBehavior:Flickable.StopAtBounds
                 model:ndiPopup.calendarInfo.count
                 spacing:24
@@ -235,7 +233,7 @@ NdiControls.Popup {
             Item {
                 id:calendarDay
                 visible:ndiPopup.ready && ndiPopup.presentation==="calendar" && ndiPopup.selectedDay!==""
-                anchors { top:layoutTabs.bottom; topMargin:18; left:parent.left; right:parent.right; bottom:dateFooter.top; bottomMargin:14 }
+                anchors { top:viewCaption.bottom; topMargin:18; left:parent.left; right:parent.right; bottom:dateFooter.top; bottomMargin:14 }
                 DatesButton { id:calendarBack; width:parent.width; height:64; text:"‹  Back to months"; quiet:true; onClicked:ndiPopup.selectedDay="" }
                 Text { id:dayHeading; anchors { top:calendarBack.bottom; topMargin:12; left:parent.left; right:parent.right } text:ndiPopup.selectedDay ? DateTree.dayTitle(ndiPopup.selectedDay) : ""; font.pixelSize:29; font.bold:true; wrapMode:Text.WordWrap; color:"black" }
                 ListView {

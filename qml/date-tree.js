@@ -8,6 +8,15 @@ function dayGroups(groups) {
     groups.forEach(function(g) { if (g.pages.length) out[g.day] = g; });
     return out;
 }
+// Calendar selection is navigation through the notebook, not an activity feed.
+// Copy before sorting so Modified's timestamp-ordered list remains unchanged.
+function pagesForDay(byDay, day, mode) {
+    var pages = byDay[day] ? byDay[day].pages.slice() : [];
+    if (mode === "modified") pages.sort(function(a,b) {
+        return a.number-b.number || a.id.localeCompare(b.id);
+    });
+    return pages;
+}
 function monthNumber(day) { return Number(day.slice(0,4))*12 + Number(day.slice(5,7))-1; }
 // A numeric ListView model keeps even very long histories lazy. Empty months
 // between the first and last dated pages remain scrollable, not silently skipped.

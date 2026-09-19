@@ -4,7 +4,33 @@ Exact branch: `beta/pro/3.28.0.169`, model `reMarkable Ferrari`.
 This branch is not a Move build. Read the sibling
 `remarkable-beta-os/KNOWLEDGE-BASE.md` and its current dated log first.
 
-## Current state: Calendar and Pro sync (2026-09-19)
+## Current state: navigation revision 5 (2026-09-19)
+
+The Pro is on revision 5, transaction `dates-navigation-20260919T111620Z`.
+Its header has a compact layout button, Modified-calendar day pages are numeric
+page order, and its sidebar has a calendar icon immediately above BetterTOC.
+Short toolbars retain a notebook-menu fallback. Move retains the menu only.
+
+Guarded Pro activation passed at UI PID 310895, `NRestarts=0`. Writer PID 307144
+was preserved, as were all other QMDs, native notebook bytes, RMStream, private
+sync/settings/token files and each independent Gestik file. Root stayed read-only.
+The live real-notebook probe still found 356 pages, 282 native modified dates,
+113 modified days and the existing creation history, with sync Up to date.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Writer (unchanged) | `445f532f18a7bf26d429aff0a481ab02ea3b74bef9b73f956f9b5ad77a09f979` |
+| Panel | `6ced2cd45df7513b0572b76a5f955cbdbc9d51ea4810a232511d5c362332944a` |
+| DateTree | `a91dbdc403f9959490d879a1d52fb5bd2b683d020db2753b55127d678a0b09ce` |
+| Pro Dates QMD | `2d4681414ac00b534b2f21d179365601ce9e876c7cfbf6c6c8d25a2f8738e580` |
+| Pro backup | `a53fa54d01d79af5895409ca43b1afd1b877e9b2b9b36452abbeab2e61c50be8` |
+
+`ops/deploy-navigation.sh` is the exact revision-4-to-5 one-time controller,
+not a generic updater. Do not rerun it against revision 5. Pro's new sidebar
+requires the qualified BetterTOC QMD and was composed with all ten installed
+QMDs, including RMStream. Physical sidebar/pen acceptance is still distinct.
+
+## Previous state: Calendar and Pro sync (2026-09-19)
 
 Feature revision 4 is on the same Pro branch. Dates now has independent
 Created/Modified and List/Calendar switches. The Pro sync client is enabled;

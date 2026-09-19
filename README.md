@@ -4,8 +4,10 @@
 notebooks—without adding headings, changing your table of contents, or touching
 your handwriting.
 
-Open a notebook, choose **⋮ → Dates**, and browse by **Created** or **Modified**
-in either **List** or **Calendar**.
+On **Paper Pro**, open a notebook and tap the **calendar icon above BetterTOC**
+in the sidebar. On **Move**, use **⋮ → Dates**. Browse by **Created** or **Modified**;
+the compact **Calendar / List** button in the header switches the layout.
+Pro also retains the menu entry when a short toolbar has no room for the icon.
 The interface is designed for e-ink: readable type, generous touch targets,
 quiet separators, and no animation-dependent controls.
 
@@ -31,11 +33,13 @@ hidden; undo can reveal their original dates again.
 
 ### Or browse a calendar
 
-Choose **Calendar** without changing your Created/Modified choice. Scroll through
+Tap **Calendar** in the header without changing your Created/Modified choice. Scroll through
 months, newest first; a **black dot** marks each day with matching pages. Tap a
 marked day to choose a page. **Back to months** returns to the same scroll
 position. Empty intervening months remain visible, and weeks start on Sunday.
-Switch back to **List** whenever a compact hierarchy is more useful.
+Tap **List** in the same place whenever a compact hierarchy is more useful.
+After selecting a day in **Modified → Calendar**, pages are ordered by their
+current page number, not by which page was edited most recently.
 
 ![Scrollable month calendar. Synthetic example.](docs/images/dates-calendar.png)
 
@@ -48,7 +52,7 @@ has saved its metadata. Missing timestamps stay undated.
 
 ## Turn on creation tracking
 
-1. Open **⋮ → Dates → ⚙** in the notebook you want to track.
+1. Open **Dates → ⚙** in the notebook you want to track.
 2. Optionally select **Include undated pages using last-modified dates (estimates)**.
 3. Tap **Enable for this notebook**.
 

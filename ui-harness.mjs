@@ -26,7 +26,9 @@ Rectangle {
      if(action==="settings") zone=body.timezone;
      const day=body.mode==="modified" ? "2026-09-19" : "2026-09-18";
      const estimated=body.mode!=="modified";
-     if (done) done({enabled:enabled, timezone:zone, mode:body.mode||"created", undated:1, estimated:estimated ? 1 : 0, groups:[{day:day,pages:[{id:"one",number:2},{id:"two",number:5,estimated:estimated}]},{day:"2026-08-03",pages:[{id:"three",number:9}]},{day:"2025-12-01",pages:[{id:"four",number:12}]}]});
+     const pages=[{id:"one",number:2},{id:"two",number:5,estimated:estimated}];
+     if (body.mode==="modified") pages.reverse();
+     if (done) done({enabled:enabled, timezone:zone, mode:body.mode||"created", undated:1, estimated:estimated ? 1 : 0, groups:[{day:day,pages:pages},{day:"2026-08-03",pages:[{id:"three",number:9}]},{day:"2025-12-01",pages:[{id:"four",number:12}]}]});
    }
  }
  ${popup}
@@ -52,7 +54,7 @@ Rectangle {
  Timer { interval:1200; running:true; onTriggered: {
    trackingButton.clicked();
    if (!ndiPopup.tracking || !bridge.baseline || ndiPopup.showSettings || ndiPopup.initializeOlder) { console.error("Explicit backfill toggle failed"); Qt.exit(1); }
-   calendarTab.clicked();
+   layoutButton.clicked();
    if (!calendarList.visible || dateList.visible || ndiPopup.mode!=="modified") { console.error("Independent calendar choice failed"); Qt.exit(1); }
  } }
  Timer { interval:1500; running:true; onTriggered: {
@@ -67,6 +69,7 @@ Rectangle {
    calendarBack.clicked();
    if (!calendarList.visible || calendarList.contentY<=0) { console.error("Calendar position lost"); Qt.exit(1); }
    ndiPopup.selectDay("2026-09-19");
+   if (ndiPopup.selectedPages[0].number!==2 || ndiPopup.selectedPages[1].number!==5 || ndiPopup.groups[0].pages[0].number!==5) { console.error("Modified calendar page order failed"); Qt.exit(1); }
  } }
  Timer { interval:1900; running:true; onTriggered: {
    ndiPopup.background.parent.grabToImage(function(image) { image.saveToFile("build/dates-calendar-day.png"); });
