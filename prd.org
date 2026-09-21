@@ -139,8 +139,13 @@ cluttering or changing the user's existing table of contents.
 - Pause preserves history. Reorder resolves IDs to current page positions.
   Delete hides missing pages; undo reuses their original dates.
 - Do not infer creation from file mtime or a generic page-count change.
-- Imported/moved-in pages remain undated unless explicitly included in the
-  optional baseline. Ambiguous creation events fail closed.
+- Imported or moved-in pages without verified existing Dates provenance remain
+  undated unless explicitly included in the optional estimated baseline.
+  Ambiguous creation events fail closed; arrival is not a new creation event.
+- A true cross-notebook move of an already dated page must retain its original
+  history under the separate transfer requirement above, rather than becoming
+  undated or receiving an arrival-time date. This supersedes the former blanket
+  moved-in exclusion but is not implemented in the current writer/hub.
 - Serialize durable writes to an independent private folder, with atomic
   replacement and recoverable prior version. Never write native notebook/TOC.
 - Preserve Pro/Move independence, exact firmware/runtime gates, all existing
@@ -160,6 +165,13 @@ cluttering or changing the user's existing table of contents.
   tablet's system timezone. Each device maintains its own choice.
 
 * Changed requirements
+- 2026-09-21 cross-notebook transfers: the former requirement that all imported
+  or moved-in pages remain undated is superseded for a verified true move of an
+  already dated page. Preserve original creation/provenance and destination
+  navigation without enabling tracking. Undated imports, ambiguous identities
+  and unverified moves still fail closed; copying is not assumed to be moving.
+  This is separate unimplemented feature work, not a result of the 3.29 firmware
+  restore. The current characterization still shows an undated destination.
 - 2026-09-20 publication: user explicitly chose public visibility for the existing
   repository/history and submission of the revised Reddit post. This supersedes
   the private-only/draft-only requirements below. License selection remains open;

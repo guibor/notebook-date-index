@@ -31,6 +31,11 @@ solution must verify stock move/copy ID behavior, preserve all original events
 with an authenticated transfer reference, and converge under undo/offline sync.
 `transfer_characterization_test.go` documents this current limitation without
 changing r6 runtime bytes or claiming the requested feature is finished.
+The PRD's former blanket moved-in exclusion is therefore a superseded product
+requirement for verified moves of already dated pages, not a guarantee supplied
+by today's notebook-scoped implementation. Undated imports, ambiguous identity
+and unverified provenance still fail closed. No transfer schema or writer/hub
+change is introduced by this documentation clarification.
 
 ## Community-sharing preparation (2026-09-20)
 
