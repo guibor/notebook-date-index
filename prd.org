@@ -224,8 +224,10 @@ cluttering or changing the user's existing table of contents.
   exclusion of cross-device index sync is superseded by the clarification above.
 
 * Immediate next steps
-- [ ] Qualify exact Pro 3.29.0.148 runtime table and composed stack, then restore
+- [X] Qualify exact Pro 3.29.0.148 runtime table and composed stack, then restore
   under independent recovery; keep revision-6 history and device settings intact.
+  Runtime transaction =20260921T193500Z-3= committed; physical checks stay separate.
+- [ ] Physically check the restored Pro creation, calendar and navigation flows.
 - [ ] Implement and test cross-notebook transfer separately: true move versus copy,
   disabled destination, estimated dates, undo, duplicate/reordered sync and offline
   convergence. Current characterization proves the destination remains undated.

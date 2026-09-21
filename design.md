@@ -2,6 +2,14 @@
 
 ## Pro 3.29 integration and separate transfer requirement (2026-09-21)
 
+The port is now restored on Pro in committed transaction `20260921T193500Z-3`.
+At 19:37:47 UTC, UI PID 14472 and unchanged r6 writer PID 14463 passed the exact
+runtime checks with zero automatic restarts, read-only root and unchanged private
+configuration/Gestik hashes. The independent owners and lock were gone. The
+receipt in `PRO-3.29-PORT.md` is machine acceptance only: no physical creation,
+calendar or two-device scenario was newly accepted, and no Move/server or
+cross-notebook transfer implementation was deployed.
+
 `build-qmd.mjs` reads the exact Pro target from `target.json` and refuses other
 models/firmwares in this maintenance branch. The resource directory can be
 provided as `NDI_RESOURCES`; the default is the locally qualified 3.29.0.148

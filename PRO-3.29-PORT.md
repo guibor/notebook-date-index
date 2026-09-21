@@ -1,9 +1,24 @@
-# Pro 3.29.0.148 candidate
+# Pro 3.29.0.148 restoration receipt
 
-Status: local source/QMD port only, not installed. Firmware SHA-256:
+Status: exact Pro runtime restored and committed, physical checks pending.
+Firmware SHA-256:
 `4f433281c71a29d07921665b4724420735f3c88aceb431067f3a432b3f89f6a4`.
-The current maintenance owner must seal the runtime-derived table and qualify
-the new recovery wrapper before activation. Move remains separate and unchanged.
+The runtime-derived table, full stack and independent stock recovery were
+qualified before acceptance. Move remains separate and unchanged.
+
+The maintenance owner committed transaction `20260921T193500Z-3`. At 19:37:47 UTC
+on 2026-09-21, xochitl PID 14472 and the unchanged r6 Dates writer PID 14463 were
+active with zero automatic restarts, inactive transaction/watchdog units, no lock
+and read-only root. All exact mappings/QMD/log checks passed; private configuration
+and Gestik hashes were unchanged. The full eleven-QMD inventory is
+`5fe7e2ec3291efa692c90df769ea521d9e399d3da6e7448f9a9071caca71652d`;
+its safety archive was independently verified on the Mac at
+`77df2b4108f7dc82276a3bf1ec516b09aa728a142f73e6a028744e3b4779966d`.
+No history/schema migration, server change or Move deployment occurred.
+At 19:39:06 UTC, the post-deadline check confirmed the same stable PIDs and zero
+restarts, all eleven QMD hashes and five runtime libraries, with root read-only.
+Physical creation/calendar/navigation and cross-device behavior were not tested
+by this restore. Cross-notebook transfer remains unimplemented.
 
 Run source tests with `bash scripts/test-portable.sh`. Build exact Pro QMD source
 with `node build-qmd.mjs`. For full-stack composition use the sibling isolated
@@ -35,5 +50,6 @@ generated QML parsing and firmware rejection. Source/race/vet, 23 Node checks,
 recovery-policy tests, and real Qt UI/flash/creation/transport harnesses pass.
 `ui-harness.mjs` and `flash-harness.mjs` resolve 3.29 icons with an overridable
 `NDI_RESOURCES`; the creation harness accepts explicit composed-tree paths.
-No test uses real notebooks or device credentials. These are offline results,
-not live deployment or physical pen/navigation acceptance.
+No offline test uses real notebooks or device credentials. Those tests alone do
+not prove deployment; the separate live receipt above establishes runtime
+restoration, not physical pen/navigation acceptance.
