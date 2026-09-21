@@ -1,5 +1,6 @@
 import fs from 'node:fs';
-let popup=fs.readFileSync('qml/popup.qml.inc','utf8').replaceAll('Values.','bridge.').replaceAll('target: Values','target: bridge').replaceAll('Document.Notebook','1').replace('qrc:/ark/icons/cog','file://'+process.cwd()+'/../remarkable-beta-os/.cache/firmware/3.28.0.169/resources/ark/icons/cog');
+const resources=process.env.NDI_RESOURCES || '/Users/mdf/code/remarkable-beta-os/.cache/firmware/3.29.0.148/resources';
+let popup=fs.readFileSync('qml/popup.qml.inc','utf8').replaceAll('Values.','bridge.').replaceAll('target: Values','target: bridge').replaceAll('Document.Notebook','1').replace('qrc:/ark/icons/cog','file://'+resources+'/ark/icons/cog');
 fs.copyFileSync('qml/date-tree.js','build/DateTree.js');
 let harness=`import QtQuick
 import QtQuick.Controls 2.15 as NdiControls

@@ -4,6 +4,23 @@
 Find notebook pages by creation day or their saved last-edit day, without
 cluttering or changing the user's existing table of contents.
 
+* Pro 3.29.0.148 maintenance (2026-09-21)
+- Port the exact-firmware QMD integration to the redesigned Pro toolbar while
+  preserving the accepted revision-6 writer, panel/helper and all private state.
+- Use the shared BetterTOC capacity calculation, based on raw stock capacity;
+  keep Dates above BetterTOC and the short-toolbar menu fallback.
+- No Move installation, server update, schema migration or new recorder behavior
+  belongs to this firmware-only restore. Offline qualification is not deployment.
+
+* Cross-notebook page transfers (separate feature, 2026-09-21)
+- Moving an already dated page to another notebook must retain its original
+  recorded creation time, timezone/day and estimated/provenance information.
+- Date links must resolve the destination's current page number; no stale source
+  navigation entry may remain visible. Sync must carry the transferred history.
+- A move must not enable tracking in the destination or invent/reset a date.
+- This feature is not implemented by the firmware port. Verify stock move/copy
+  ID semantics and authenticated provenance before choosing a writer/hub change.
+
 * Date-focused revision (2026-09-19)
 ** Calendar polish (revision 6)
 - Show one focused month, with previous/next arrow controls, rather than a
@@ -195,6 +212,11 @@ cluttering or changing the user's existing table of contents.
   exclusion of cross-device index sync is superseded by the clarification above.
 
 * Immediate next steps
+- [ ] Qualify exact Pro 3.29.0.148 runtime table and composed stack, then restore
+  under independent recovery; keep revision-6 history and device settings intact.
+- [ ] Implement and test cross-notebook transfer separately: true move versus copy,
+  disabled destination, estimated dates, undo, duplicate/reordered sync and offline
+  convergence. Current characterization proves the destination remains undated.
 - [X] Rewrite README and add installation/recovery, self-hosting, contributing,
   privacy/provenance and publication guidance with honest compatibility limits.
 - [X] Add a portable source gate and validate clean Pro/Move exports without

@@ -1,5 +1,11 @@
 # Paper Pro notebook Dates update recipe
 
+For the isolated **3.29.0.148** maintenance branch, start with
+[PRO-3.29-PORT.md](PRO-3.29-PORT.md). The procedures and historical inventory
+below remain 3.28-specific; do not broaden their guards or run them on 3.29.
+The new port preserves revision-6 data and does not implement cross-notebook
+page-transfer history yet.
+
 > **Maintainer transaction history, not a public installer.** New readers should
 > start with [the installation guide](docs/INSTALL.md). A later independent
 > Dispatch document-menu addition made the maintainer's Pro inventory twelve

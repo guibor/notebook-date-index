@@ -32,9 +32,9 @@ Item {
 `);
 const files=['qml/device/view/documentview/DocumentView.qml','qml/device/view/documentview/PagesActions.qml','qml/device/view/documentview/HwcDialog.qml','qt/qml/xofm/modules/library/ui/qml/LibraryActions.qml'];
 for(const f of files) {
- const generated=fs.readFileSync(`build/notebook-date-index-composed/${f}`,'utf8');
+ const generated=fs.readFileSync(`${process.env.NDI_COMPOSED || 'build/notebook-date-index-composed'}/${f}`,'utf8');
  assert.match(generated,/Values\.ndiAddPage\(DocumentController,\s*document,/);
  assert.doesNotMatch(generated,/Values\.ndiAddPage\(document,/);
- const preview=fs.readFileSync(`build/notebook-date-index-preview-composed/${f}`,'utf8');
+ const preview=fs.readFileSync(`${process.env.NDI_PREVIEW_COMPOSED || 'build/notebook-date-index-preview-composed'}/${f}`,'utf8');
  assert.doesNotMatch(preview,/Values\.ndiAddPage\(/);
 }

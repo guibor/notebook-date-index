@@ -1,5 +1,37 @@
 # Design
 
+## Pro 3.29 integration and separate transfer requirement (2026-09-21)
+
+`build-qmd.mjs` reads the exact Pro target from `target.json` and refuses other
+models/firmwares in this maintenance branch. The resource directory can be
+provided as `NDI_RESOURCES`; the default is the locally qualified 3.29.0.148
+cache. The existing creation wrappers still pass the native controller explicitly
+and retain native return/callback behavior. No writer or panel code changes.
+
+The 3.29 toolbar delegates capacity to BetterTOC's `stockShowableToolsCount`
+contract. Our `_isExtensionButton` participates in its one shared counter;
+Dates no longer writes the provider count in a competing callback. Its visibility
+threshold reads raw capacity, avoiding a derived-capacity binding cycle. Composition
+requires BetterTOC before Dates. The isolated Smart maintenance worktree's
+`tests/pro-3.29-apps-test.mjs` builds and composes the complete new stack.
+Qt UI/flash harnesses use the 3.29 resource cache (overridable with
+`NDI_RESOURCES`); the creation harness accepts explicit functional/preview trees
+via `NDI_COMPOSED` and `NDI_PREVIEW_COMPOSED` without copying older resources.
+Historical `test.sh` and deployment scripts remain exact-3.28 procedures, not
+3.29 installers. See `PRO-3.29-PORT.md` for the new gate and preserved payloads.
+
+Cross-notebook transfers are a separate, unimplemented feature. `Store.apply`
+loads only the requested notebook's index; `view` filters absent page IDs, so
+the source hides a moved page without deleting its recoverable history. The
+destination cannot discover that history, even when a UUID happens to be retained.
+`syncNotebook` exchanges journals under the notebook UUID; it cannot transfer
+foreign notebook history. `captureLocked` preserves received provenance inside
+one journal but would misattribute a naive copied page as local. A correct future
+solution must verify stock move/copy ID behavior, preserve all original events
+with an authenticated transfer reference, and converge under undo/offline sync.
+`transfer_characterization_test.go` documents this current limitation without
+changing r6 runtime bytes or claiming the requested feature is finished.
+
 ## Community-sharing preparation (2026-09-20)
 
 The user-facing entry point is `README.md`, with task-specific guides in

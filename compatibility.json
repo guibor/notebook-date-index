@@ -13,10 +13,11 @@
   "devices": {
     "pro": {
       "model": "reMarkable Ferrari",
-      "firmware": "3.28.0.169",
-      "branch": "beta/pro/3.28.0.169",
-      "status": "calendar-polish-r6-guarded-installed-sync-preserved-physical-flash-and-taps-pending",
-      "deployment": "dates-polish-20260919T142350Z",
+      "firmware": "3.29.0.148",
+      "branch": "beta/pro/3.29.0.148",
+      "status": "r6-preserving-qmd-port-offline-candidate-not-deployed",
+      "deployment": null,
+      "previous_deployment": "dates-polish-20260919T142350Z",
       "service_deployment": "dates-sync-pro-20260919T095839Z"
     },
     "move": {

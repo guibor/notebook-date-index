@@ -1,10 +1,11 @@
 import fs from 'node:fs';
-const fw = '3.28.0.169';
-const target = process.env.NDI_TARGET || JSON.parse(fs.readFileSync('target.json','utf8')).device;
-if (!['pro','move'].includes(target)) throw new Error('Unknown device target');
-const resources = target === 'pro'
-    ? '../remarkable-beta-os/.cache/firmware/'+fw+'/resources'
-    : '../.worktrees/remarkable-beta-os-move-3280169/.cache/firmware/move/'+fw+'/resources';
+const contract = JSON.parse(fs.readFileSync('target.json','utf8'));
+const fw = contract.firmware;
+const target = process.env.NDI_TARGET || contract.device;
+if (target !== 'pro' || fw !== '3.29.0.148')
+    throw new Error('This branch is qualified only for Pro 3.29.0.148');
+const resources = process.env.NDI_RESOURCES ||
+    '/Users/mdf/code/remarkable-beta-os/.cache/firmware/'+fw+'/resources';
 const source = fs.readFileSync;
 const inc = name => source(`qml/${name}.qml.inc`, 'utf8');
 const affect = (path, root, body) => `AFFECT /${path}\n TRAVERSE ${root}\n LOCATE BEFORE ALL\n${body}\n END TRAVERSE\nEND AFFECT\n`;
@@ -63,16 +64,8 @@ if (target === 'pro') q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/Toolbar.qml
      property bool _isExtensionButton: true
      label: "Dates"
      iconSource: "qrc:/ark/icons/calendar"
-     visible: root.documentType === "note" && root.expanded && root.showableToolsCount > 7
-     shouldShow: root.documentType === "note" && root.showableToolsCount > 7
-     onShouldShowChanged: {
-       var adjust = 0;
-       for (var i = 0; i < toolLayout.children.length; i++) {
-         var child = toolLayout.children[i];
-         if (child._isExtensionButton && child.shouldShow) adjust++;
-       }
-       toolbarProvider.updateToolbarTools(root.showableToolsCount - adjust);
-     }
+     visible: root.documentType === "note" && root.expanded && root.stockShowableToolsCount > 7
+     shouldShow: root.documentType === "note" && root.stockShowableToolsCount > 7
      onPressed: { root.closeFoldout(); Values.ndiOpenRequested(); }
    }
  }
@@ -90,8 +83,8 @@ q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml
      type: ToolbarTool.Type.FoldoutButton
      Layout.fillWidth: true
      label: "Dates"
-     visible: root.documentType === "note"${target === 'pro' ? ' && root.toolbar.showableToolsCount <= 7' : ''}
-     shouldShow: root.documentType === "note"${target === 'pro' ? ' && root.toolbar.showableToolsCount <= 7' : ''}
+     visible: root.documentType === "note" && root.toolbar.stockShowableToolsCount <= 7
+     shouldShow: root.documentType === "note" && root.toolbar.stockShowableToolsCount <= 7
      iconSource: "qrc:/ark/icons/calendar"
      onPressed: Values.ndiOpenRequested()
    }
