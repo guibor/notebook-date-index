@@ -1,5 +1,13 @@
 # Design
 
+## Pro 3.29.0.152 preparation
+
+Only the exact target and resource-backed harness defaults change. The new
+branch keeps all r6 recorder/panel/helper bytes and device-private state.
+The maintenance controller owns table qualification and guarded installation;
+prior .148 runtime receipts below do not certify .152. No writer, sync protocol,
+server, Move, or page-transfer behavior changes in this firmware port.
+
 ## Pro 3.29 integration and separate transfer requirement (2026-09-21)
 
 The port is now restored on Pro in committed transaction `20260921T193500Z-3`.

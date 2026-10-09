@@ -1,5 +1,14 @@
 #+title: Notebook Dates
 
+* Pro 3.29.0.152 maintenance (2026-10-10)
+- New exact-firmware branch; preserve the accepted r6 writer, panel, helper,
+  tracking history, credentials and Israel-time configuration on this Pro.
+- This restoration does not modify Move, the sync server, or the separate
+  cross-notebook page-transfer implementation requirement.
+- [X] Retarget source generation to freshly extracted .152 resources.
+- [ ] Pass source, Qt, full-stack composition, guarded runtime checks.
+- [ ] Record deployed hashes separately from physical/two-device acceptance.
+
 * Objective
 Find notebook pages by creation day or their saved last-edit day, without
 cluttering or changing the user's existing table of contents.

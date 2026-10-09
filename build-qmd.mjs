@@ -2,8 +2,8 @@ import fs from 'node:fs';
 const contract = JSON.parse(fs.readFileSync('target.json','utf8'));
 const fw = contract.firmware;
 const target = process.env.NDI_TARGET || contract.device;
-if (target !== 'pro' || fw !== '3.29.0.148')
-    throw new Error('This branch is qualified only for Pro 3.29.0.148');
+if (target !== 'pro' || fw !== '3.29.0.152')
+    throw new Error('This branch is qualified only for Pro 3.29.0.152');
 const resources = process.env.NDI_RESOURCES ||
     '/Users/mdf/code/remarkable-beta-os/.cache/firmware/'+fw+'/resources';
 const source = fs.readFileSync;
