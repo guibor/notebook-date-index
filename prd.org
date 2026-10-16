@@ -1,5 +1,12 @@
 #+title: Notebook Dates
 
+* Pro 3.29.0.153 restoration (2026-10-16)
+- [X] Exact-firmware source, full composition and creation runtime harness.
+- [X] Guarded installation; final UI PID 15545, retained writer PID 6231,
+  zero restarts. Private history, sync configuration and settings preserved.
+- Physical pen/UI and cross-notebook transfer acceptance were not repeated.
+  Page transfer remains separate unfinished feature work, not a firmware fix.
+
 * Pro 3.29.0.152 maintenance (2026-10-10)
 - New exact-firmware branch; preserve the accepted r6 writer, panel, helper,
   tracking history, credentials and Israel-time configuration on this Pro.

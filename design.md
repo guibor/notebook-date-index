@@ -1,5 +1,13 @@
 # Design
 
+## Pro .153 deployment receipt
+
+The firmware-only QMD port is installed in base transaction
+`20261016T093527Z-1` and retained by the final thirteen-QMD native stack
+`20261016T094539Z-2`. Writer PID 6231 was preserved. Final UI PID 15545,
+zero restart counts and guarded startup are runtime evidence, not physical
+acceptance. No storage schema, sync server or notebook content was changed.
+
 ## Pro 3.29.0.153 restoration
 
 The exact guard and resource harness target .153. Existing Dates r6 writer,

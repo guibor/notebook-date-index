@@ -15,8 +15,8 @@
       "model": "reMarkable Ferrari",
       "firmware": "3.29.0.153",
       "branch": "codex/pro-3.29.0.153",
-      "status": "r6-preserving-qmd-port-offline-qualified-installation-pending",
-      "deployment": null,
+      "status": "r6-preserving-qmd-port-installed-guarded-runtime-verified-physical-acceptance-not-repeated",
+      "deployment": "20261016T093527Z-1; final-stack-20261016T094539Z-2",
       "previous_deployment": "dates-polish-20260919T142350Z",
       "service_deployment": "dates-sync-pro-20260919T095839Z"
     },
