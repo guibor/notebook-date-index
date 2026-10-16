@@ -3,7 +3,7 @@
 // QT_QUICK_BACKEND=software qml --disable-context-sharing build/flash-harness.qml.
 import fs from 'node:fs';
 
-const resources = process.env.NDI_RESOURCES || '/Users/mdf/code/remarkable-beta-os/.cache/firmware/3.29.0.152/resources';
+const resources = process.env.NDI_RESOURCES || '/Users/mdf/code/remarkable-beta-os/.cache/firmware/3.29.0.153/resources';
 const popup = fs.readFileSync('qml/popup.qml.inc', 'utf8')
   .replaceAll('Values.', 'bridge.')
   .replaceAll('target: Values', 'target: bridge')

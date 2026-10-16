@@ -1,5 +1,11 @@
 # Design
 
+## Pro 3.29.0.153 restoration
+
+The exact guard and resource harness target .153. Existing Dates r6 writer,
+panel/helper, history, sync credentials and server remain unchanged. Fresh full
+composition and guarded runtime activation are owned by the maintenance task.
+
 ## Pro 3.29.0.152 preparation
 
 Only the exact target and resource-backed harness defaults change. The new

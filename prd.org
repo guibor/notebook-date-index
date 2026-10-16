@@ -297,3 +297,9 @@ cluttering or changing the user's existing table of contents.
 - [ ] Verify three pages/one day, duplicate, reopen, reorder, delete/undo,
   pause/resume, handwriting conversion and Quick Sheets on the tablet.
 - [ ] Save exact deployment evidence and qualify Move separately if requested.
+* Pro .153 restoration requirement
+- Restore the existing Dates feature on exact Pro 3.29.0.153 with current local
+  history/settings and accepted sync configuration preserved. Move unchanged.
+- Next: qualify the generated QMD in the fresh full stack, install and record.
+- Changed requirement: .152 guards are historical; no backend/schema migration
+  or cross-notebook-transfer implementation is part of this firmware restore.
