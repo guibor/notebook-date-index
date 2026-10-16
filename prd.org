@@ -4,7 +4,8 @@
 Current target: independent Chiappa 3.29.0.153. Preserve the Move notebook-menu
 entry, shared revision-6 UI/writer, private sync history and device preferences.
 Changed requirement: restore after the Pro without adding split-screen or copying
-Pro state. Next: exact Move composition, guarded reinstall and runtime receipt.
+Pro state. Exact Move composition, guarded reinstall and runtime receipt passed
+on 2026-10-16; physical and two-device acceptance remain separate.
 The .169 records below are historical, not .153 installation evidence.
 
 This checkout is =codex/move-3.29.0.153=. It keeps the notebook-menu entry and

@@ -2,6 +2,12 @@
 
 ## Move 3.29.0.153
 
+Installed 2026-10-16 with the independent ten-QMD Move runtime. UI PID29673,
+writer PID29096, zero restarts, authenticated empty-query health check passed.
+The menu hook is new; existing writer/panel/helper and all private sync/history
+state were retained. Portable source/race and 26 mocked rollback tests passed.
+Physical gestures, page creation and two-device syncing were not exercised.
+
 The build reads its exact Move target from target.json and accepts an explicit
 local resource directory. The source generator keeps the menu-only entry; it
 does not emit the Pro sidebar button. Shared panel, date grouping, writer and

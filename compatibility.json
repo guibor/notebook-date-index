@@ -23,8 +23,8 @@
       "model": "reMarkable Chiappa",
       "firmware": "3.29.0.153",
       "branch": "codex/move-3.29.0.153",
-      "status": "r6-preserving-move-menu-port-offline-qualified-runtime-pending",
-      "deployment": null,
+      "status": "r6-preserving-move-menu-port-installed-guarded-runtime-verified-physical-acceptance-not-repeated",
+      "deployment": "move153-runtime-20261016T100850Z; activation-20261016T101533Z",
       "previous_deployment": "dates-move-polish-20260919T142554Z-6164"
     }
   }
