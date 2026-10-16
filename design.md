@@ -1,5 +1,14 @@
 # Design
 
+## Move 3.29.0.153
+
+The build reads its exact Move target from target.json and accepts an explicit
+local resource directory. The source generator keeps the menu-only entry; it
+does not emit the Pro sidebar button. Shared panel, date grouping, writer and
+sync semantics are unchanged. Firmware maintenance owns independent table,
+composition, device backup and rollback activation. Historical .169 runtime
+scripts are not replayed against the new firmware.
+
 ## Community-sharing preparation (2026-09-20)
 
 The user-facing entry point is `README.md`, with task-specific guides in

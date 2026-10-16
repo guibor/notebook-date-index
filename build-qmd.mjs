@@ -1,10 +1,9 @@
 import fs from 'node:fs';
-const fw = '3.28.0.169';
-const target = process.env.NDI_TARGET || JSON.parse(fs.readFileSync('target.json','utf8')).device;
-if (!['pro','move'].includes(target)) throw new Error('Unknown device target');
-const resources = target === 'pro'
-    ? '../remarkable-beta-os/.cache/firmware/'+fw+'/resources'
-    : '../.worktrees/remarkable-beta-os-move-3280169/.cache/firmware/move/'+fw+'/resources';
+const contract = JSON.parse(fs.readFileSync('target.json','utf8'));
+const fw = contract.firmware;
+const target = process.env.NDI_TARGET || contract.device;
+if (target !== 'move' || fw !== '3.29.0.153') throw new Error('This branch targets Move 3.29.0.153 only');
+const resources = process.env.NDI_RESOURCES || '../remarkable-beta-os-move-3290153/.cache/firmware/move/'+fw+'/resources';
 const source = fs.readFileSync;
 const inc = name => source(`qml/${name}.qml.inc`, 'utf8');
 const affect = (path, root, body) => `AFFECT /${path}\n TRAVERSE ${root}\n LOCATE BEFORE ALL\n${body}\n END TRAVERSE\nEND AFFECT\n`;

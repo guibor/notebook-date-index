@@ -21,10 +21,11 @@
     },
     "move": {
       "model": "reMarkable Chiappa",
-      "firmware": "3.28.0.169",
-      "branch": "beta/move/3.28.0.169",
-      "status": "calendar-polish-r6-guarded-installed-sync-preserved-real-pro-history-verified-physical-flash-and-taps-pending",
-      "deployment": "dates-move-polish-20260919T142554Z-6164"
+      "firmware": "3.29.0.153",
+      "branch": "codex/move-3.29.0.153",
+      "status": "r6-preserving-move-menu-port-offline-qualified-runtime-pending",
+      "deployment": null,
+      "previous_deployment": "dates-move-polish-20260919T142554Z-6164"
     }
   }
 }
