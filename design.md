@@ -1,5 +1,13 @@
 # Design
 
+## Move 3.29.1.0 preparation
+
+`target.json` and `build-qmd.mjs` select the independently captured Chiappa
+3.29.1.0 resources. Only the exact firmware hook changes; the Move menu-only
+entry, shared panel, writer and sync semantics are retained. Existing private
+state must be preserved. The maintenance repository owns full-stack validation
+and guarded activation; source generation alone does not claim installation.
+
 ## Move 3.29.0.153
 
 Installed 2026-10-16 with the independent ten-QMD Move runtime. UI PID29673,

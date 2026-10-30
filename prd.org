@@ -1,5 +1,12 @@
 #+title: Notebook Dates
 
+* Current Move restoration: 3.29.1.0
+- Retain menu-only Dates access and the existing independent Move settings/data.
+- [ ] Compose the new exact hook and verify guarded installation.
+** Changed requirements
+- 3.29.1.0 supersedes the .153 target on this new firmware-specific branch.
+- No Pro sidebar, split-screen, settings copy or history reset is permitted.
+
 * Branch target
 Current target: independent Chiappa 3.29.0.153. Preserve the Move notebook-menu
 entry, shared revision-6 UI/writer, private sync history and device preferences.
