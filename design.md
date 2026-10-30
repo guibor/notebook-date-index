@@ -477,3 +477,11 @@ An independently maintained RMStream document shortcut is being added by the
 sibling `appload-rmstream-beta` project; its composition tests include this
 functional Dates QMD. Do not reuse the nine-QMD install guard after adding a
 tenth patch without qualifying the new exact inventory.
+## Pro 3.29.1.0 qualification
+
+This branch retains the accepted application behavior and device-local state.
+Firmware-specific generators, guards and qualification entrypoints use the
+fresh Ferrari stock binary and independently captured resource table. Historical
+controllers remain historical; maintenance seals a new combined controller from
+current files and settings before activation. Move and shared servers are unchanged.
+Static/build results are not installation or physical interaction acceptance.

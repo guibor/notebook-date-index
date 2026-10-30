@@ -310,3 +310,10 @@ cluttering or changing the user's existing table of contents.
 - Next: qualify the generated QMD in the fresh full stack, install and record.
 - Changed requirement: .152 guards are historical; no backend/schema migration
   or cross-notebook-transfer implementation is part of this firmware restore.
+* Pro 3.29.1.0 restoration (2026-10-30)
+- Preserve accepted features and this device's settings; Move remains independent.
+- [X] Complete exact-firmware composition and guarded base installation.
+- [X] Record installed hashes and recovery receipt separately from physical use.
+- See PRO-3.29.1.0-RECEIPT.md; final combined native activation is separately pending.
+** Changed requirements
+- This branch targets 3.29.1.0; older firmware receipts do not qualify it.
