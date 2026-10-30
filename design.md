@@ -8,6 +8,12 @@ entry, shared panel, writer and sync semantics are retained. Existing private
 state must be preserved. The maintenance repository owns full-stack validation
 and guarded activation; source generation alone does not claim installation.
 
+Installed2026-10-30: the Move11-QMD guarded runtime loaded the exact hook;
+retained backend PID53920 was healthy with NRestarts0. Private settings, token
+and sync configuration matched the device-local backup. Go race/source tests,
+23Node checks and26mocked rollback cases passed. No new-page or two-device
+physical acceptance is inferred from this installation receipt.
+
 ## Move 3.29.0.153
 
 Installed 2026-10-16 with the independent ten-QMD Move runtime. UI PID29673,

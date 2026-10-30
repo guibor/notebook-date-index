@@ -2,7 +2,9 @@
 
 * Current Move restoration: 3.29.1.0
 - Retain menu-only Dates access and the existing independent Move settings/data.
-- [ ] Compose the new exact hook and verify guarded installation.
+- [X] Compose the new exact hook and verify guarded installation.
+- [X] Retained backend healthy, zero restarts; private config/token preserved.
+- [ ] Physical new-page and two-device sync acceptance remains separate.
 ** Changed requirements
 - 3.29.1.0 supersedes the .153 target on this new firmware-specific branch.
 - No Pro sidebar, split-screen, settings copy or history reset is permitted.
