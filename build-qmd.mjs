@@ -2,8 +2,8 @@ import fs from 'node:fs';
 const contract = JSON.parse(fs.readFileSync('target.json','utf8'));
 const fw = contract.firmware;
 const target = process.env.NDI_TARGET || contract.device;
-if (target !== 'pro' || fw !== '3.29.1.0')
-    throw new Error('This branch is qualified only for Pro 3.29.1.0');
+if (target !== 'pro' || fw !== '3.30.0.108')
+    throw new Error('This branch is qualified only for Pro 3.30.0.108');
 const resources = process.env.NDI_RESOURCES ||
     '/Users/mdf/code/remarkable-beta-os/.cache/firmware/'+fw+'/resources';
 const source = fs.readFileSync;
@@ -40,11 +40,10 @@ q += affect('qt/qml/xofm/modules/library/ui/qml/LibraryActions.qml','Action#root
     rebuild(func,'DocumentController.addPageWithTemplateAndPageSize(document.id,','Values.ndiAddPage(DocumentController, document,'));
 q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/AdditionalEditingToolsMenu.qml\n IMPORT common 1.0\n TRAVERSE ToolbarTool#root\n TRAVERSE ColumnLayout\n LOCATE BEFORE ALL\n INSERT {
  ToolbarTool {
-   toolbar: root.toolbar
-   type: ToolbarTool.Type.FoldoutButton
+   type: ToolbarToolItem.Type.FoldoutButton
    label: "Dates"
-   visible: root.toolbar.documentType === "note"
-   shouldShow: root.toolbar.documentType === "note"
+   visible: Toolbar.document.type === "note" && Toolbar.composition.showExtraEditingTools
+   shouldShow: visible
    iconSource: "qrc:/ark/icons/calendar"
    onPressed: Values.ndiOpenRequested()
  }
@@ -52,20 +51,19 @@ q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/AdditionalEditingToolsMenu.qml\n IMPO
 // Pro gets a direct calendar icon immediately above BetterTOC. The existing
 // extension-button accounting reserves space without hiding native tools.
 // Move retains the compact notebook menu; Pro uses it only as a short-toolbar fallback.
-if (target === 'pro') q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/Toolbar.qml
+if (target === 'pro') q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/ToolbarItem.qml
  IMPORT common 1.0
- TRAVERSE FocusScope#root > Item#toolbar > GridLayout#toolLayout
+ TRAVERSE Toolbar#root > Item#toolbar > GridLayout#toolLayout
  LOCATE BEFORE ToolbarTool#tocButton
  INSERT {
    ToolbarTool {
      id: ndiDatesButton
-     toolbar: root
-     type: ToolbarTool.Type.ToolbarButton
+     type: ToolbarToolItem.Type.ToolbarButton
      property bool _isExtensionButton: true
      label: "Dates"
      iconSource: "qrc:/ark/icons/calendar"
-     visible: root.documentType === "note" && root.expanded && root.stockShowableToolsCount > 7
-     shouldShow: root.documentType === "note" && root.stockShowableToolsCount > 7
+     visible: Toolbar.document.type === "note" && root.expanded && root.stockShowableToolsCount > 7
+     shouldShow: Toolbar.document.type === "note" && root.stockShowableToolsCount > 7
      onPressed: { root.closeFoldout(); Values.ndiOpenRequested(); }
    }
  }
@@ -79,12 +77,11 @@ q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml
  LOCATE BEFORE ALL
  INSERT {
    ToolbarTool {
-     toolbar: root.toolbar
-     type: ToolbarTool.Type.FoldoutButton
+     type: ToolbarToolItem.Type.FoldoutButton
      Layout.fillWidth: true
      label: "Dates"
-     visible: root.documentType === "note" && root.toolbar.stockShowableToolsCount <= 7
-     shouldShow: root.documentType === "note" && root.toolbar.stockShowableToolsCount <= 7
+     visible: Toolbar.document.type === "note" && !Toolbar.composition.showExtraEditingTools && root.tocToolbar && root.tocToolbar.stockShowableToolsCount <= 7
+     shouldShow: visible
      iconSource: "qrc:/ark/icons/calendar"
      onPressed: Values.ndiOpenRequested()
    }

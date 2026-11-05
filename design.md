@@ -1,5 +1,19 @@
 # Design
 
+## Pro 3.30.0.108 port
+
+The generator targets ToolbarItem and the native attached Toolbar context.
+Direct Dates still precedes BetterTOC and shares its raw capacity counter.
+Settings fallback uses BetterTOC's local-toolbar resolver; Additional tools uses
+the native grouping flag. Removed toolbar properties are not injected into new
+ToolbarToolItem controls. Creation wrappers and external r6 panel/writer remain
+unchanged; current history, credentials and independent settings are retained.
+Exact-resource composition and creation-runtime tests precede maintenance-owned
+guarded installation. Cross-notebook transfer remains separate feature work.
+`scripts/test-pro330.sh` pins all three firmware/dependency inputs, composes both
+recording and preview variants, proves old-firmware refusal, and executes actual
+Qt creation/UI/flash harnesses without contacting a device or deployed service.
+
 ## Pro .153 deployment receipt
 
 The firmware-only QMD port is installed in base transaction

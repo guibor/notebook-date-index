@@ -1,5 +1,13 @@
 #+title: Notebook Dates
 
+* Pro 3.30.0.108 restoration (2026-11-05)
+- Preserve r6 panel, history, local settings, sync configuration and writer.
+- Retain Pro sidebar above BetterTOC and short-toolbar menu fallback.
+- [ ] Exact new creation/toolbar composition, runtime tests and guarded install.
+** Changed requirement
+- The toolbar is now ToolbarItem with attached context rather than root.toolbar.
+  No writer/schema/server/Move change is part of this firmware restoration.
+
 * Pro 3.29.0.153 restoration (2026-10-16)
 - [X] Exact-firmware source, full composition and creation runtime harness.
 - [X] Guarded installation; final UI PID 15545, retained writer PID 6231,
