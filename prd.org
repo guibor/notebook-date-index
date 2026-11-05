@@ -1,5 +1,19 @@
 #+title: Notebook Dates
 
+* Current Move preparation: 3.30.0.108
+- Preserve independent Move settings, token, date history and sync configuration.
+- Keep Dates in notebook overflow/settings, not a new sidebar icon.
+- Adopt the exact 3.30 native ToolbarTool Utility group and Toolbar singleton.
+- [X] Pass source checks and independently compose against extracted Chiappa resources.
+- [X] Hash and qualify the hook against the independently captured Move runtime table.
+- [X] Pass real-Qt creation, UI and flash tests plus portable writer/race/vet checks.
+- [ ] Integrate through the Move maintenance controller; no historical installer replay.
+- [ ] Record guarded runtime and physical page-creation/sync evidence separately.
+** Changed requirements
+- 3.30.0.108 supersedes 3.29.1.0 on this new Move firmware branch only.
+- Pro 3.30 toolbar source informs this port, but Pro sidebar logic, payloads,
+  runtime guards and private state are not transferred.
+
 * Current Move restoration: 3.29.1.0
 - Retain menu-only Dates access and the existing independent Move settings/data.
 - [X] Compose the new exact hook and verify guarded installation.

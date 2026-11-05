@@ -5,7 +5,39 @@
 > remains separate from Pro; these identity/inventory pins are not defaults
 > to substitute for another owner's tablet.
 
-Exact branch: `beta/move/3.28.0.169`, model `reMarkable Chiappa`.
+## Current branch: Move 3.30.0.108
+
+Exact branch: `codex/move-3.30.0.108`, model `reMarkable Chiappa`.
+The standalone historical install/session scripts below are not the new runtime.
+Use the Move firmware-maintenance controller for all device changes.
+
+1. Run `node scripts/test-move330.mjs` with `FIRMWARE_ROOT` pointing to the
+   independently extracted Move 3.30.0.108 tree (`usr/bin/xochitl`, `resources`).
+2. Provide `MOVE_HASHTAB` and its independently captured `MOVE_HASHTAB_SHA256`
+   to additionally create hashed candidates. Absence means source-only proof,
+   not an installable/qualified runtime table.
+3. Run `bash scripts/test-portable.sh` with an installed Go 1.24+ toolchain.
+4. Include `build/notebook-date-index.qmd` in the separately reviewed eleven-QMD
+   Move stack. Do not add the Pro sidebar or any Pro-only application hooks.
+5. Preserve the existing Dates writer, `DatesPanel.qml`, `DateTree.js`, token,
+   settings, sync configuration, indexes and event journals. A matching payload
+   needs no replacement; never run an old installer over surviving data.
+6. Complete full-stack/guarded-runtime checks in maintenance, then record
+   physical new-page and two-device sync acceptance separately.
+
+Generated qualification evidence lives in `build/move-3.30.0.108/qualification.json`.
+The 2026-11-06 local run passed against the independently captured Move table
+`9a17e18138d8950fd8517377828ad842dbdde4b4236402eaf27d565bea7e0538`.
+The seven-resource functional/preview compositions, wrong-version refusal,
+real-Qt creation/UI/flash harnesses and portable writer/race/vet suite passed.
+Functional QMD SHA256:
+`f1a60a5288bfb3d213d1fad5a45884c2906fba9386f51992992992b1dd85abac`.
+This is local compatibility evidence, not an installation or physical receipt.
+No device/server operation is part of these local test commands.
+
+## Historical 3.28.0.169 transaction
+
+Historical branch: `beta/move/3.28.0.169`, model `reMarkable Chiappa`.
 Read the Move firmware-maintenance knowledge base and dated log first.
 Never use the Pro ReMagic wrapper, Pro profile or a copied Gestik configuration.
 

@@ -1,5 +1,27 @@
 # Design
 
+## Move 3.30.0.108 preparation
+
+Exact runtime-table composition and the existing real-Qt/portable regression
+suites now pass locally; the update recipe records the artifact hashes. These
+checks do not install files or establish physical page/sync acceptance.
+
+`target.json` selects only Chiappa 3.30.0.108. `build-qmd.mjs` retains the
+Move-only notebook overflow entry and successful-page-creation observers. Its
+two menu buttons use the native writable Utility group and Toolbar document
+singleton introduced by 3.30; removed `toolbar`/`type` assignments are omitted.
+There is no Pro sidebar tool or dependency on BetterTOC's sidebar geometry.
+The backend, panel, date grouping, history and sync protocol remain unchanged.
+
+`scripts/test-move330.mjs` verifies the exact Move stock executable and source
+paths, composes source QMDs, parses generated QML and rejects an old firmware
+version. When a captured Move resource table is provided, it additionally hashes
+and compatibility-checks the candidate. It also runs the existing real-Qt
+creation-callback, calendar UI and cache-preserving opening harnesses with
+synthetic data. This is local qualification only; the
+independent Move maintenance controller owns full-stack composition, private
+state preservation and guarded activation. No tablet or server is contacted.
+
 ## Move 3.29.1.0 preparation
 
 `target.json` and `build-qmd.mjs` select the independently captured Chiappa

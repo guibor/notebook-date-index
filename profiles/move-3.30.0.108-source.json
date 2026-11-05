@@ -1,0 +1,15 @@
+{
+  "device": "move",
+  "model": "reMarkable Chiappa",
+  "firmware": "3.30.0.108",
+  "stockSha256": "a9a9c4f01902c30ddc16260d1ac6ef0f7938b7f1094dbb0bb0b78f474c5b17bf",
+  "resources": {
+    "qml/common/Values.qml": "a9f314050b3258c5791d21ec004fdca20ff28ca5f8bef7217036287987d05434",
+    "qml/device/view/documentview/DocumentView.qml": "0cacd788edd33f84ca6c10ae1b22696fdab5a05b342f1a9c4faa2e2ebffe638a",
+    "qml/device/view/documentview/PagesActions.qml": "fad0b6059015db3ac778763ed551cf123b4fcd2fc0ea6c6b3e1566ac7d1881c2",
+    "qml/device/view/documentview/HwcDialog.qml": "ff3ba580ea7d0d829a1193f7c5233e4cd28e2e7dde3b4ea07bb01d0934ddd369",
+    "qt/qml/xofm/modules/library/ui/qml/LibraryActions.qml": "cea43aad6e7f8c20be4dc3245687f47a4d9cf670397828649c59055d0cde7ecb",
+    "qt/qml/xofm/libs/toolbar/qml/AdditionalEditingToolsMenu.qml": "66e4b3cdf5c836b0e00a4f8056853d1784658619a8060fc63487ef2118e327b6",
+    "qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml": "3fc1bf8cd9adf4f1fccc88cf0f90537af30d9fdb08550dc960754367a32c1978"
+  }
+}

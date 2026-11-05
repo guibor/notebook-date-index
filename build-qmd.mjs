@@ -2,8 +2,8 @@ import fs from 'node:fs';
 const contract = JSON.parse(fs.readFileSync('target.json','utf8'));
 const fw = contract.firmware;
 const target = process.env.NDI_TARGET || contract.device;
-if (target !== 'move' || fw !== '3.29.1.0') throw new Error('This branch targets Move 3.29.1.0 only');
-const resources = process.env.NDI_RESOURCES || '../remarkable-beta-os-move-32910/.cache/firmware/move/'+fw+'/resources';
+if (target !== 'move' || fw !== '3.30.0.108') throw new Error('This branch targets Move 3.30.0.108 only');
+const resources = process.env.NDI_RESOURCES || '../remarkable-beta-os-move-3300108/.cache/firmware/move/'+fw+'/resources';
 const source = fs.readFileSync;
 const inc = name => source(`qml/${name}.qml.inc`, 'utf8');
 const affect = (path, root, body) => `AFFECT /${path}\n TRAVERSE ${root}\n LOCATE BEFORE ALL\n${body}\n END TRAVERSE\nEND AFFECT\n`;
@@ -38,11 +38,10 @@ q += affect('qt/qml/xofm/modules/library/ui/qml/LibraryActions.qml','Action#root
     rebuild(func,'DocumentController.addPageWithTemplateAndPageSize(document.id,','Values.ndiAddPage(DocumentController, document,'));
 q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/AdditionalEditingToolsMenu.qml\n IMPORT common 1.0\n TRAVERSE ToolbarTool#root\n TRAVERSE ColumnLayout\n LOCATE BEFORE ALL\n INSERT {
  ToolbarTool {
-   toolbar: root.toolbar
-   type: ToolbarTool.Type.FoldoutButton
+   group: ToolbarModel.ToolGroup.Utility
    label: "Dates"
-   visible: root.toolbar.documentType === "note"
-   shouldShow: root.toolbar.documentType === "note"
+   visible: Toolbar.document.type === "note" && Toolbar.composition.showExtraEditingTools
+   shouldShow: visible
    iconSource: "qrc:/ark/icons/calendar"
    onPressed: Values.ndiOpenRequested()
  }
@@ -85,12 +84,11 @@ q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml
  LOCATE BEFORE ALL
  INSERT {
    ToolbarTool {
-     toolbar: root.toolbar
-     type: ToolbarTool.Type.FoldoutButton
+     group: ToolbarModel.ToolGroup.Utility
      Layout.fillWidth: true
      label: "Dates"
-     visible: root.documentType === "note"${target === 'pro' ? ' && root.toolbar.showableToolsCount <= 7' : ''}
-     shouldShow: root.documentType === "note"${target === 'pro' ? ' && root.toolbar.showableToolsCount <= 7' : ''}
+     visible: Toolbar.document.type === "note"
+     shouldShow: visible
      iconSource: "qrc:/ark/icons/calendar"
      onPressed: Values.ndiOpenRequested()
    }
