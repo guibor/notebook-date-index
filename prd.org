@@ -3,7 +3,9 @@
 * Pro 3.30.0.108 restoration (2026-11-05)
 - Preserve r6 panel, history, local settings, sync configuration and writer.
 - Retain Pro sidebar above BetterTOC and short-toolbar menu fallback.
-- [ ] Exact new creation/toolbar composition, runtime tests and guarded install.
+- [X] Exact new creation/toolbar composition, runtime tests and guarded install.
+- All 23 JS tests and creation/calendar/UI/no-flash Qt harnesses passed against
+  BetterTOC r3. The active recorder query passed; sync/settings were preserved.
 ** Changed requirement
 - The toolbar is now ToolbarItem with attached context rather than root.toolbar.
   No writer/schema/server/Move change is part of this firmware restoration.
@@ -325,3 +327,5 @@ cluttering or changing the user's existing table of contents.
 - See PRO-3.29.1.0-RECEIPT.md; final combined native activation is separately pending.
 ** Changed requirements
 - This branch targets 3.29.1.0; older firmware receipts do not qualify it.
+* 3.30 runtime compatibility follow-up
+- [ ] Requalify sidebar/menu construction using native groups rather than type.

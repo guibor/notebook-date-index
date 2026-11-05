@@ -40,7 +40,7 @@ q += affect('qt/qml/xofm/modules/library/ui/qml/LibraryActions.qml','Action#root
     rebuild(func,'DocumentController.addPageWithTemplateAndPageSize(document.id,','Values.ndiAddPage(DocumentController, document,'));
 q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/AdditionalEditingToolsMenu.qml\n IMPORT common 1.0\n TRAVERSE ToolbarTool#root\n TRAVERSE ColumnLayout\n LOCATE BEFORE ALL\n INSERT {
  ToolbarTool {
-   type: ToolbarToolItem.Type.FoldoutButton
+   group: ToolbarModel.ToolGroup.Utility
    label: "Dates"
    visible: Toolbar.document.type === "note" && Toolbar.composition.showExtraEditingTools
    shouldShow: visible
@@ -58,7 +58,7 @@ if (target === 'pro') q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/ToolbarItem.qml
  INSERT {
    ToolbarTool {
      id: ndiDatesButton
-     type: ToolbarToolItem.Type.ToolbarButton
+     group: ToolbarModel.ToolGroup.Secondary
      property bool _isExtensionButton: true
      label: "Dates"
      iconSource: "qrc:/ark/icons/calendar"
@@ -77,7 +77,7 @@ q += `AFFECT /qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml
  LOCATE BEFORE ALL
  INSERT {
    ToolbarTool {
-     type: ToolbarToolItem.Type.FoldoutButton
+     group: ToolbarModel.ToolGroup.Utility
      Layout.fillWidth: true
      label: "Dates"
      visible: Toolbar.document.type === "note" && !Toolbar.composition.showExtraEditingTools && root.tocToolbar && root.tocToolbar.stockShowableToolsCount <= 7

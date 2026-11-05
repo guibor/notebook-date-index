@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.."
 : "${QMLDIFF:?QMLDiff executable required}"
 test "$(shasum -a 256 "$FIRMWARE_ROOT/xochitl" | awk '{print $1}')" = 31d33b05e85af85b06a5a92edf710532a0a122ed4cf51e702c19eed0feb6753b
 test "$(shasum -a 256 "$FIRMWARE_ROOT/hashtab" | awk '{print $1}')" = d13c4ce53669d4b72fb26fdc94678d400fd395224476e7f6a69b805fce3d0c25
-test "$(shasum -a 256 "$BETTERTOC_QMD" | awk '{print $1}')" = 1e9b39b112249e1c505f79c7319ebb4df6e645f1e5ca548e7a9d6c1e800e0dca
+test "$(shasum -a 256 "$BETTERTOC_QMD" | awk '{print $1}')" = e260c2d918f8e1220f35d7cc7a999ffdb7a30e2d23bf8321e2b92749d279c5c5
 export NDI_RESOURCES="$FIRMWARE_ROOT/resources"
 node build-qmd.mjs
 node --test qml-test.mjs date-tree-test.mjs move-policy-test.mjs

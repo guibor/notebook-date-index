@@ -499,3 +499,12 @@ fresh Ferrari stock binary and independently captured resource table. Historical
 controllers remain historical; maintenance seals a new combined controller from
 current files and settings before activation. Move and shared servers are unchanged.
 Static/build results are not installation or physical interaction acceptance.
+# 3.30 toolbar groups
+
+Dates sets the native writable tool group (Secondary for the sidebar, Utility
+for menu rows). ToolbarToolItem.type is derived/read-only on 3.30. No recorder,
+history, timezone, or sync behavior changes in this compatibility correction.
+
+The exact 3.30 composition gate pins BetterTOC r3, including its corrected
+toolbar namespace and keyboard import. Recorder data and sync settings remain
+device-local and are preserved during this UI-only firmware migration.
